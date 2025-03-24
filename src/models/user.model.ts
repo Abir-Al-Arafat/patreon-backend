@@ -6,6 +6,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       // required: true,
     },
+    username: {
+      type: String,
+      required: [true, "please provide a username"],
+      unique: true,
+    },
     email: {
       type: String,
       required: [true, "please provide email"],
@@ -33,8 +38,6 @@ const userSchema = new mongoose.Schema(
       { type: mongoose.Schema.Types.ObjectId, ref: "Subscription" },
     ],
 
-    booksBought: [{ type: mongoose.Schema.Types.ObjectId, ref: "Book" }],
-
     isBasicSubscribed: {
       type: Boolean,
       default: false,
@@ -51,11 +54,6 @@ const userSchema = new mongoose.Schema(
       default: "user",
     },
 
-    affiliateApplicationStatus: {
-      type: String,
-      enum: ["notApplied", "pending", "approved", "cancelled"],
-      default: "notApplied",
-    },
     phone: {
       type: String,
     },
@@ -70,20 +68,11 @@ const userSchema = new mongoose.Schema(
     },
     dateOfBirth: {
       type: Date,
-      // required: true
     },
 
     notifications: [
       { type: mongoose.Schema.Types.ObjectId, ref: "Notification" },
     ],
-    affiliate: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Affiliate",
-    },
-    isAffiliate: {
-      type: Boolean,
-      default: false,
-    },
 
     emailVerified: {
       type: Boolean,
@@ -93,20 +82,6 @@ const userSchema = new mongoose.Schema(
     emailVerifyCode: {
       type: String,
     },
-
-    bookReviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
-    forums: [{ type: mongoose.Schema.Types.ObjectId, ref: "Forum" }],
-    confessionsUploaded: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "Confession" },
-    ],
-
-    confessionComments: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "Comment" },
-    ],
-
-    storiesUploaded: [{ type: mongoose.Schema.Types.ObjectId, ref: "Story" }],
-
-    podcastComments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
 
     isActive: {
       type: Boolean,

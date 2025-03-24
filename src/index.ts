@@ -9,9 +9,11 @@ const app = express();
 dotenv.config();
 
 app.use(cors({ origin: "*", credentials: true }));
+
 app.use(express.json()); // Parses data as JSON
 app.use(express.text()); // Parses data as text
 app.use(express.urlencoded({ extended: true })); // Parses data as URL-encoded
+
 // ✅ Handle Invalid JSON Errors
 app.use(
   (
@@ -39,6 +41,17 @@ app.get("/", (req, res) => {
     description: "Backend server for Patreon",
     status: "success",
   });
+});
+
+// ✅ Handle 404 Routes
+app.use((req, res) => {
+  return res.status(400).send({ message: "Route does not exist" });
+});
+
+// ✅ Handle Global Errors
+app.use((err: SyntaxError, req: Request, res: Response, next: NextFunction) => {
+  console.error(err);
+  res.status(500).send({ message: "Internal Server Error" });
 });
 
 const PORT = process.env.PORT || 3001;

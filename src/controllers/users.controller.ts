@@ -19,5 +19,6 @@ export function createUser(
   return response.status(201).send({
     username: "anson",
     email: "anson@ansonthedev.com",
+    name: "Anson",
   });
 }

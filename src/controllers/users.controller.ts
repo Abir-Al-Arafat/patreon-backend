@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
-import { UserDto } from "../dtos/user.dto";
+
 import { CreateUserQueryParams } from "../types/query-params";
-import { User } from "../types/response";
+
+import { IUser } from "../interfaces/user.interface";
 
 export function getUsers(request: Request, response: Response) {
   response.send([]);
@@ -12,11 +13,10 @@ export function getUserById(request: Request, response: Response) {
 }
 
 export function createUser(
-  request: Request<{}, {}, UserDto, CreateUserQueryParams>,
-  response: Response<User>
+  request: Request<{}, {}, IUser, CreateUserQueryParams>,
+  response: Response<IUser>
 ) {
   return response.status(201).send({
-    id: 1,
     username: "anson",
     email: "anson@ansonthedev.com",
   });

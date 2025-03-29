@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
@@ -80,7 +80,7 @@ const userSchema = new mongoose.Schema(
     },
 
     emailVerifyCode: {
-      type: String,
+      type: Number,
     },
 
     isActive: {
@@ -98,5 +98,5 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const User = mongoose.model("User", userSchema);
-module.exports = User;
+// export const User = mongoose.model("User", userSchema);
+export default mongoose.model("User", userSchema);

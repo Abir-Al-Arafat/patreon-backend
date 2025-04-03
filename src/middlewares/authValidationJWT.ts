@@ -60,7 +60,11 @@ const isAuthorizedAdmin = (
     }
   }
 };
-const isAuthorizedSuperAdmin = (req, res, next) => {
+const isAuthorizedSuperAdmin = (
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { authorization } = req.headers;
     console.log(authorization);
@@ -71,7 +75,10 @@ const isAuthorizedSuperAdmin = (req, res, next) => {
     }
     const token = authorization.split(" ")[1];
     console.log("token", token);
-    const validate = jsonWebToken.verify(token, process.env.JWT_SECRET);
+    const validate = jsonWebToken.verify(
+      token,
+      process.env.JWT_SECRET ?? "default_secret"
+    ) as JwtPayload;
 
     if (!validate) {
       return res
@@ -79,7 +86,7 @@ const isAuthorizedSuperAdmin = (req, res, next) => {
         .send(failure("Unauthorized access, token not validated"));
     }
 
-    req.user = validate;
+    req.user = validate as IUser;
     console.log("validate", validate.role);
     if (validate.role == "superadmin") {
       next();
@@ -106,7 +113,11 @@ const isAuthorizedSuperAdmin = (req, res, next) => {
   }
 };
 
-const isAuthorizedUser = (req, res, next) => {
+const isAuthorizedUser = (
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const userId = req.params.id;
 
@@ -121,7 +132,10 @@ const isAuthorizedUser = (req, res, next) => {
     console.log(authorization);
     const token = authorization.split(" ")[1];
     console.log("token", token);
-    const validate = jsonWebToken.verify(token, process.env.JWT_SECRET);
+    const validate = jsonWebToken.verify(
+      token,
+      process.env.JWT_SECRET ?? "default_secret"
+    ) as JwtPayload;
 
     if (!validate) {
       return res
@@ -129,7 +143,7 @@ const isAuthorizedUser = (req, res, next) => {
         .send(failure("Unauthorized access, token not validated"));
     }
 
-    req.user = validate;
+    req.user = validate as IUser;
 
     // console.log("validate", validate.role);
     // console.log("validate _id", validate._id);

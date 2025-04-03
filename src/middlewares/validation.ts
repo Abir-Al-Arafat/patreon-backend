@@ -1,4 +1,4 @@
-const { body, param } = require("express-validator");
+import { body, param } from "express-validator";
 
 const productValidator = {
   create: [
@@ -174,7 +174,7 @@ const userValidator = {
       .isString()
       .withMessage("Phone number must be a string")
       .bail()
-      .isMobilePhone()
+      .isMobilePhone("any")
       .withMessage("Phone number format is incorrect"),
     body("gender")
       .isIn(["male", "female", "other"])
@@ -239,7 +239,7 @@ const userValidator = {
       .isString()
       .withMessage("phone number must be a string")
       .bail()
-      .isMobilePhone()
+      .isMobilePhone("any")
       .withMessage("Phone number format is incorrect"),
     body("gender")
       .optional()

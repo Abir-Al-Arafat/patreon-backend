@@ -1,8 +1,18 @@
-const jsonWebToken = require("jsonwebtoken");
-const HTTP_STATUS = require("../constants/statusCodes");
-const { failure } = require("../utilities/common");
+import { Request, Response, NextFunction } from "express";
+import jsonWebToken, { JwtPayload } from "jsonwebtoken";
+import HTTP_STATUS from "../constants/statusCodes";
+import { failure } from "../utilities/common";
+import { IUser } from "../interfaces/user.interface";
 
-const isAuthorizedAdmin = (req, res, next) => {
+interface UserRequest extends Request {
+  user: IUser;
+}
+
+const isAuthorizedAdmin = (
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { authorization } = req.headers;
     console.log(authorization);
@@ -13,7 +23,10 @@ const isAuthorizedAdmin = (req, res, next) => {
     }
     const token = authorization.split(" ")[1];
     console.log("token", token);
-    const validate = jsonWebToken.verify(token, process.env.JWT_SECRET);
+    const validate = jsonWebToken.verify(
+      token,
+      process.env.JWT_SECRET ?? "default_secret"
+    ) as JwtPayload;
 
     if (!validate) {
       return res
@@ -21,7 +34,7 @@ const isAuthorizedAdmin = (req, res, next) => {
         .send(failure("Unauthorized access, token not validated"));
     }
 
-    req.user = validate;
+    req.user = validate as IUser;
     console.log("validate", validate.role);
     if (validate.role == "admin" || validate.role == "superadmin") {
       next();

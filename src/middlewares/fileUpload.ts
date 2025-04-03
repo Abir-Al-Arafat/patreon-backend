@@ -1,5 +1,6 @@
-const multer = require("multer");
-const path = require("path");
+import { Request, Response, NextFunction, Express } from "express";
+import multer from "multer";
+import path from "path";
 
 const configureFileUpload = () => {
   const storage = multer.diskStorage({
@@ -13,7 +14,7 @@ const configureFileUpload = () => {
       } else if (file.mimetype === "application/pdf") {
         cb(null, path.join(__dirname, "../public/uploads/pdfs"));
       } else {
-        cb(new Error("Invalid file type"));
+        cb(new Error("Invalid file type"), "");
       }
     },
     filename: function (req, file, cb) {
@@ -22,7 +23,7 @@ const configureFileUpload = () => {
     },
   });
 
-  const fileFilter = (req, file, cb) => {
+  const fileFilter = (req: Request, file: Express.Multer.File, cb: any) => {
     const allowedFieldnames = [
       "productImage",
       "image",

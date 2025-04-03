@@ -7,4 +7,5 @@ export interface IUser {
   email: string;
   password?: string;
   dob?: Date; //optional
+  role?: string;
 }

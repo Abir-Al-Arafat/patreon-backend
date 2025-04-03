@@ -1,4 +1,4 @@
-const success = (message: string, data = null) => {
+const success = <T>(message: string, data: T | null = null) => {
   return {
     success: true,
     message: message,

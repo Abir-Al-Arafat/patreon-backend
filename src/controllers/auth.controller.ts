@@ -83,11 +83,6 @@ const signup = async (req: Request, res: Response) => {
       emailVerifyCode,
     });
 
-    // payload, secret, JWT expiration
-    // const token = jwt.sign({id: newUser._id}, process.env.JWT_SECRET, {
-    //     expiresIn: process.env.JWT_EXPIRES_IN
-    // })
-
     const emailData = {
       email: req.body.email,
       subject: "Account Activation Email",
@@ -100,9 +95,29 @@ const signup = async (req: Request, res: Response) => {
 
     emailWithNodemailerGmail(emailData);
 
-    const token = jwt.sign(newUser.toObject(), process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN,
-    });
+    const expiresIn = process.env.JWT_EXPIRES_IN
+      ? parseInt(process.env.JWT_EXPIRES_IN, 10)
+      : 3600; // default to 1 hour if not set
+
+    // const token = jwt.sign(
+    //   newUser.toObject(),
+    //   process.env.JWT_SECRET ?? "default_secret",
+    //   {
+    //     expiresIn,
+    //   }
+    // );
+
+    // payload, secret, JWT expiration
+    const token = jwt.sign(
+      {
+        _id: newUser._id,
+        role: newUser.role,
+      },
+      process.env.JWT_SECRET ?? "default_secret",
+      {
+        expiresIn,
+      }
+    );
     res.setHeader("Authorization", token);
     if (newUser) {
       return res

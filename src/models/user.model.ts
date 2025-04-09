@@ -38,34 +38,38 @@ const userSchema = new mongoose.Schema(
       { type: mongoose.Schema.Types.ObjectId, ref: "Subscription" },
     ],
 
-    isBasicSubscribed: {
-      type: Boolean,
-      default: false,
+    services: [{ type: mongoose.Schema.Types.ObjectId, ref: "Service" }],
+
+    subscriberCount: {
+      type: Number,
+      default: 0,
     },
 
-    isPremiumSubscribed: {
-      type: Boolean,
-      default: false,
+    roles: {
+      type: [String],
+      enum: ["user", "contributor", "admin", "superadmin"],
+      default: ["user"],
     },
 
-    role: {
+    bio: {
       type: String,
-      enum: ["user", "admin", "superadmin"],
-      default: "user",
     },
 
     phone: {
       type: String,
     },
+
     gender: {
       type: String,
       enum: ["male", "female", "other"],
     },
+
     balance: {
       type: Number,
       min: 0,
       default: 0,
     },
+
     dateOfBirth: {
       type: Date,
     },

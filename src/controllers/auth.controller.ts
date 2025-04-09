@@ -111,7 +111,7 @@ const signup = async (req: Request, res: Response) => {
     const token = jwt.sign(
       {
         _id: newUser._id,
-        role: newUser.role,
+        role: newUser.roles,
       },
       process.env.JWT_SECRET ?? "default_secret",
       {

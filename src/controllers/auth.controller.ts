@@ -13,6 +13,73 @@ import { CreateUserQueryParams } from "../types/query-params";
 
 import { IUser } from "../interfaces/user.interface";
 
+const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
+  try {
+    const client = twilio(
+      process.env.TWILIO_ACCOUNT_SID as string,
+      process.env.TWILIO_AUTH_TOKEN as string
+    );
+    const verifySid = process.env.TWILIO_VERIFY_SID as string;
+
+    const { phone } = req.body;
+
+    if (!phone) {
+      return res.status(400).send(success("Phone number is required"));
+    }
+
+    const verification = await client.verify.v2
+      .services(verifySid)
+      .verifications.create({ to: phone, channel: "sms" });
+
+    return res.status(HTTP_STATUS.OK).send(
+      success("Verification code sent successfully", {
+        verification: { sid: verification.sid },
+      })
+    );
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(`INTERNAL SERVER ERROR`);
+  }
+};
+
+const verifyCode = async (req: Request, res: Response) => {
+  try {
+    const client = twilio(
+      process.env.TWILIO_ACCOUNT_SID as string,
+      process.env.TWILIO_AUTH_TOKEN as string
+    );
+    const verifySid = process.env.TWILIO_VERIFY_SID as string;
+    const { phone, code } = req.body;
+
+    if (!phone || !code) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Please provide phone number and code"));
+    }
+
+    const verificationCheck = await client.verify.v2
+      .services(verifySid)
+      .verificationChecks.create({ to: phone, code });
+
+    if (verificationCheck.status === "approved") {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(success("Phone number verified successfully"));
+    } else {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Invalid verification code"));
+    }
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(`INTERNAL SERVER ERROR`);
+  }
+};
+
 const signup = async (req: Request, res: Response) => {
   try {
     // const validation = validationResult(req).array();
@@ -28,6 +95,8 @@ const signup = async (req: Request, res: Response) => {
     //     .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
     //     .send(failure(`Admin cannot be signed up`));
     // }
+
+    console.log("req.body", req.body);
 
     if (!req.body.email || !req.body.password) {
       return res
@@ -137,71 +206,74 @@ const signup = async (req: Request, res: Response) => {
   }
 };
 
-const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
+const login = async (req: Request, res: Response) => {
   try {
-    const client = twilio(
-      process.env.TWILIO_ACCOUNT_SID as string,
-      process.env.TWILIO_AUTH_TOKEN as string
-    );
-    const verifySid = process.env.TWILIO_VERIFY_SID as string;
+    const { email, password } = req.body;
 
-    const { phone } = req.body;
-
-    if (!phone) {
-      return res.status(400).send(success("Phone number is required"));
+    if (!email || !password) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Please provide email and password"));
     }
 
-    const verification = await client.verify.v2
-      .services(verifySid)
-      .verifications.create({ to: phone, channel: "sms" });
+    const user = await User.findOne({ email });
 
-    return res.status(HTTP_STATUS.OK).send(
-      success("Verification code sent successfully", {
-        verification: { sid: verification.sid },
-      })
+    if (!user) {
+      return res
+        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+        .send(failure("Invalid email or password"));
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res
+        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+        .send(failure("Invalid email or password"));
+    }
+
+    const expiresIn = process.env.JWT_EXPIRES_IN
+      ? parseInt(process.env.JWT_EXPIRES_IN, 10)
+      : 3600; // default to 1 hour if not set
+
+    // const token = jwt.sign(
+    //   user.toObject(),
+    //   process.env.JWT_SECRET ?? "default_secret",
+    //   {
+    //     expiresIn,
+    //   }
+    // );
+
+    // payload, secret, JWT expiration
+    const token = jwt.sign(
+      {
+        _id: user._id,
+        roles: user.roles,
+      },
+      process.env.JWT_SECRET ?? "default_secret",
+      {
+        expiresIn,
+      }
     );
+
+    res.setHeader("Authorization", token);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production" ? true : false,
+      maxAge: expiresIn * 1000,
+    });
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Login successful", { user, token }));
   } catch (err) {
     console.log(err);
     return res
       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .send(`INTERNAL SERVER ERROR`);
+      .send(failure("Internal server error"));
   }
 };
 
-const verifyCode = async (req: Request, res: Response) => {
-  try {
-    const client = twilio(
-      process.env.TWILIO_ACCOUNT_SID as string,
-      process.env.TWILIO_AUTH_TOKEN as string
-    );
-    const verifySid = process.env.TWILIO_VERIFY_SID as string;
-    const { phone, code } = req.body;
-
-    if (!phone || !code) {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("Please provide phone number and code"));
-    }
-
-    const verificationCheck = await client.verify.v2
-      .services(verifySid)
-      .verificationChecks.create({ to: phone, code });
-
-    if (verificationCheck.status === "approved") {
-      return res
-        .status(HTTP_STATUS.OK)
-        .send(success("Phone number verified successfully"));
-    } else {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("Invalid verification code"));
-    }
-  } catch (err) {
-    console.log(err);
-    return res
-      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .send(`INTERNAL SERVER ERROR`);
-  }
-};
-
-export { signup, sendVerificationCodeToPhone, verifyCode };
+export { signup, login, sendVerificationCodeToPhone, verifyCode };

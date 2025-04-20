@@ -3,7 +3,9 @@ import dotenv from "dotenv";
 import path from "path";
 import cors from "cors";
 import { Request, Response, NextFunction } from "express";
+import databaseConnection from "./config/database";
 import userRouter from "./routes/users.router";
+import authRouter from "./routes/auth.routes";
 
 const app = express();
 dotenv.config();
@@ -12,7 +14,7 @@ app.use(cors({ origin: "*", credentials: true }));
 
 app.use(express.json()); // Parses data as JSON
 app.use(express.text()); // Parses data as text
-app.use(express.urlencoded({ extended: true })); // Parses data as URL-encoded
+app.use(express.urlencoded({ extended: false })); // Parses data as URL-encoded
 
 // ✅ Handle Invalid JSON Errors
 app.use(
@@ -31,7 +33,10 @@ app.use(
 
 app.use("/public", express.static(path.join(__dirname, "public")));
 
-app.use("/api/users", userRouter);
+const baseApiUrl = "/api";
+
+app.use(`${baseApiUrl}/users`, userRouter);
+app.use(`${baseApiUrl}/auth`, authRouter);
 
 app.get("/", (req, res) => {
   return res.status(200).send({
@@ -55,6 +60,9 @@ app.use((err: SyntaxError, req: Request, res: Response, next: NextFunction) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+
+databaseConnection(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 });

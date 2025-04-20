@@ -1,9 +1,12 @@
 import express from "express";
 import {
   signup,
+  login,
   sendVerificationCodeToPhone,
   verifyCode,
 } from "../controllers/auth.controller";
+import multer from "multer";
+
 import { userValidator, authValidator } from "../middlewares/validation";
 import {
   isAuthorizedUser,
@@ -12,11 +15,13 @@ import {
 } from "../middlewares/authValidationJWT";
 // const { authValidator } = require("../middleware/authValidation");
 const routes = express();
+const upload = multer();
 // for signing up
 routes.post(
-  "/auth/signup",
+  "/signup",
   // userValidator.create,
   // authValidator.create,
+  upload.none(),
   signup
 );
 
@@ -33,6 +38,9 @@ routes.post(
   // authValidator.create,
   verifyCode
 );
+
+// for logging in
+routes.post("/login", upload.none(), login);
 // routes.post(
 //   "/auth/create-admin",
 //   // userValidator.create,
@@ -100,9 +108,6 @@ routes.post(
 //   isAuthorizedAdmin,
 //   cancelAffiliate
 // );
-
-// for logging in
-// routes.post("/auth/login", authValidator.login, login);
 
 // for logging in
 // routes.post("/auth/login-as-doctor", authValidator.login, loginAsDoctor);

@@ -172,8 +172,4 @@ const isAuthorizedUser = (
   }
 };
 
-module.exports = {
-  isAuthorizedAdmin,
-  isAuthorizedSuperAdmin,
-  isAuthorizedUser,
-};
+export { isAuthorizedAdmin, isAuthorizedSuperAdmin, isAuthorizedUser };

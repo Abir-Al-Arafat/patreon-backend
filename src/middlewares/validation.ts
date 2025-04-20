@@ -490,7 +490,7 @@ const discountValidator = {
   ],
 };
 
-module.exports = {
+export {
   productValidator,
   userValidator,
   authValidator,

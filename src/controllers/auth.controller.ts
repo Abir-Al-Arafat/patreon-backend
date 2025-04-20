@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import twilio from "twilio";
 import { success, failure, generateRandomCode } from "../utilities/common";
 import User from "../models/user.model";
 import Notification from "../models/notification.model";
@@ -37,7 +38,7 @@ const signup = async (req: Request, res: Response) => {
     const emailCheck = await User.findOne({ email: req.body.email });
 
     if (emailCheck && !emailCheck.emailVerified) {
-      const emailVerifyCode = generateRandomCode(4); //4 digits
+      const emailVerifyCode = generateRandomCode(6);
       emailCheck.emailVerifyCode = emailVerifyCode;
       await emailCheck.save();
 
@@ -73,11 +74,12 @@ const signup = async (req: Request, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-    const emailVerifyCode = generateRandomCode(4); //4 digits
+    const emailVerifyCode = generateRandomCode(6);
 
     const newUser = await User.create({
       name: req.body.name,
       email: req.body.email,
+      username: req.body.username,
       role: req.body.role || "user",
       password: hashedPassword,
       emailVerifyCode,
@@ -111,7 +113,7 @@ const signup = async (req: Request, res: Response) => {
     const token = jwt.sign(
       {
         _id: newUser._id,
-        role: newUser.roles,
+        roles: newUser.roles,
       },
       process.env.JWT_SECRET ?? "default_secret",
       {
@@ -135,4 +137,71 @@ const signup = async (req: Request, res: Response) => {
   }
 };
 
-export { signup };
+const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
+  try {
+    const client = twilio(
+      process.env.TWILIO_ACCOUNT_SID as string,
+      process.env.TWILIO_AUTH_TOKEN as string
+    );
+    const verifySid = process.env.TWILIO_VERIFY_SID as string;
+
+    const { phone } = req.body;
+
+    if (!phone) {
+      return res.status(400).send(success("Phone number is required"));
+    }
+
+    const verification = await client.verify.v2
+      .services(verifySid)
+      .verifications.create({ to: phone, channel: "sms" });
+
+    return res.status(HTTP_STATUS.OK).send(
+      success("Verification code sent successfully", {
+        verification: { sid: verification.sid },
+      })
+    );
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(`INTERNAL SERVER ERROR`);
+  }
+};
+
+const verifyCode = async (req: Request, res: Response) => {
+  try {
+    const client = twilio(
+      process.env.TWILIO_ACCOUNT_SID as string,
+      process.env.TWILIO_AUTH_TOKEN as string
+    );
+    const verifySid = process.env.TWILIO_VERIFY_SID as string;
+    const { phone, code } = req.body;
+
+    if (!phone || !code) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Please provide phone number and code"));
+    }
+
+    const verificationCheck = await client.verify.v2
+      .services(verifySid)
+      .verificationChecks.create({ to: phone, code });
+
+    if (verificationCheck.status === "approved") {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(success("Phone number verified successfully"));
+    } else {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Invalid verification code"));
+    }
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(`INTERNAL SERVER ERROR`);
+  }
+};
+
+export { signup, sendVerificationCodeToPhone, verifyCode };

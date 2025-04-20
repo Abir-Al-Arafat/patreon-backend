@@ -15,6 +15,8 @@ const isAuthorizedAdmin = (
 ) => {
   try {
     const { authorization } = req.headers;
+    const { tokenCookie } = req.cookies;
+    console.log("tokenCookie", tokenCookie);
     console.log(authorization);
     if (!authorization) {
       return res

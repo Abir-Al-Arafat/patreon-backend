@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import path from "path";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { Request, Response, NextFunction } from "express";
 import databaseConnection from "./config/database";
 import userRouter from "./routes/users.router";
@@ -12,6 +13,7 @@ dotenv.config();
 
 app.use(cors({ origin: "*", credentials: true }));
 
+app.use(cookieParser()); // Needed to read cookies
 app.use(express.json()); // Parses data as JSON
 app.use(express.text()); // Parses data as text
 app.use(express.urlencoded({ extended: false })); // Parses data as URL-encoded

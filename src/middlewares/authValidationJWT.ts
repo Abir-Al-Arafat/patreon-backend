@@ -15,18 +15,18 @@ const isAuthorizedAdmin = (
 ) => {
   try {
     const { authorization } = req.headers;
-    const { tokenCookie } = req.cookies;
-    console.log("tokenCookie", tokenCookie);
+    const { token } = req.cookies;
+    console.log("tokenCookie", token);
     console.log(authorization);
     if (!authorization) {
       return res
         .status(HTTP_STATUS.UNAUTHORIZED)
         .send(failure("Unauthorized access, admin not logged in"));
     }
-    const token = authorization.split(" ")[1];
-    console.log("token", token);
+    const tokenHeader = authorization.split(" ")[1];
+    console.log("token", tokenHeader);
     const validate = jsonWebToken.verify(
-      token,
+      tokenHeader,
       process.env.JWT_SECRET ?? "default_secret"
     ) as JwtPayload;
 

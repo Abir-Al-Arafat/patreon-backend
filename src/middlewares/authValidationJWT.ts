@@ -4,7 +4,7 @@ import HTTP_STATUS from "../constants/statusCodes";
 import { failure } from "../utilities/common";
 import { IUser } from "../interfaces/user.interface";
 
-interface UserRequest extends Request {
+export interface UserRequest extends Request {
   user: IUser;
 }
 

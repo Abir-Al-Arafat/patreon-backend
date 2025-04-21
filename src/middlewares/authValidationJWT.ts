@@ -32,7 +32,7 @@ const isAuthorizedAdmin = (req: Request, res: Response, next: NextFunction) => {
         .send(failure("Unauthorized access, token not validated"));
     }
 
-    req.user = validate as IUser;
+    (req as UserRequest).user = validate as IUser;
     console.log("validate", validate.role);
     if (validate.role == "admin" || validate.role == "superadmin") {
       next();
@@ -84,7 +84,7 @@ const isAuthorizedSuperAdmin = (
         .send(failure("Unauthorized access, token not validated"));
     }
 
-    req.user = validate as IUser;
+    (req as UserRequest).user = validate as IUser;
     console.log("validate", validate.role);
     if (validate.role == "superadmin") {
       next();
@@ -137,7 +137,7 @@ const isAuthorizedUser = (req: Request, res: Response, next: NextFunction) => {
         .send(failure("Unauthorized access, token not validated"));
     }
 
-    req.user = validate as IUser;
+    (req as UserRequest).user = validate as IUser;
 
     // console.log("validate", validate.role);
     // console.log("validate _id", validate._id);

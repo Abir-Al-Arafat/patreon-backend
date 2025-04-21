@@ -28,6 +28,11 @@ import { validationResult } from "express-validator";
 import HTTP_STATUS from "../constants/statusCodes";
 import User from "../models/user.model";
 import Notification from "../models/notification.model";
+import { IUser } from "../interfaces/user.interface";
+
+export interface UserRequest extends Request {
+  user: IUser;
+}
 
 const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -109,12 +114,14 @@ const getOneUserById = async (req: Request, res: Response) => {
 
 const profile = async (req: Request, res: Response) => {
   try {
-    if (!req?.user) {
+    if (!(req as UserRequest)?.user) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("User not logged in"));
     }
-    const user = await User.findById(req?.user?._id).select("-password");
+    const user = await User.findById((req as UserRequest)?.user?._id).select(
+      "-password"
+    );
 
     if (!user) {
       return res
@@ -206,7 +213,7 @@ const updateProfileByUser = async (req: Request, res: Response) => {
   try {
     const { name, phone, image } = req.body;
     console.log("body", req.body);
-    const user = await User.findById(req.user?._id);
+    const user = await User.findById((req as UserRequest).user?._id);
     if (!user) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
@@ -229,7 +236,7 @@ const updateProfileByUser = async (req: Request, res: Response) => {
       }
     }
     const updatedUser = await User.findByIdAndUpdate(
-      req.user?._id,
+      (req as UserRequest).user?._id,
       req.body,
       // Returns the updated document
       { new: true }

@@ -1,21 +1,39 @@
-import { Router } from "express";
+import express from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import {
-  getUsers,
-  getUserById,
-  createUser,
+  getAllUsers,
+  getOneUserById,
+  getNotificationsByUserId,
+  getAllNotifications,
+  updateUserById,
+  profile,
+  updateProfileByUser,
 } from "../controllers/users.controller";
 
-const router = Router();
+import {
+  isAuthorizedUser,
+  isAuthorizedAdmin,
+  isAuthorizedSuperAdmin,
+} from "../middlewares/authValidationJWT";
+
+import fileUpload from "../middlewares/fileUpload";
+
+const routes = express();
 
 // /api/users
 
-router.get("/", getUsers);
+routes.get("/", getAllUsers);
 
 // /api/users/123
-router.get("/:id", getUserById);
+routes.get("/:id", getOneUserById);
 
 // /api/users
 
-router.post("/", createUser);
+routes.patch(
+  "/update-profile-by-user",
+  isAuthorizedUser,
+  fileUpload(),
+  updateProfileByUser
+);
 
-export default router;
+export default routes;

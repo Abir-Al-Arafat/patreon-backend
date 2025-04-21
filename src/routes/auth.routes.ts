@@ -1,6 +1,6 @@
 import express from "express";
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import { UserRequest } from "../middlewares/authValidationJWT";
+
 import {
   signup,
   login,

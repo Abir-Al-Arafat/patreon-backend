@@ -114,9 +114,8 @@ const profile = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("User not logged in"));
     }
-    const user = await User.findById(req?.user?._id)
-      .select("-password")
-      .populate("affiliate");
+    const user = await User.findById(req?.user?._id).select("-password");
+
     if (!user) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)

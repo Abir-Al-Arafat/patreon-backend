@@ -8,11 +8,7 @@ export interface UserRequest extends Request {
   user: IUser;
 }
 
-const isAuthorizedAdmin = (
-  req: UserRequest,
-  res: Response,
-  next: NextFunction
-) => {
+const isAuthorizedAdmin = (req: Request, res: Response, next: NextFunction) => {
   try {
     const { authorization } = req.headers;
     const { token } = req.cookies;
@@ -63,7 +59,7 @@ const isAuthorizedAdmin = (
   }
 };
 const isAuthorizedSuperAdmin = (
-  req: UserRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -115,11 +111,7 @@ const isAuthorizedSuperAdmin = (
   }
 };
 
-const isAuthorizedUser = (
-  req: UserRequest,
-  res: Response,
-  next: NextFunction
-) => {
+const isAuthorizedUser = (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.params.id;
 

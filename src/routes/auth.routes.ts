@@ -1,5 +1,5 @@
 import express from "express";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import { UserRequest } from "../middlewares/authValidationJWT";
 import {
   signup,
@@ -44,15 +44,17 @@ routes.post(
 // for logging in
 routes.post("/login", upload.none(), login);
 
-routes.get("/users", (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const userReq = req as UserRequest;
-    isAuthorizedAdmin(userReq, res, next);
-    return res.status(200).json("HIT");
-  } catch (error) {
-    return res.status(500).json(error);
+routes.get(
+  "/users",
+  isAuthorizedAdmin,
+  (req: Request, res: Response, next: NextFunction) => {
+    try {
+      return res.status(200).json("HIT");
+    } catch (error) {
+      return res.status(500).json(error);
+    }
   }
-});
+);
 // routes.post(
 //   "/auth/create-admin",
 //   // userValidator.create,

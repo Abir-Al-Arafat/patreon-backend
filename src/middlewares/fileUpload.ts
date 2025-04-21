@@ -69,4 +69,4 @@ const configureFileUpload = () => {
   return upload;
 };
 
-module.exports = configureFileUpload;
+export default configureFileUpload;

@@ -5,7 +5,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { Request, Response, NextFunction } from "express";
 import databaseConnection from "./config/database";
-import userRouter from "./routes/users.router";
+import userRouter from "./routes/user.routes";
 import authRouter from "./routes/auth.routes";
 
 const app = express();

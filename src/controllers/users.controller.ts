@@ -49,27 +49,6 @@ const getAllUsers = async (req: Request, res: Response) => {
       .send(failure("Internal server error"));
   }
 };
-//   try {
-//     const users = await UserModel.find({
-//       affiliateApplicationStatus: "pending",
-//     }).select("-__v");
-
-//     if (users.length) {
-//       return res.status(HTTP_STATUS.OK).send(
-//         success("users applied for affiliate", {
-//           result: users,
-//         })
-//       );
-//     } else {
-//       return res.status(HTTP_STATUS.NOT_FOUND).send(failure("Users not found"));
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     return res
-//       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-//       .send(failure("Internal server error"));
-//   }
-// };
 
 const getOneUserById = async (req: Request, res: Response) => {
   try {

@@ -190,6 +190,12 @@ const signup = async (req: Request, res: Response) => {
       }
     );
     res.setHeader("Authorization", token);
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production" ? true : false,
+      maxAge: expiresIn * 1000,
+    });
     if (newUser) {
       return res
         .status(HTTP_STATUS.OK)

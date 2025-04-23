@@ -149,7 +149,7 @@ const signup = async (req: Request, res: Response) => {
       name: req.body.name,
       email: req.body.email,
       username: req.body.username,
-      role: req.body.role || "user",
+      roles: req.body.roles || "user",
       password: hashedPassword,
       emailVerifyCode,
     });

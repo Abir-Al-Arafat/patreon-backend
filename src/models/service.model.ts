@@ -2,6 +2,9 @@ import mongoose from "mongoose";
 
 const serviceSchema = new mongoose.Schema(
   {
+    title: {
+      type: String,
+    },
     contributor: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 
     subscribers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
@@ -42,6 +45,12 @@ const serviceSchema = new mongoose.Schema(
     isLocked: {
       type: Boolean,
       default: false,
+    },
+
+    status: {
+      type: String,
+      default: "pending",
+      enum: ["pending", "approved", "rejected"],
     },
 
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],

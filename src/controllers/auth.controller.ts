@@ -40,7 +40,7 @@ const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
     console.log(err);
     return res
       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-      .send(`INTERNAL SERVER ERROR`);
+      .send(failure("INTERNAL SERVER ERROR"));
   }
 };
 

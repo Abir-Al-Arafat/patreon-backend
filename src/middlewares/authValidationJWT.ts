@@ -118,16 +118,18 @@ const isAuthorizedUser = (req: Request, res: Response, next: NextFunction) => {
     console.log("headers", req.headers);
 
     const { authorization } = req.headers;
+    const { token: tokenCookie } = req.cookies;
+    console.log("tokenCookie", tokenCookie);
     if (!authorization) {
       return res
         .status(HTTP_STATUS.UNAUTHORIZED)
         .send(failure("Unauthorized access"));
     }
     console.log(authorization);
-    const token = authorization.split(" ")[1];
-    console.log("token", token);
+    const tokenHeader = authorization.split(" ")[1];
+    console.log("token", tokenHeader);
     const validate = jsonWebToken.verify(
-      token,
+      tokenHeader,
       process.env.JWT_SECRET ?? "default_secret"
     ) as JwtPayload;
 

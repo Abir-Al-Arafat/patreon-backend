@@ -28,9 +28,10 @@ routes.post(
 );
 
 routes.post(
-  "/auth/send-verification-code-to-phone",
+  "/send-verification-code-to-phone",
   // userValidator.create,
   // authValidator.create,
+  upload.none(),
   sendVerificationCodeToPhone
 );
 

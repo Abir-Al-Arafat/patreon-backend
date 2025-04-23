@@ -27,7 +27,7 @@ routes.get("/", getAllUsers);
 // /api/users/123
 routes.get("/:id", getOneUserById);
 
-routes.get("/profile", isAuthorizedUser, profile);
+routes.get("/auth/profile", isAuthorizedUser, profile);
 
 // /api/users
 

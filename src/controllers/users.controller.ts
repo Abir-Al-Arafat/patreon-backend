@@ -208,7 +208,7 @@ const updateProfileByUser = async (req: Request, res: Response) => {
     await user.save();
     return res
       .status(HTTP_STATUS.ACCEPTED)
-      .send(success("Profile updated successfully", user));
+      .send(success("Profile updated successfully", updatedUser));
   } catch (error) {
     console.log(error);
     return res

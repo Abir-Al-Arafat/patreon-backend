@@ -32,7 +32,7 @@ routes.get("/auth/profile", isAuthorizedUser, profile);
 // /api/users
 
 routes.patch(
-  "/update-profile-by-user",
+  "/auth/update-profile-by-user",
   isAuthorizedUser,
   fileUpload(),
   updateProfileByUser

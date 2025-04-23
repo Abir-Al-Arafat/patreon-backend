@@ -10,19 +10,29 @@ export interface UserRequest extends Request {
 
 const isAuthorizedAdmin = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { authorization } = req.headers;
+    // const { authorization } = req.headers;
     const { token } = req.cookies;
+
     console.log("tokenCookie", token);
-    console.log(authorization);
-    if (!authorization) {
+    if (!token) {
       return res
         .status(HTTP_STATUS.UNAUTHORIZED)
         .send(failure("Unauthorized access, admin not logged in"));
     }
-    const tokenHeader = authorization.split(" ")[1];
-    console.log("token", tokenHeader);
+    // console.log(authorization);
+    // if (!authorization) {
+    //   return res
+    //     .status(HTTP_STATUS.UNAUTHORIZED)
+    //     .send(failure("Unauthorized access, admin not logged in"));
+    // }
+    // const tokenHeader = authorization.split(" ")[1];
+    // console.log("token", tokenHeader);
+    // const validate = jsonWebToken.verify(
+    //   tokenHeader,
+    //   process.env.JWT_SECRET ?? "default_secret"
+    // ) as JwtPayload;
     const validate = jsonWebToken.verify(
-      tokenHeader,
+      token,
       process.env.JWT_SECRET ?? "default_secret"
     ) as JwtPayload;
 

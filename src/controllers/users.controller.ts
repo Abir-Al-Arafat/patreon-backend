@@ -77,7 +77,7 @@ const profile = async (req: Request, res: Response) => {
         .send(failure("User not logged in"));
     }
     const user = await User.findById((req as UserRequest)?.user?._id).select(
-      "-password"
+      "-password -__v"
     );
 
     if (!user) {

@@ -1,4 +1,7 @@
+import fs from "fs";
+import path from "path";
 import { Request, Response } from "express";
+
 import { success, failure } from "../utilities/common";
 import { IQuery } from "../types/query-params";
 import { TUploadFields } from "../types/upload-fields";
@@ -177,7 +180,6 @@ const updateProfileByUser = async (req: Request, res: Response) => {
         .send({ message: "User not found" });
     }
 
-    // const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     const files = req.files as TUploadFields;
 
     console.log("files", files);
@@ -186,16 +188,25 @@ const updateProfileByUser = async (req: Request, res: Response) => {
     if (req.files && files?.["image"]) {
       let imageFileName = "";
       if (files?.image[0]) {
-        // Add public/uploads link to the image file
+        // Delete old image file if it exists
+        if (user.image) {
+          const oldImagePath = path.join(__dirname, "../", user.image);
+          fs.unlink(oldImagePath, (err) => {
+            if (err) {
+              console.error("Failed to delete old image:", err);
+            }
+          });
+        }
 
-        imageFileName = `public/uploads/images/${files?.image?.[0].filename}`;
+        // Add public/uploads link to the new image file
+        imageFileName = `public/uploads/images/${files?.image[0]?.filename}`;
         user.image = imageFileName;
       }
     }
+
     const updatedUser = await User.findByIdAndUpdate(
       (req as UserRequest).user?._id,
       req.body,
-      // Returns the updated document
       { new: true }
     );
 
@@ -204,6 +215,7 @@ const updateProfileByUser = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.NOT_FOUND)
         .send({ message: "User not found" });
     }
+
     console.log(updatedUser);
     await user.save();
     return res

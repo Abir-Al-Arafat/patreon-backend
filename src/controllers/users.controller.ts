@@ -54,8 +54,8 @@ const getOneUserById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const user = await User.find({ _id: id });
-    if (!user.length) {
+    const user = await User.findById(id);
+    if (!user) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("User was not found"));
@@ -63,7 +63,7 @@ const getOneUserById = async (req: Request, res: Response) => {
 
     return res
       .status(HTTP_STATUS.OK)
-      .send(success("Successfully got the user", user[0]));
+      .send(success("Successfully got the user", user));
   } catch (error) {
     return res.status(HTTP_STATUS.BAD_REQUEST).send(`internal server error`);
   }

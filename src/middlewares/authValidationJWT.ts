@@ -119,17 +119,26 @@ const isAuthorizedUser = (req: Request, res: Response, next: NextFunction) => {
 
     const { authorization } = req.headers;
     const { token: tokenCookie } = req.cookies;
-    console.log("tokenCookie", tokenCookie);
-    if (!authorization) {
+    if (!tokenCookie) {
       return res
         .status(HTTP_STATUS.UNAUTHORIZED)
-        .send(failure("Unauthorized access"));
+        .send(failure("Unauthorized access, user not logged in"));
     }
-    console.log(authorization);
-    const tokenHeader = authorization.split(" ")[1];
-    console.log("token", tokenHeader);
+    console.log("tokenCookie", tokenCookie);
+    // if (!authorization) {
+    //   return res
+    //     .status(HTTP_STATUS.UNAUTHORIZED)
+    //     .send(failure("Unauthorized access"));
+    // }
+    // console.log(authorization);
+    // const tokenHeader = authorization.split(" ")[1];
+    // console.log("tokenHeader", tokenHeader);
+    // const validate = jsonWebToken.verify(
+    //   tokenHeader,
+    //   process.env.JWT_SECRET ?? "default_secret"
+    // ) as JwtPayload;
     const validate = jsonWebToken.verify(
-      tokenHeader,
+      tokenCookie,
       process.env.JWT_SECRET ?? "default_secret"
     ) as JwtPayload;
 

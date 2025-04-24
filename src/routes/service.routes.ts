@@ -1,10 +1,14 @@
 import express from "express";
+import multer from "multer";
 const routes = express();
+const upload = multer();
 import {
   addService,
+  addFileToService,
+  removeFileFromService,
   getAllServices,
   getServiceById,
-  getServiceByDoctorId,
+  getServiceByContributor,
   updateServiceById,
   deleteServiceById,
   //   disableServiceById,
@@ -24,6 +28,14 @@ import fileUpload from "../middlewares/fileUpload";
 
 routes.post("/become-contributor", isAuthorizedUser, fileUpload(), addService);
 
+routes.post("/add-file-to-service/:id", fileUpload(), addFileToService);
+
+routes.delete(
+  "/remove-file-from-service/:id",
+  upload.none(),
+  removeFileFromService
+);
+
 routes.get("/get-all-services", getAllServices);
 
 routes.get(
@@ -33,12 +45,12 @@ routes.get(
 );
 
 routes.get(
-  "/get-service-by-doctorId/:id",
-
-  getServiceByDoctorId
+  "/get-service-by-contributor",
+  isAuthorizedUser,
+  getServiceByContributor
 );
 
-routes.put("/update-service-by-id/:id", isAuthorizedAdmin, updateServiceById);
+routes.put("/update-service-by-id/:id", fileUpload(), updateServiceById);
 
 routes.delete(
   "/delete-service-by-id/:id",

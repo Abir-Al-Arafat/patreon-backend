@@ -1,3 +1,4 @@
+import fs from "fs";
 import { Request, Response } from "express";
 import { success, failure } from "../utilities/common";
 import { TUploadFields } from "../types/upload-fields";
@@ -74,6 +75,82 @@ const addService = async (req: Request, res: Response) => {
   }
 };
 
+const addFileToService = async (req: Request, res: Response) => {
+  try {
+    if (!req.params.id) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("Please provide service id"));
+    }
+    const service = await Service.findById(req.params.id);
+    if (!service) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("Service not found"));
+    }
+    const files = req.files as TUploadFields;
+    if (!files?.pdfFiles) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Please provide pdf files"));
+    }
+    const documentPaths: string[] = [];
+    files.pdfFiles.forEach((file: Express.Multer.File) => {
+      documentPaths.push(file.path);
+    });
+    service.files = [...service.files, ...documentPaths];
+    await service.save();
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Files added successfully", service));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Error adding files", error.message));
+  }
+};
+
+const removeFileFromService = async (req: Request, res: Response) => {
+  try {
+    if (!req.params.id) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("Please provide service id"));
+    }
+    const service = await Service.findById(req.params.id);
+    if (!service) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("Service not found"));
+    }
+    const { filePath } = req.body;
+
+    if (!filePath) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Please provide file path"));
+    }
+    const fileIndex = service.files.indexOf(filePath);
+
+    if (fileIndex === -1) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("File not found in service"));
+    }
+    fs.unlinkSync(filePath);
+    service.files.splice(fileIndex, 1);
+    await service.save();
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("File removed successfully", service));
+  } catch (error: any) {
+    console.log("error", error);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Error removing file", error.message));
+  }
+};
+
 const updateServiceById = async (req: Request, res: Response) => {
   try {
     if (!req.params.id) {
@@ -81,6 +158,13 @@ const updateServiceById = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Please provide service id"));
     }
+
+    let { explainMembership } = req.body;
+    if (typeof explainMembership === "string") {
+      explainMembership = JSON.parse(explainMembership);
+    }
+    req.body.explainMembership = explainMembership;
+
     const service = await Service.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
@@ -89,6 +173,7 @@ const updateServiceById = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Service not found"));
     }
+
     return res
       .status(HTTP_STATUS.OK)
       .send(success("Successfully updated service", service));
@@ -113,15 +198,15 @@ const getAllServices = async (req: Request, res: Response) => {
 
     const skip = (page - 1) * limit;
 
-    let query = { isDeleted: false };
+    // let query = { isDeleted: "false" };
 
-    const services = await Service.find(query)
+    const services = await Service.find()
 
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
-    const count = await Service.countDocuments(query);
-
+    const count = await Service.countDocuments();
+    console.log("services", services);
     if (!services) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
@@ -166,14 +251,17 @@ const getServiceById = async (req: Request, res: Response) => {
   }
 };
 
-const getServiceByDoctorId = async (req: Request, res: Response) => {
+const getServiceByContributor = async (req: Request, res: Response) => {
   try {
-    if (!req.params.id) {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
       return res
-        .status(HTTP_STATUS.NOT_FOUND)
-        .send(failure("Please provide doctor id"));
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("Please login to become a contributor"));
     }
-    const service = await Service.find({ doctor: req.params.id });
+    const service = await Service.find({
+      contributor: (req as UserRequest).user._id,
+    });
+
     if (!service) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
@@ -326,9 +414,11 @@ const deleteServiceById = async (req: Request, res: Response) => {
 
 export {
   addService,
+  addFileToService,
+  removeFileFromService,
   getAllServices,
   getServiceById,
-  getServiceByDoctorId,
+  getServiceByContributor,
   updateServiceById,
   deleteServiceById,
   // disableServiceById,

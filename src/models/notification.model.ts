@@ -41,7 +41,7 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["confession", "forum", "story", "others"],
+      enum: ["service", "forum", "story", "others"],
       default: "others",
     },
   },

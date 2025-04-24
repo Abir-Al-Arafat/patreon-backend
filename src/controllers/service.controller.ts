@@ -14,8 +14,11 @@ const addService = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.UNAUTHORIZED)
         .send(failure("Please login to become a contributor"));
     }
-    const { title, prompt, price, about, category, explainMembership } =
-      req.body;
+    let { title, prompt, price, about, category, explainMembership } = req.body;
+
+    if (typeof explainMembership === "string") {
+      explainMembership = JSON.parse(explainMembership);
+    }
 
     const newService = new Service({
       title,

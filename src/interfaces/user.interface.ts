@@ -9,3 +9,7 @@ export interface IUser {
   dob?: Date; //optional
   role?: string;
 }
+
+export interface UserRequest extends Request {
+  user: IUser;
+}

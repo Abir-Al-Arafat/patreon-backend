@@ -18,9 +18,11 @@ import {
   isAuthorizedAdmin,
 } from "../middlewares/authValidationJWT";
 
+import fileUpload from "../middlewares/fileUpload";
+
 // const { authValidator } = require("../middleware/authValidation");
 
-routes.post("/become-contributor", isAuthorizedUser, addService);
+routes.post("/become-contributor", isAuthorizedUser, fileUpload(), addService);
 
 routes.get("/get-all-services", getAllServices);
 

@@ -1,13 +1,20 @@
 import { Request, Response } from "express";
 import { success, failure } from "../utilities/common";
+import { TUploadFields } from "../types/upload-fields";
 import HTTP_STATUS from "../constants/statusCodes";
 import Service from "../models/service.model";
 import User from "../models/user.model";
 import Nootification from "../models/notification.model";
+import { UserRequest } from "./users.controller";
 
 const addService = async (req: Request, res: Response) => {
   try {
-    const { title, prompt, price, about, category, membershipExplanations } =
+    if (!(req as UserRequest).user) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("Please login to become a contributor"));
+    }
+    const { title, prompt, price, about, category, explainMembership } =
       req.body;
 
     const newService = new Service({
@@ -16,7 +23,8 @@ const addService = async (req: Request, res: Response) => {
       price,
       about,
       category,
-
+      explainMembership,
+      contributor: (req as UserRequest).user._id,
       status: "approved",
     });
 
@@ -25,6 +33,18 @@ const addService = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.BAD_REQUEST)
         .send(failure("Service could not be added"));
     }
+
+    const documentPaths: string[] = [];
+    const files = req.files as TUploadFields;
+    if (files?.pdfFiles) {
+      files.pdfFiles.forEach((file: Express.Multer.File) => {
+        documentPaths.push(file.path);
+      });
+      newService.files = documentPaths;
+    }
+
+    console.log("documentPaths", documentPaths);
+
     await newService.save();
     const admin = await User.findOne({ roles: "admin" });
     const notification = new Nootification({

@@ -7,6 +7,7 @@ import Service from "../models/service.model";
 import User from "../models/user.model";
 import Nootification from "../models/notification.model";
 import { UserRequest } from "./users.controller";
+import openai from "../config/openaids.config";
 
 const addService = async (req: Request, res: Response) => {
   try {
@@ -330,6 +331,96 @@ const deleteServiceById = async (req: Request, res: Response) => {
   }
 };
 
+const generateReplyForService = async (req: Request, res: Response) => {
+  try {
+    if (!req.params.serviceId) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("Please provide service id"));
+    }
+    const service = await Service.findById(req.params.serviceId);
+    if (!service) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("Service not found"));
+    }
+    const { message } = req.body;
+    if (!message) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Please provide message"));
+    }
+
+    const prompt = [
+      {
+        question: "What areas of law do you work in?",
+        answer: "I help with family law and small business legal matters.",
+      },
+      {
+        question: "How would you describe your style?",
+        answer: "I’m friendly, easy to talk to, and always clear.",
+      },
+      {
+        question: "What should I expect if I work with you?",
+        answer: "Open communication, real support, and honest advice.",
+      },
+      {
+        question: "How do you communicate with clients?",
+        answer: "Phone, email, or text — whatever works best for you!",
+      },
+      {
+        question: "Do you offer free consultations?",
+        answer: "Yes, the first consultation is free!",
+      },
+      {
+        question: "What makes you different from other lawyers?",
+        answer:
+          "I truly listen, stay available, and treat every case personally.",
+      },
+      {
+        question: "How long does a typical case take?",
+        answer:
+          "It depends, but I always move things forward quickly and carefully.",
+      },
+      {
+        question: "What are your fees like?",
+        answer: "I’m upfront about all costs — no surprises.",
+      },
+      {
+        question: "Why did you become a lawyer?",
+        answer: "I love helping people through important moments in life.",
+      },
+    ];
+    const promptText = prompt
+      .map((p) => `${p.question} - ${p.answer}`)
+      .join("\n");
+    const reply = await openai.chat.completions.create({
+      model: "deepseek/deepseek-r1:free",
+      messages: [
+        {
+          role: "system",
+          content: `Consider yourself as an ai customer service agent who replies to client texts based on this prompt: ${promptText}`,
+        },
+        {
+          role: "user",
+          content: message,
+        },
+      ],
+      temperature: 0.8, // optional but good
+    });
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(
+        success("Successfully sent reply", reply.choices[0].message.content)
+      );
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Error sending reply", error.message));
+  }
+};
+
 // const disableServiceById = async (req, res) => {
 //   try {
 //     if (!req.params.id) {
@@ -448,6 +539,7 @@ export {
   getServiceByContributor,
   updateServiceById,
   deleteServiceById,
+  generateReplyForService,
   // disableServiceById,
   // enableServiceById,
   // approveServiceById,

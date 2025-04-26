@@ -12,6 +12,7 @@ import {
   getServiceByContributor,
   updateServiceById,
   deleteServiceById,
+  generateReplyForService,
   //   disableServiceById,
   //   enableServiceById,
   //   approveServiceById,
@@ -59,6 +60,12 @@ routes.delete(
   "/delete-service-by-id/:id",
 
   deleteServiceById
+);
+
+routes.post(
+  "/generate-reply-for-service/:serviceId",
+  upload.none(),
+  generateReplyForService
 );
 
 // routes.patch(

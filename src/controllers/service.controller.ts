@@ -284,16 +284,20 @@ const deleteServiceById = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Please provide service id"));
     }
-    const service = await Service.findByIdAndUpdate(
-      req.params.id,
-      { isDeleted: true },
-      { new: true }
-    );
+    const service = await Service.findByIdAndDelete(req.params.id);
     if (!service) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Service not found"));
     }
+
+    const paths = service.files;
+    for (const path of paths) {
+      if (fs.existsSync(path)) {
+        fs.unlinkSync(path);
+      }
+    }
+
     return res
       .status(HTTP_STATUS.OK)
       .send(success("Successfully deleted service", service));

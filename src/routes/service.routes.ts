@@ -54,7 +54,7 @@ routes.put("/update-service-by-id/:id", fileUpload(), updateServiceById);
 
 routes.delete(
   "/delete-service-by-id/:id",
-  isAuthorizedAdmin,
+
   deleteServiceById
 );
 

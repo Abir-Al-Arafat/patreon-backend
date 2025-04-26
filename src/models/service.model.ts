@@ -5,6 +5,9 @@ const serviceSchema = new mongoose.Schema(
     title: {
       type: String,
     },
+    description: {
+      type: String,
+    },
     contributor: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 
     subscribers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
@@ -13,9 +16,12 @@ const serviceSchema = new mongoose.Schema(
       { type: mongoose.Schema.Types.ObjectId, ref: "Transaction" },
     ],
 
-    prompt: {
-      type: String,
-    },
+    prompt: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Prompt",
+      },
+    ],
 
     files: [{ type: String }],
 

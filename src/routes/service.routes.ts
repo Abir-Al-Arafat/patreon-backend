@@ -7,6 +7,7 @@ import {
   addFileToService,
   removeFileFromService,
   getAllServices,
+  getAllCategories,
   getServiceById,
   getServiceByContributor,
   updateServiceById,
@@ -37,6 +38,8 @@ routes.delete(
 );
 
 routes.get("/get-all-services", getAllServices);
+
+routes.get("/all-categories", getAllCategories);
 
 routes.get(
   "/get-service-by-id/:id",

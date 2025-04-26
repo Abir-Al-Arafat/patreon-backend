@@ -230,6 +230,24 @@ const getAllServices = async (req: Request, res: Response) => {
   }
 };
 
+const getAllCategories = async (req: Request, res: Response) => {
+  try {
+    const categories = await Service.distinct("category");
+    if (!categories) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("Categories not found"));
+    }
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Successfully received all categories", categories));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Error fetching categories", error.message));
+  }
+};
+
 const getServiceById = async (req: Request, res: Response) => {
   try {
     if (!req.params.id) {
@@ -423,6 +441,7 @@ export {
   addFileToService,
   removeFileFromService,
   getAllServices,
+  getAllCategories,
   getServiceById,
   getServiceByContributor,
   updateServiceById,

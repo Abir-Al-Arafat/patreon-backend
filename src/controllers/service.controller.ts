@@ -198,15 +198,17 @@ const getAllServices = async (req: Request, res: Response) => {
 
     const skip = (page - 1) * limit;
 
-    // let query = { isDeleted: "false" };
+    let query: any = {};
 
-    const services = await Service.find()
+    if (req.query.category) {
+      query.category = req.query.category;
+    }
 
+    const services = await Service.find(query)
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
-    const count = await Service.countDocuments();
-    console.log("services", services);
+    const count = await Service.countDocuments(query);
     if (!services) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)

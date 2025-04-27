@@ -93,7 +93,9 @@ const addService = async (req: Request, res: Response) => {
         messages: [
           {
             role: "system",
-            content: `Generate a proper prompt for the following description so that the prompt can be used to answer questions asked by the user. Just generate a prompt. nothing else.: ${description}`,
+            content: `Generate a proper prompt for the following description so that the prompt can be used to answer questions asked by the user. Output only the user-facing prompt content.
+Exclude headers like "Final Prompt:, Prompt:" and avoid any trailing commentary such as "This prompt ensures the AI embodies..."
+The result should be clean, direct prompt content only, without extra labels or explanations. Here goes the description: ${description}`,
           },
           // {
           //   role: "user",
@@ -442,11 +444,7 @@ const generateReplyForService = async (req: Request, res: Response) => {
     // const promptText = prompt
     //   .map((p) => `${p.question} - ${p.answer}`)
     //   .join("\n");
-    // Build prompt text
-    // const promptText = service.prompt
-    //   .map((p: any) => `${p.question} - ${p.answer}`)
-    //   .join("\n");
-    // console.log("promptText", promptText);
+
     const reply = await openai.chat.completions.create({
       model: "deepseek/deepseek-r1:free",
       messages: [
@@ -454,12 +452,12 @@ const generateReplyForService = async (req: Request, res: Response) => {
           role: "system",
           content: `Consider yourself as an ai customer service agent who replies to client texts based on this prompt: ${service.prompt}`,
         },
-        // {
-        //   role: "user",
-        //   content: message,
-        // },
+        {
+          role: "user",
+          content: message,
+        },
       ],
-      // temperature: 0.8, // optional but good
+      temperature: 0.8, // optional but good
     });
 
     return res

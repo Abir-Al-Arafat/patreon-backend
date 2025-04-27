@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import twilio from "twilio";
 import { success, failure, generateRandomCode } from "../utilities/common";
 import User from "../models/user.model";
+import Phone from "../models/phone.model";
 import Notification from "../models/notification.model";
 
 import HTTP_STATUS from "../constants/statusCodes";
@@ -13,13 +14,44 @@ import { CreateUserQueryParams } from "../types/query-params";
 
 import { IUser } from "../interfaces/user.interface";
 
+// const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
+//   try {
+//     const client = twilio(
+//       process.env.TWILIO_ACCOUNT_SID as string,
+//       process.env.TWILIO_AUTH_TOKEN as string
+//     );
+//     const verifySid = process.env.TWILIO_VERIFY_SID as string;
+
+//     const { phone } = req.body;
+
+//     if (!phone) {
+//       return res.status(400).send(success("Phone number is required"));
+//     }
+
+//     const verification = await client.verify.v2
+//       .services(verifySid)
+//       .verifications.create({ to: phone, channel: "sms" });
+
+//     console.log("verification", verification);
+
+//     return res.status(HTTP_STATUS.OK).send(
+//       success("Verification code sent successfully", {
+//         verification: { sid: verification.sid },
+//       })
+//     );
+//   } catch (err) {
+//     console.log(err);
+//     return res
+//       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+//       .send(failure("INTERNAL SERVER ERROR"));
+//   }
+// };
 const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
   try {
     const client = twilio(
       process.env.TWILIO_ACCOUNT_SID as string,
       process.env.TWILIO_AUTH_TOKEN as string
     );
-    const verifySid = process.env.TWILIO_VERIFY_SID as string;
 
     const { phone } = req.body;
 
@@ -27,13 +59,26 @@ const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
       return res.status(400).send(success("Phone number is required"));
     }
 
-    const verification = await client.verify.v2
-      .services(verifySid)
-      .verifications.create({ to: phone, channel: "sms" });
+    const phoneNumberVerifyCode = generateRandomCode(6);
+
+    const newPhone = await Phone.create({
+      phoneNumber: phone,
+      phoneNumberVerifyCode,
+    });
+
+    const message = await client.messages.create({
+      body: `Your verification code is ${phoneNumberVerifyCode}`,
+      from: "+14176203785",
+      to: phone,
+    });
+
+    await newPhone.save();
+
+    console.log("verification", message);
 
     return res.status(HTTP_STATUS.OK).send(
       success("Verification code sent successfully", {
-        verification: { sid: verification.sid },
+        message,
       })
     );
   } catch (err) {
@@ -46,11 +91,6 @@ const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
 
 const verifyCode = async (req: Request, res: Response) => {
   try {
-    const client = twilio(
-      process.env.TWILIO_ACCOUNT_SID as string,
-      process.env.TWILIO_AUTH_TOKEN as string
-    );
-    const verifySid = process.env.TWILIO_VERIFY_SID as string;
     const { phone, code } = req.body;
 
     if (!phone || !code) {
@@ -59,11 +99,12 @@ const verifyCode = async (req: Request, res: Response) => {
         .send(failure("Please provide phone number and code"));
     }
 
-    const verificationCheck = await client.verify.v2
-      .services(verifySid)
-      .verificationChecks.create({ to: phone, code });
+    const verificationCheck = await Phone.findOne({
+      phoneNumber: phone,
+      phoneNumberVerifyCode: code,
+    });
 
-    if (verificationCheck.status === "approved") {
+    if (verificationCheck) {
       return res
         .status(HTTP_STATUS.OK)
         .send(success("Phone number verified successfully"));
@@ -79,6 +120,43 @@ const verifyCode = async (req: Request, res: Response) => {
       .send(`INTERNAL SERVER ERROR`);
   }
 };
+// const verifyCode = async (req: Request, res: Response) => {
+//   try {
+//     const client = twilio(
+//       process.env.TWILIO_ACCOUNT_SID as string,
+//       process.env.TWILIO_AUTH_TOKEN as string
+//     );
+//     const verifySid = process.env.TWILIO_VERIFY_SID as string;
+//     const { phone, code } = req.body;
+
+//     if (!phone || !code) {
+//       return res
+//         .status(HTTP_STATUS.BAD_REQUEST)
+//         .send(failure("Please provide phone number and code"));
+//     }
+
+//     const verificationCheck = await client.verify.v2
+//       .services(verifySid)
+//       .verificationChecks.create({ to: phone, code });
+
+//     console.log("verificationCheck", verificationCheck);
+
+//     if (verificationCheck.status === "approved") {
+//       return res
+//         .status(HTTP_STATUS.OK)
+//         .send(success("Phone number verified successfully"));
+//     } else {
+//       return res
+//         .status(HTTP_STATUS.BAD_REQUEST)
+//         .send(failure("Invalid verification code"));
+//     }
+//   } catch (err) {
+//     console.log(err);
+//     return res
+//       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+//       .send(`INTERNAL SERVER ERROR`);
+//   }
+// };
 
 const signup = async (req: Request, res: Response) => {
   try {

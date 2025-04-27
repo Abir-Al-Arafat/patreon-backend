@@ -36,9 +36,10 @@ routes.post(
 );
 
 routes.post(
-  "/auth/verify-code",
+  "/verify-code",
   // userValidator.create,
   // authValidator.create,
+  upload.none(),
   verifyCode
 );
 

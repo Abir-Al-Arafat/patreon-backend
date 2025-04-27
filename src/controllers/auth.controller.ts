@@ -105,6 +105,8 @@ const verifyCode = async (req: Request, res: Response) => {
     });
 
     if (verificationCheck) {
+      verificationCheck.phoneNumberVerified = true;
+      await verificationCheck.save();
       return res
         .status(HTTP_STATUS.OK)
         .send(success("Phone number verified successfully"));

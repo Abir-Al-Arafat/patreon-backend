@@ -57,25 +57,28 @@ const addService = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.UNAUTHORIZED)
         .send(failure("Please login to become a contributor"));
     }
-    let { title, prompt, price, about, category, explainMembership } = req.body;
+    let {
+      title,
+      description,
+      // prompt,
+      price,
+      about,
+      category,
+      explainMembership,
+    } = req.body;
 
     if (typeof explainMembership === "string") {
       explainMembership = JSON.parse(explainMembership);
     }
 
-    if (typeof prompt === "string") {
-      prompt = JSON.parse(prompt);
-    }
-
-    // Insert all prompts at once
-    const createdPrompts = await Prompt.insertMany(prompt);
-
-    // Map their IDs
-    const promptIds = createdPrompts.map((p) => p._id);
+    // if (typeof prompt === "string") {
+    //   prompt = JSON.parse(prompt);
+    // }
 
     const newService = new Service({
       title,
-      prompt: promptIds,
+
+      description,
       price,
       about,
       category,
@@ -83,6 +86,34 @@ const addService = async (req: Request, res: Response) => {
       contributor: (req as UserRequest).user._id,
       status: "approved",
     });
+
+    if (description) {
+      let response = await openai.chat.completions.create({
+        model: "deepseek/deepseek-r1:free",
+        messages: [
+          {
+            role: "system",
+            content: `Generate a proper prompt for the following description so that the prompt can be used to answer questions asked by the user. Just generate a prompt. nothing else.: ${description}`,
+          },
+          // {
+          //   role: "user",
+          //   content: message,
+          // },
+        ],
+        // temperature: 0.8, // optional but good
+      });
+
+      const prompt = response.choices[0].message.content;
+      newService.prompt = prompt;
+      await newService.save();
+      console.log("prompt", prompt);
+    }
+
+    // Insert all prompts at once
+    // const createdPrompts = await Prompt.insertMany(prompt);
+
+    // Map their IDs
+    // const promptIds = createdPrompts.map((p) => p._id);
 
     if (!newService) {
       return res
@@ -390,15 +421,13 @@ const generateReplyForService = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Please provide service id"));
     }
-    const service = await Service.findById(req.params.serviceId).populate(
-      "prompt"
-    );
+    const service = await Service.findById(req.params.serviceId);
     if (!service) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Service not found"));
     }
-    if (!service.prompt || !Array.isArray(service.prompt)) {
+    if (!service.prompt) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
         .send(failure("Service prompt not found or invalid"));
@@ -414,23 +443,23 @@ const generateReplyForService = async (req: Request, res: Response) => {
     //   .map((p) => `${p.question} - ${p.answer}`)
     //   .join("\n");
     // Build prompt text
-    const promptText = service.prompt
-      .map((p: any) => `${p.question} - ${p.answer}`)
-      .join("\n");
-    console.log("promptText", promptText);
+    // const promptText = service.prompt
+    //   .map((p: any) => `${p.question} - ${p.answer}`)
+    //   .join("\n");
+    // console.log("promptText", promptText);
     const reply = await openai.chat.completions.create({
       model: "deepseek/deepseek-r1:free",
       messages: [
         {
           role: "system",
-          content: `Consider yourself as an ai customer service agent who replies to client texts based on this prompt: ${promptText}`,
+          content: `Consider yourself as an ai customer service agent who replies to client texts based on this prompt: ${service.prompt}`,
         },
-        {
-          role: "user",
-          content: message,
-        },
+        // {
+        //   role: "user",
+        //   content: message,
+        // },
       ],
-      temperature: 0.8, // optional but good
+      // temperature: 0.8, // optional but good
     });
 
     return res

@@ -16,12 +16,7 @@ const serviceSchema = new mongoose.Schema(
       { type: mongoose.Schema.Types.ObjectId, ref: "Transaction" },
     ],
 
-    prompt: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Prompt",
-      },
-    ],
+    prompt: { type: String },
 
     files: [{ type: String }],
 

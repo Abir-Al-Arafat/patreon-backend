@@ -1,4 +1,5 @@
 import fs from "fs";
+import pdfParse from "pdf-parse";
 import { Request, Response } from "express";
 import openai from "../config/openaids.config";
 import { success, failure } from "../utilities/common";
@@ -71,10 +72,6 @@ const addService = async (req: Request, res: Response) => {
       explainMembership = JSON.parse(explainMembership);
     }
 
-    // if (typeof prompt === "string") {
-    //   prompt = JSON.parse(prompt);
-    // }
-
     const newService = new Service({
       title,
 
@@ -87,36 +84,6 @@ const addService = async (req: Request, res: Response) => {
       status: "approved",
     });
 
-    //     if (description) {
-    //       let response = await openai.chat.completions.create({
-    //         model: "deepseek/deepseek-r1:free",
-    //         messages: [
-    //           {
-    //             role: "system",
-    //             content: `Generate a proper prompt for the following description so that the prompt can be used to answer questions asked by the user. Output only the user-facing prompt content.
-    // Exclude headers like "Final Prompt:, Prompt:" and avoid any trailing commentary such as "This prompt ensures the AI embodies..."
-    // The result should be clean, direct prompt content only, without extra labels or explanations. Here goes the description: ${description}`,
-    //           },
-    //           // {
-    //           //   role: "user",
-    //           //   content: message,
-    //           // },
-    //         ],
-    //         // temperature: 0.8, // optional but good
-    //       });
-
-    //       const prompt = response.choices[0].message.content;
-    //       newService.prompt = prompt;
-    //       await newService.save();
-    //       console.log("prompt", prompt);
-    //     }
-
-    // Insert all prompts at once
-    // const createdPrompts = await Prompt.insertMany(prompt);
-
-    // Map their IDs
-    // const promptIds = createdPrompts.map((p) => p._id);
-
     if (!newService) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
@@ -125,14 +92,34 @@ const addService = async (req: Request, res: Response) => {
 
     const documentPaths: string[] = [];
     const files = req.files as TUploadFields;
+
+    let extractedText = "";
+
     if (files?.pdfFiles) {
-      files.pdfFiles.forEach((file: Express.Multer.File) => {
+      // files.pdfFiles.forEach((file: Express.Multer.File) => {
+      //   documentPaths.push(file.path);
+      // });
+      // newService.files = documentPaths;
+
+      for (const file of files.pdfFiles) {
         documentPaths.push(file.path);
-      });
+
+        const dataBuffer = fs.readFileSync(file.path);
+        const pdfData = await pdfParse(dataBuffer);
+        extractedText += pdfData.text + "\n"; // Append text from each file
+        console.log("dataBuffer", dataBuffer);
+        console.log("pdfData", pdfData);
+        console.log("extractedText", extractedText);
+      }
+
       newService.files = documentPaths;
     }
+    let combinedDescription: string = description ? description : "";
+    if (extractedText) {
+      combinedDescription += `${extractedText}`;
+    }
 
-    console.log("documentPaths", documentPaths);
+    newService.description = combinedDescription;
 
     await newService.save();
     const admin = await User.findOne({ roles: "admin" });

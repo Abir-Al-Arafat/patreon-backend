@@ -172,6 +172,26 @@ const addFileToService = async (req: Request, res: Response) => {
       documentPaths.push(file.path);
     });
     service.files = [...service.files, ...documentPaths];
+
+    let extractedText = "";
+    for (const file of files.pdfFiles) {
+      const dataBuffer = fs.readFileSync(file.path);
+      const pdfData = await pdfParse(dataBuffer);
+      extractedText += pdfData.text + "\n"; // Append text from each file
+      console.log("dataBuffer", dataBuffer);
+      console.log("pdfData", pdfData);
+      console.log("extractedText", extractedText);
+    }
+
+    let combinedDescription: string = service.description
+      ? service.description
+      : "";
+
+    if (extractedText) {
+      combinedDescription += `${extractedText}`;
+      service.description = combinedDescription;
+    }
+
     await service.save();
     return res
       .status(HTTP_STATUS.OK)

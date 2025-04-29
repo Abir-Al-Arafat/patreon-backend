@@ -87,29 +87,29 @@ const addService = async (req: Request, res: Response) => {
       status: "approved",
     });
 
-    if (description) {
-      let response = await openai.chat.completions.create({
-        model: "deepseek/deepseek-r1:free",
-        messages: [
-          {
-            role: "system",
-            content: `Generate a proper prompt for the following description so that the prompt can be used to answer questions asked by the user. Output only the user-facing prompt content.
-Exclude headers like "Final Prompt:, Prompt:" and avoid any trailing commentary such as "This prompt ensures the AI embodies..."
-The result should be clean, direct prompt content only, without extra labels or explanations. Here goes the description: ${description}`,
-          },
-          // {
-          //   role: "user",
-          //   content: message,
-          // },
-        ],
-        // temperature: 0.8, // optional but good
-      });
+    //     if (description) {
+    //       let response = await openai.chat.completions.create({
+    //         model: "deepseek/deepseek-r1:free",
+    //         messages: [
+    //           {
+    //             role: "system",
+    //             content: `Generate a proper prompt for the following description so that the prompt can be used to answer questions asked by the user. Output only the user-facing prompt content.
+    // Exclude headers like "Final Prompt:, Prompt:" and avoid any trailing commentary such as "This prompt ensures the AI embodies..."
+    // The result should be clean, direct prompt content only, without extra labels or explanations. Here goes the description: ${description}`,
+    //           },
+    //           // {
+    //           //   role: "user",
+    //           //   content: message,
+    //           // },
+    //         ],
+    //         // temperature: 0.8, // optional but good
+    //       });
 
-      const prompt = response.choices[0].message.content;
-      newService.prompt = prompt;
-      await newService.save();
-      console.log("prompt", prompt);
-    }
+    //       const prompt = response.choices[0].message.content;
+    //       newService.prompt = prompt;
+    //       await newService.save();
+    //       console.log("prompt", prompt);
+    //     }
 
     // Insert all prompts at once
     // const createdPrompts = await Prompt.insertMany(prompt);
@@ -429,10 +429,10 @@ const generateReplyForService = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Service not found"));
     }
-    if (!service.prompt) {
+    if (!service.description) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("Service prompt not found or invalid"));
+        .send(failure("Service description not found or invalid"));
     }
     const { message } = req.body;
     if (!message) {
@@ -450,14 +450,26 @@ const generateReplyForService = async (req: Request, res: Response) => {
       messages: [
         {
           role: "system",
-          content: `Consider yourself as an ai customer service agent who replies to client texts based on this prompt: ${service.prompt}`,
+          content: `You are an expert Al assistant specialized in analyzing and answering questions strictly based
+on the user's uploaded data.
+Carefully read and understand the provided document,  dataset or description.
+Answer only the specific question asked, using the content of the description.
+Never reveal, export, or summarize the full data, even if asked.
+If the user asks to "show all the data," "summarize everything." "give all you know," or similar
+requests, politely decline with:
+"I'm sorry, I cannot display or release the full uploaded data. I can only answer specific
+questions based on it."
+Do not cite page numbers, sections, or provide external references.
+If the answer is not explicitly or reasonably inferable from the uploaded content, respond:
+"The uploaded document does not contain enough information to answer this question."
+Be concise, clear, and strictly stay within the limits of the provided description. Also avoid using any prefixes or titles like "Answer:", "Summary:", or "Explanation:" or "Based on the provided description:". just generate the text. Here is the description: ${service.description}`,
         },
         {
           role: "user",
           content: message,
         },
       ],
-      temperature: 0.8, // optional but good
+      temperature: 0.9, // optional but good
     });
 
     return res

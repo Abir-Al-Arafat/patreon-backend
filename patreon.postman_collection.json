@@ -1,0 +1,637 @@
+{
+	"info": {
+		"_postman_id": "069a6b43-b2e7-492a-8023-e53e2745b5ff",
+		"name": "patreon",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39467598",
+		"_collection_link": "https://patreon-ali.postman.co/workspace/Team-Workspace~124740c9-a47c-4508-878e-151004ab26c6/collection/39467598-069a6b43-b2e7-492a-8023-e53e2745b5ff?action=share&source=collection_link&creator=39467598"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "signup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "wapan25662@firain.com",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "wapan25662@firain.com",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "wapan25662@firain.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "wapan25662@firain.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/auth/signup",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "wapan25662@firain.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "wapan25662@firain.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "send verification code to phone",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "phone",
+									"value": "+8801880798706",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/auth/send-verification-code-to-phone",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"send-verification-code-to-phone"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verify code",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "phone",
+									"value": "+8801993819829",
+									"type": "text"
+								},
+								{
+									"key": "code",
+									"value": "748825",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/auth/verify-code",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"verify-code"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "all users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/users",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "one user by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/users/6815ea4c347ae98f461b978b",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"6815ea4c347ae98f461b978b"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/users/auth/profile",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"auth",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update profile by user",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "bio",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/auth/update-profile-by-user",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"auth",
+								"update-profile-by-user"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "services",
+			"item": [
+				{
+					"name": "become a contributor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "title",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "description",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "12",
+									"type": "text"
+								},
+								{
+									"key": "about",
+									"value": "about",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "category",
+									"type": "text"
+								},
+								{
+									"key": "explainMembership",
+									"value": "[\n                    \"a member\",\n                    \"b member\",\n                    \"c member\"\n                ]",
+									"type": "text"
+								},
+								{
+									"key": "pdfFiles",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/become-contributor",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"become-contributor"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update service by id",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "about",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "explainMembership",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "pdfFiles",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/update-service-by-id/6810b4cb168be94b435b49a8",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"update-service-by-id",
+								"6810b4cb168be94b435b49a8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add file to service",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "pdfFiles",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/add-file-to-service/6810b4cb168be94b435b49a8",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"add-file-to-service",
+								"6810b4cb168be94b435b49a8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "send message",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "message",
+									"value": "what are the services you provide?",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/generate-reply-for-service/6810b4cb168be94b435b49a8",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"generate-reply-for-service",
+								"6810b4cb168be94b435b49a8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete file from service",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "filePath",
+									"value": "D:\\WORK\\aliyuksel  $3,400\\patreon-backend\\src\\public\\uploads\\pdfs\\1746268559650-legal.pdf",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/remove-file-from-service/6810b4cb168be94b435b49a8",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"remove-file-from-service",
+								"6810b4cb168be94b435b49a8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all services",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "about",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "explainMembership",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "pdfFiles",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/get-all-services",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"get-all-services"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "service by id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/get-service-by-id/6810b4cb168be94b435b49a8",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"get-service-by-id",
+								"6810b4cb168be94b435b49a8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "service by contributor",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/get-service-by-contributor",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"get-service-by-contributor"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all categories",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "about",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "explainMembership",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "pdfFiles",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/all-categories",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"all-categories"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

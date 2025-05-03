@@ -46,17 +46,6 @@ routes.post(
 // for logging in
 routes.post("/login", upload.none(), login);
 
-routes.get(
-  "/users",
-  isAuthorizedAdmin,
-  (req: Request, res: Response, next: NextFunction) => {
-    try {
-      return res.status(200).json("HIT");
-    } catch (error) {
-      return res.status(500).json(error);
-    }
-  }
-);
 // routes.post(
 //   "/auth/create-admin",
 //   // userValidator.create,

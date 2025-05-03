@@ -377,7 +377,7 @@ const getServiceByContributor = async (req: Request, res: Response) => {
       contributor: (req as UserRequest).user._id,
     });
 
-    if (!service) {
+    if (!service.length) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Service not found"));

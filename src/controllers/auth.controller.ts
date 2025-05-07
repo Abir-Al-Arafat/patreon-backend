@@ -122,6 +122,37 @@ const verifyCode = async (req: Request, res: Response) => {
       .send(`INTERNAL SERVER ERROR`);
   }
 };
+
+const verifyEmail = async (req: Request, res: Response) => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Please provide email and code"));
+    }
+
+    const user = await User.findOne({ email });
+
+    if (user && user.emailVerifyCode === code) {
+      user.emailVerified = true;
+      await user.save();
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(success("Email verified successfully"));
+    } else {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Invalid verification code"));
+    }
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Internal server error"));
+  }
+};
 // const verifyCode = async (req: Request, res: Response) => {
 //   try {
 //     const client = twilio(
@@ -362,4 +393,4 @@ const login = async (req: Request, res: Response) => {
   }
 };
 
-export { signup, login, sendVerificationCodeToPhone, verifyCode };
+export { signup, login, sendVerificationCodeToPhone, verifyCode, verifyEmail };

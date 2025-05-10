@@ -32,7 +32,7 @@ const getAllUsers = async (req: Request, res: Response) => {
       query.isActive = isActive === "true";
     }
 
-    const users = await User.find(query).select("-__v");
+    const users = await User.find(query).select("-__v").populate("phone");
     const count = await User.countDocuments(query);
 
     if (users.length) {

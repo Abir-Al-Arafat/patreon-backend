@@ -99,14 +99,12 @@ const verifyCode = async (req: Request, res: Response) => {
         .send(failure("Please provide phone number and code"));
     }
 
-    const verificationCheck = await Phone.findOne({
+    const verificationCheck = await Phone.findOneAndUpdate({
       phoneNumber: phone,
-      phoneNumberVerifyCode: code,
+      phoneNumberVerifyCode: Number(code),
     });
 
     if (verificationCheck) {
-      verificationCheck.phoneNumberVerified = true;
-      await verificationCheck.save();
       return res
         .status(HTTP_STATUS.OK)
         .send(success("Phone number verified successfully"));
@@ -209,13 +207,26 @@ const signup = async (req: Request, res: Response) => {
 
     console.log("req.body", req.body);
 
-    if (!req.body.email || !req.body.password) {
+    if (!req.body.email || !req.body.password || !req.body.phone) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("please provide mail and password"));
+        .send(failure("please provide mail, password & phone number"));
     }
 
     const emailCheck = await User.findOne({ email: req.body.email });
+    const phoneCheck = await Phone.findOne({
+      phoneNumber: req.body.phone,
+    });
+    if (!phoneCheck) {
+      return res
+        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+        .send(failure(`Phone number does not exist`));
+    }
+    if (!phoneCheck?.phoneNumberVerified) {
+      return res
+        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+        .send(failure(`Phone number is not verified, please verify`));
+    }
 
     if (emailCheck && !emailCheck.emailVerified) {
       const emailVerifyCode = generateRandomCode(6);
@@ -263,6 +274,7 @@ const signup = async (req: Request, res: Response) => {
       roles: req.body.roles || "user",
       password: hashedPassword,
       emailVerifyCode,
+      phone: phoneCheck._id,
     });
 
     const emailData = {
@@ -393,4 +405,52 @@ const login = async (req: Request, res: Response) => {
   }
 };
 
-export { signup, login, sendVerificationCodeToPhone, verifyCode, verifyEmail };
+const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { email, password, confirmPassword } = req.body;
+
+    if (!email || !password || !confirmPassword) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Please provide email, password and confirm password"));
+    }
+
+    if (password !== confirmPassword) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Password and confirm password do not match"));
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+        .send(failure("Invalid email"));
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    user.password = hashedPassword;
+
+    await user.save();
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Password reset successful", { user }));
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Internal server error"));
+  }
+};
+
+export {
+  signup,
+  login,
+  sendVerificationCodeToPhone,
+  verifyCode,
+  verifyEmail,
+  resetPassword,
+};

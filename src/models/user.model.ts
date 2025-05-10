@@ -56,7 +56,8 @@ const userSchema = new mongoose.Schema(
     },
 
     phone: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Phone",
     },
 
     gender: {

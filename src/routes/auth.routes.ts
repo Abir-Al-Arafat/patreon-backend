@@ -7,6 +7,7 @@ import {
   sendVerificationCodeToPhone,
   verifyCode,
   verifyEmail,
+  resetPassword,
 } from "../controllers/auth.controller";
 import multer from "multer";
 
@@ -54,6 +55,13 @@ routes.post(
 // for logging in
 routes.post("/login", upload.none(), login);
 
+routes.post(
+  "/auth/reset-password",
+  // userValidator.create,
+  // authValidator.create,
+  resetPassword
+);
+
 // routes.post(
 //   "/auth/create-admin",
 //   // userValidator.create,
@@ -74,27 +82,6 @@ routes.post("/login", upload.none(), login);
 //   "/auth/connect-stripe-account",
 //   isAuthorizedUser,
 //   connectStripeAccount
-// );
-
-// routes.post(
-//   "/auth/verify-email",
-//   // userValidator.create,
-//   // authValidator.create,
-//   verifyEmail
-// );
-
-// routes.post(
-//   "/auth/forgot-password",
-//   // userValidator.create,
-//   // authValidator.create,
-//   forgotPassword
-// );
-
-// routes.post(
-//   "/auth/reset-password",
-//   // userValidator.create,
-//   // authValidator.create,
-//   resetPassword
 // );
 
 // routes.post(

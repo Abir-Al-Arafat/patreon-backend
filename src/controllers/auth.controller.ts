@@ -3,7 +3,12 @@ import { validationResult } from "express-validator";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import twilio from "twilio";
-import { success, failure, generateRandomCode } from "../utilities/common";
+import {
+  success,
+  failure,
+  generateRandomCode,
+  sanitizeUser,
+} from "../utilities/common";
 import User from "../models/user.model";
 import Phone from "../models/phone.model";
 import Notification from "../models/notification.model";
@@ -421,7 +426,7 @@ const resetPassword = async (req: Request, res: Response) => {
         .send(failure("Password and confirm password do not match"));
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("name username email");
 
     if (!user) {
       return res
@@ -435,9 +440,11 @@ const resetPassword = async (req: Request, res: Response) => {
 
     await user.save();
 
+    const userData = sanitizeUser(user);
+
     return res
       .status(HTTP_STATUS.OK)
-      .send(success("Password reset successful", { user }));
+      .send(success("Password reset successful", { ...userData }));
   } catch (err) {
     console.log(err);
     return res

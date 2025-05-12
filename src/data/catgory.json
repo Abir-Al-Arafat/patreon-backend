@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Marketing",
+    "description": "Strategies and techniques to promote products and grow brand awareness.",
+    "image": "marketing.jpg",
+    "isActive": true
+  },
+  {
+    "name": "Finance",
+    "description": "Topics related to personal and corporate financial management.",
+    "image": "finance.jpg",
+    "isActive": true
+  },
+  {
+    "name": "Law",
+    "description": "Legal studies, rights, regulations, and judicial systems.",
+    "image": "law.jpg",
+    "isActive": true
+  },
+  {
+    "name": "Economy",
+    "description": "Economic systems, markets, and global financial trends.",
+    "image": "economy.jpg",
+    "isActive": true
+  },
+  {
+    "name": "Writing",
+    "description": "Creative, academic, and professional writing techniques and resources.",
+    "image": "writing.jpg",
+    "isActive": true
+  },
+  {
+    "name": "Business",
+    "description": "Entrepreneurship, operations, and corporate management.",
+    "image": "business.jpg",
+    "isActive": true
+  }
+]

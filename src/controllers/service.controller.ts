@@ -8,6 +8,7 @@ import HTTP_STATUS from "../constants/statusCodes";
 import Service from "../models/service.model";
 import User from "../models/user.model";
 import Nootification from "../models/notification.model";
+import Category from "../models/category.model";
 import Prompt from "../models/prompt.model";
 import { UserRequest } from "./users.controller";
 
@@ -325,10 +326,27 @@ const getAllServices = async (req: Request, res: Response) => {
   }
 };
 
+// const getAllCategories = async (req: Request, res: Response) => {
+//   try {
+//     const categories = await Service.distinct("category");
+//     if (!categories) {
+//       return res
+//         .status(HTTP_STATUS.NOT_FOUND)
+//         .send(failure("Categories not found"));
+//     }
+//     return res
+//       .status(HTTP_STATUS.OK)
+//       .send(success("Successfully received all categories", categories));
+//   } catch (error: any) {
+//     return res
+//       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+//       .send(failure("Error fetching categories", error.message));
+//   }
+// };
 const getAllCategories = async (req: Request, res: Response) => {
   try {
-    const categories = await Service.distinct("category");
-    if (!categories) {
+    const categories = await Category.find();
+    if (!categories.length) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Categories not found"));

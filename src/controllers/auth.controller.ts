@@ -412,12 +412,14 @@ const login = async (req: Request, res: Response) => {
 
 const resetPassword = async (req: Request, res: Response) => {
   try {
-    const { email, password, confirmPassword } = req.body;
+    const { phoneNumber, password, confirmPassword } = req.body;
 
-    if (!email || !password || !confirmPassword) {
+    if (!phoneNumber || !password || !confirmPassword) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("Please provide email, password and confirm password"));
+        .send(
+          failure("Please provide phone number, password and confirm password")
+        );
     }
 
     if (password !== confirmPassword) {
@@ -426,12 +428,20 @@ const resetPassword = async (req: Request, res: Response) => {
         .send(failure("Password and confirm password do not match"));
     }
 
-    const user = await User.findOne({ email }).select("name username email");
+    const phone = await Phone.findOne({ phoneNumber });
+
+    if (!phone) {
+      return res
+        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+        .send(failure("Invalid phone number"));
+    }
+
+    const user = await User.findOne({ phone: phone._id });
 
     if (!user) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
-        .send(failure("Invalid email"));
+        .send(failure("No user found with this phone number"));
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);

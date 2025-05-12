@@ -173,7 +173,14 @@ const updateProfileByUser = async (req: Request, res: Response) => {
   try {
     const { name, phone, image } = req.body;
     console.log("body", req.body);
+    console.log("image body", req.body.image);
+    console.log("image body", typeof req.body.image);
     const user = await User.findById((req as UserRequest).user?._id);
+    if (typeof req.body.image === "string") {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send({ message: "Please provide image, you have given string" });
+    }
     if (!user) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
@@ -221,6 +228,70 @@ const updateProfileByUser = async (req: Request, res: Response) => {
     return res
       .status(HTTP_STATUS.ACCEPTED)
       .send(success("Profile updated successfully", updatedUser));
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send({ message: "INTERNAL SERVER ERROR" });
+  }
+};
+
+const updateProfileImageByUser = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findById((req as UserRequest).user?._id);
+    if (!user) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send({ message: "User not found" });
+    }
+
+    const files = req.files as TUploadFields;
+
+    console.log("files", files);
+    console.log("files", files?.["image"]);
+
+    if (!req.files || !files?.["image"]) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send({ message: "Please provide image" });
+    }
+
+    if (req.files && files?.["image"]) {
+      let imageFileName = "";
+      if (files?.image[0]) {
+        // Delete old image file if it exists
+        if (user.image) {
+          const oldImagePath = path.join(__dirname, "../", user.image);
+          fs.unlink(oldImagePath, (err) => {
+            if (err) {
+              console.error("Failed to delete old image:", err);
+            }
+          });
+        }
+
+        // Add public/uploads link to the new image file
+        imageFileName = `public/uploads/images/${files?.image[0]?.filename}`;
+        user.image = imageFileName;
+      }
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      (req as UserRequest).user?._id,
+      { image: user.image },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send({ message: "User not found" });
+    }
+
+    console.log(updatedUser);
+    await user.save();
+    return res
+      .status(HTTP_STATUS.ACCEPTED)
+      .send(success("Profile image updated successfully", updatedUser));
   } catch (error) {
     console.log(error);
     return res
@@ -297,4 +368,5 @@ export {
   updateUserById,
   profile,
   updateProfileByUser,
+  updateProfileImageByUser,
 };

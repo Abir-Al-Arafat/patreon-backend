@@ -8,6 +8,7 @@ import {
   updateUserById,
   profile,
   updateProfileByUser,
+  updateProfileImageByUser,
 } from "../controllers/users.controller";
 
 import {
@@ -36,6 +37,13 @@ routes.patch(
   isAuthorizedUser,
   fileUpload(),
   updateProfileByUser
+);
+
+routes.patch(
+  "/auth/profile-image/update",
+  isAuthorizedUser,
+  fileUpload(),
+  updateProfileImageByUser
 );
 
 export default routes;

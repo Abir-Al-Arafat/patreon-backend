@@ -14,8 +14,10 @@ const phoneSchema = new mongoose.Schema(
     phoneNumberVerifyCode: {
       type: Number,
     },
-
-    reviewId: { type: mongoose.Schema.Types.ObjectId, ref: "Review" },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
   { timestamps: true }
 );

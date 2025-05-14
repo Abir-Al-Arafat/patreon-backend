@@ -66,10 +66,16 @@ const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
 
     const phoneNumberVerifyCode = generateRandomCode(6);
 
-    const newPhone = await Phone.create({
+    const phoneExists = await Phone.findOne({
       phoneNumber: phone,
-      phoneNumberVerifyCode,
     });
+    let newPhone;
+    if (!phoneExists) {
+      newPhone = await Phone.create({
+        phoneNumber: phone,
+        phoneNumberVerifyCode,
+      });
+    }
 
     const message = await client.messages.create({
       body: `Your verification code is ${phoneNumberVerifyCode}`,
@@ -77,7 +83,7 @@ const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
       to: phone,
     });
 
-    await newPhone.save();
+    await newPhone?.save();
 
     console.log("verification", message);
 
@@ -110,6 +116,13 @@ const verifyCode = async (req: Request, res: Response) => {
     });
 
     if (verificationCheck) {
+      verificationCheck.phoneNumberVerified = true;
+      console.log("verificationCheck", verificationCheck);
+      console.log(
+        "verificationCheck.phoneNumberVerified",
+        verificationCheck.phoneNumberVerified
+      );
+      await verificationCheck.save();
       return res
         .status(HTTP_STATUS.OK)
         .send(success("Phone number verified successfully"));
@@ -228,9 +241,20 @@ const signup = async (req: Request, res: Response) => {
         .send(failure(`Phone number does not exist`));
     }
     if (!phoneCheck?.phoneNumberVerified) {
+      console.log("phoneCheck", phoneCheck);
+      console.log(
+        "phoneCheck?.phoneNumberVerified",
+        phoneCheck?.phoneNumberVerified
+      );
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
         .send(failure(`Phone number is not verified, please verify`));
+    }
+    console.log("phoneCheck", phoneCheck);
+    if (phoneCheck.user) {
+      return res
+        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+        .send(failure(`Phone number is already registered`));
     }
 
     if (emailCheck && !emailCheck.emailVerified) {
@@ -281,6 +305,9 @@ const signup = async (req: Request, res: Response) => {
       emailVerifyCode,
       phone: phoneCheck._id,
     });
+
+    phoneCheck.user = newUser._id;
+    await phoneCheck.save();
 
     const emailData = {
       email: req.body.email,
@@ -351,7 +378,7 @@ const login = async (req: Request, res: Response) => {
     }
 
     const user = await User.findOne({ email });
-
+    console.log("user", user);
     if (!user) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
@@ -359,7 +386,7 @@ const login = async (req: Request, res: Response) => {
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-
+    console.log("isMatch", isMatch);
     if (!isMatch) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
@@ -443,6 +470,11 @@ const resetPassword = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
         .send(failure("No user found with this phone number"));
     }
+
+    console.log(user);
+
+    console.log("password", password);
+    console.log("confirmPassword", confirmPassword);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 

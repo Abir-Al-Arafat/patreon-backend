@@ -296,10 +296,14 @@ const getAllServices = async (req: Request, res: Response) => {
 
     let query: any = {};
 
-    if (typeof req.query.category === "string") {
-      query.category = {
-        $regex: new RegExp(req.query.category, "i"),
+    if (typeof req.query.title === "string") {
+      query.title = {
+        $regex: new RegExp(req.query.title, "i"),
       };
+    }
+
+    if (typeof req.query.category === "string") {
+      query.category = req.query.category;
     }
 
     const services = await Service.find(query)

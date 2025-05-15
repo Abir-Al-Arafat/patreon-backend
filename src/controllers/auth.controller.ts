@@ -9,6 +9,7 @@ import {
   generateRandomCode,
   sanitizeUser,
 } from "../utilities/common";
+import { UserRequest } from "./users.controller";
 import User from "../models/user.model";
 import Phone from "../models/phone.model";
 import Notification from "../models/notification.model";
@@ -495,6 +496,24 @@ const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
+const verifyToken = (req: Request, res: Response) => {
+  try {
+    const user = (req as UserRequest).user;
+
+    if (!user) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("Unauthorized access"));
+    }
+
+    return res.status(HTTP_STATUS.OK).send(success("Token is valid", { user }));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Token verification failed", error.message));
+  }
+};
+
 export {
   signup,
   login,
@@ -502,4 +521,5 @@ export {
   verifyCode,
   verifyEmail,
   resetPassword,
+  verifyToken,
 };

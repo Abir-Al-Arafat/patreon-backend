@@ -7,6 +7,7 @@ import {
   sendVerificationCodeToPhone,
   verifyCode,
   verifyEmail,
+  verifyToken,
   resetPassword,
 } from "../controllers/auth.controller";
 import multer from "multer";
@@ -62,6 +63,8 @@ routes.post(
   upload.none(),
   resetPassword
 );
+
+routes.post("/verify-token", isAuthorizedUser, upload.none(), verifyToken);
 
 // routes.post(
 //   "/auth/create-admin",

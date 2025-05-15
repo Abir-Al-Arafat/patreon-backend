@@ -15,6 +15,9 @@ const phoneSchema = new mongoose_1.default.Schema({
     phoneNumberVerifyCode: {
         type: Number,
     },
-    reviewId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Review" },
+    user: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "User",
+    },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model("Phone", phoneSchema);

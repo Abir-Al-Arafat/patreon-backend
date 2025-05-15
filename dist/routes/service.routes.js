@@ -20,8 +20,12 @@ routes.get("/get-service-by-id/:id", service_controller_1.getServiceById);
 routes.get("/get-service-by-contributor", authValidationJWT_1.isAuthorizedUser, service_controller_1.getServiceByContributor);
 routes.put("/update-service-by-id/:id", (0, fileUpload_1.default)(), service_controller_1.updateServiceById);
 routes.delete("/delete-service-by-id/:id", service_controller_1.deleteServiceById);
-routes.post("/generate-reply-for-service/:serviceId", upload.none(), service_controller_1.generateReplyForService);
-// routes.patch(
+routes.post("/generate-reply-for-service/:serviceId", authValidationJWT_1.isAuthorizedUser, upload.none(), service_controller_1.generateReplyForService);
+routes.get("/get-replies-for-service/:serviceId", service_controller_1.getRepliesForService);
+routes.get("/get-replies-by-user", authValidationJWT_1.isAuthorizedUser, service_controller_1.getRepliesByUser);
+// routes.get(
+//   "/get-replies-for-service/:serviceId",
+//   isAuthorizedUser,
 //   "/disable-service-by-id/:id",
 //   isAuthorizedAdmin,
 //   disableServiceById

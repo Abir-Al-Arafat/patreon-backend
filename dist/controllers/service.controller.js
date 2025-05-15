@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateReplyForService = exports.deleteServiceById = exports.updateServiceById = exports.getServiceByContributor = exports.getServiceById = exports.getAllCategories = exports.getAllServices = exports.removeFileFromService = exports.addFileToService = exports.addService = void 0;
+exports.getRepliesByUser = exports.getRepliesForService = exports.generateReplyForService = exports.deleteServiceById = exports.updateServiceById = exports.getServiceByContributor = exports.getServiceById = exports.getAllCategories = exports.getAllServices = exports.removeFileFromService = exports.addFileToService = exports.addService = void 0;
 const fs_1 = __importDefault(require("fs"));
 const pdf_parse_1 = __importDefault(require("pdf-parse"));
 const openaids_config_1 = __importDefault(require("../config/openaids.config"));
@@ -22,6 +22,7 @@ const service_model_1 = __importDefault(require("../models/service.model"));
 const user_model_1 = __importDefault(require("../models/user.model"));
 const notification_model_1 = __importDefault(require("../models/notification.model"));
 const category_model_1 = __importDefault(require("../models/category.model"));
+const serviceResponse_model_1 = __importDefault(require("../models/serviceResponse.model"));
 const prompt = [
     {
         question: "What areas of law do you work in?",
@@ -422,6 +423,11 @@ const deleteServiceById = (req, res) => __awaiter(void 0, void 0, void 0, functi
 exports.deleteServiceById = deleteServiceById;
 const generateReplyForService = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (!req.user || !req.user._id) {
+            return res
+                .status(statusCodes_1.default.UNAUTHORIZED)
+                .send((0, common_1.failure)("Please login "));
+        }
         if (!req.params.serviceId) {
             return res
                 .status(statusCodes_1.default.NOT_FOUND)
@@ -473,6 +479,16 @@ Be concise, clear, and strictly stay within the limits of the provided descripti
             ],
             temperature: 0.9, // optional but good
         });
+        const answer = reply.choices[0].message.content;
+        const createServiceResponse = yield serviceResponse_model_1.default.create({
+            user: req.user._id,
+            service: service._id,
+            question: message,
+            answer,
+        });
+        if (!createServiceResponse) {
+            console.error("Error creating service response");
+        }
         return res
             .status(statusCodes_1.default.OK)
             .send((0, common_1.success)("Successfully sent reply", reply.choices[0].message.content));
@@ -484,3 +500,45 @@ Be concise, clear, and strictly stay within the limits of the provided descripti
     }
 });
 exports.generateReplyForService = generateReplyForService;
+const getRepliesForService = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!req.params.serviceId) {
+            return res
+                .status(statusCodes_1.default.BAD_REQUEST)
+                .send((0, common_1.failure)("Please provide service id"));
+        }
+        const replies = yield serviceResponse_model_1.default
+            .find({
+            service: req.params.serviceId,
+        })
+            .sort({ createdAt: -1 });
+        return res.status(statusCodes_1.default.OK).send((0, common_1.success)("Replies fetched", replies));
+    }
+    catch (error) {
+        return res
+            .status(statusCodes_1.default.INTERNAL_SERVER_ERROR)
+            .send((0, common_1.failure)("Error fetching replies", error.message));
+    }
+});
+exports.getRepliesForService = getRepliesForService;
+const getRepliesByUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!req.user || !req.user._id) {
+            return res
+                .status(statusCodes_1.default.UNAUTHORIZED)
+                .send((0, common_1.failure)("Please login to access your replies"));
+        }
+        const replies = yield serviceResponse_model_1.default
+            .find({
+            user: req.user._id,
+        })
+            .sort({ createdAt: -1 });
+        return res.status(statusCodes_1.default.OK).send((0, common_1.success)("Replies fetched", replies));
+    }
+    catch (error) {
+        return res
+            .status(statusCodes_1.default.INTERNAL_SERVER_ERROR)
+            .send((0, common_1.failure)("Error fetching replies", error.message));
+    }
+});
+exports.getRepliesByUser = getRepliesByUser;

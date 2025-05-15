@@ -56,16 +56,22 @@ const sendVerificationCodeToPhone = (req, res) => __awaiter(void 0, void 0, void
             return res.status(400).send((0, common_1.success)("Phone number is required"));
         }
         const phoneNumberVerifyCode = (0, common_1.generateRandomCode)(6);
-        const newPhone = yield phone_model_1.default.create({
+        const phoneExists = yield phone_model_1.default.findOne({
             phoneNumber: phone,
-            phoneNumberVerifyCode,
         });
+        let newPhone;
+        if (!phoneExists) {
+            newPhone = yield phone_model_1.default.create({
+                phoneNumber: phone,
+                phoneNumberVerifyCode,
+            });
+        }
         const message = yield client.messages.create({
             body: `Your verification code is ${phoneNumberVerifyCode}`,
             from: "+14176203785",
             to: phone,
         });
-        yield newPhone.save();
+        yield (newPhone === null || newPhone === void 0 ? void 0 : newPhone.save());
         console.log("verification", message);
         return res.status(statusCodes_1.default.OK).send((0, common_1.success)("Verification code sent successfully", {
             message,
@@ -92,6 +98,10 @@ const verifyCode = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             phoneNumberVerifyCode: Number(code),
         });
         if (verificationCheck) {
+            verificationCheck.phoneNumberVerified = true;
+            console.log("verificationCheck", verificationCheck);
+            console.log("verificationCheck.phoneNumberVerified", verificationCheck.phoneNumberVerified);
+            yield verificationCheck.save();
             return res
                 .status(statusCodes_1.default.OK)
                 .send((0, common_1.success)("Phone number verified successfully"));
@@ -204,9 +214,17 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 .send((0, common_1.failure)(`Phone number does not exist`));
         }
         if (!(phoneCheck === null || phoneCheck === void 0 ? void 0 : phoneCheck.phoneNumberVerified)) {
+            console.log("phoneCheck", phoneCheck);
+            console.log("phoneCheck?.phoneNumberVerified", phoneCheck === null || phoneCheck === void 0 ? void 0 : phoneCheck.phoneNumberVerified);
             return res
                 .status(statusCodes_1.default.UNPROCESSABLE_ENTITY)
                 .send((0, common_1.failure)(`Phone number is not verified, please verify`));
+        }
+        console.log("phoneCheck", phoneCheck);
+        if (phoneCheck.user) {
+            return res
+                .status(statusCodes_1.default.UNPROCESSABLE_ENTITY)
+                .send((0, common_1.failure)(`Phone number is already registered`));
         }
         if (emailCheck && !emailCheck.emailVerified) {
             const emailVerifyCode = (0, common_1.generateRandomCode)(6);
@@ -248,6 +266,8 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             emailVerifyCode,
             phone: phoneCheck._id,
         });
+        phoneCheck.user = newUser._id;
+        yield phoneCheck.save();
         const emailData = {
             email: req.body.email,
             subject: "Account Activation Email",
@@ -309,12 +329,14 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 .send((0, common_1.failure)("Please provide email and password"));
         }
         const user = yield user_model_1.default.findOne({ email });
+        console.log("user", user);
         if (!user) {
             return res
                 .status(statusCodes_1.default.UNPROCESSABLE_ENTITY)
                 .send((0, common_1.failure)("Invalid email or password"));
         }
         const isMatch = yield bcryptjs_1.default.compare(password, user.password);
+        console.log("isMatch", isMatch);
         if (!isMatch) {
             return res
                 .status(statusCodes_1.default.UNPROCESSABLE_ENTITY)
@@ -381,6 +403,9 @@ const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 .status(statusCodes_1.default.UNPROCESSABLE_ENTITY)
                 .send((0, common_1.failure)("No user found with this phone number"));
         }
+        console.log(user);
+        console.log("password", password);
+        console.log("confirmPassword", confirmPassword);
         const hashedPassword = yield bcryptjs_1.default.hash(password, 10);
         user.password = hashedPassword;
         yield user.save();

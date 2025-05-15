@@ -13,6 +13,8 @@ import {
   updateServiceById,
   deleteServiceById,
   generateReplyForService,
+  getRepliesForService,
+  getRepliesByUser,
   //   disableServiceById,
   //   enableServiceById,
   //   approveServiceById,
@@ -64,11 +66,18 @@ routes.delete(
 
 routes.post(
   "/generate-reply-for-service/:serviceId",
+  isAuthorizedUser,
   upload.none(),
   generateReplyForService
 );
 
-// routes.patch(
+routes.get("/get-replies-for-service/:serviceId", getRepliesForService);
+
+routes.get("/get-replies-by-user", isAuthorizedUser, getRepliesByUser);
+
+// routes.get(
+//   "/get-replies-for-service/:serviceId",
+//   isAuthorizedUser,
 //   "/disable-service-by-id/:id",
 //   isAuthorizedAdmin,
 //   disableServiceById

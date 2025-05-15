@@ -9,6 +9,7 @@ import Service from "../models/service.model";
 import User from "../models/user.model";
 import Nootification from "../models/notification.model";
 import Category from "../models/category.model";
+import serviceResponseModel from "../models/serviceResponse.model";
 import Prompt from "../models/prompt.model";
 import { UserRequest } from "./users.controller";
 
@@ -443,6 +444,11 @@ const deleteServiceById = async (req: Request, res: Response) => {
 
 const generateReplyForService = async (req: Request, res: Response) => {
   try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("Please login "));
+    }
     if (!req.params.serviceId) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
@@ -497,6 +503,19 @@ Be concise, clear, and strictly stay within the limits of the provided descripti
       temperature: 0.9, // optional but good
     });
 
+    const answer = reply.choices[0].message.content;
+
+    const createServiceResponse = await serviceResponseModel.create({
+      user: (req as UserRequest).user._id,
+      service: service._id,
+      question: message,
+      answer,
+    });
+
+    if (!createServiceResponse) {
+      console.error("Error creating service response");
+    }
+
     return res
       .status(HTTP_STATUS.OK)
       .send(
@@ -506,6 +525,48 @@ Be concise, clear, and strictly stay within the limits of the provided descripti
     return res
       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
       .send(failure("Error sending reply", error.message));
+  }
+};
+
+const getRepliesForService = async (req: Request, res: Response) => {
+  try {
+    if (!req.params.serviceId) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Please provide service id"));
+    }
+    const replies = await serviceResponseModel
+      .find({
+        service: req.params.serviceId,
+      })
+      .sort({ createdAt: -1 });
+
+    return res.status(HTTP_STATUS.OK).send(success("Replies fetched", replies));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Error fetching replies", error.message));
+  }
+};
+
+const getRepliesByUser = async (req: Request, res: Response) => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("Please login to access your replies"));
+    }
+    const replies = await serviceResponseModel
+      .find({
+        user: (req as UserRequest).user._id,
+      })
+      .sort({ createdAt: -1 });
+
+    return res.status(HTTP_STATUS.OK).send(success("Replies fetched", replies));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Error fetching replies", error.message));
   }
 };
 
@@ -628,6 +689,8 @@ export {
   updateServiceById,
   deleteServiceById,
   generateReplyForService,
+  getRepliesForService,
+  getRepliesByUser,
   // disableServiceById,
   // enableServiceById,
   // approveServiceById,

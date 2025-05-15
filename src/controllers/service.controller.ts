@@ -62,6 +62,7 @@ const addService = async (req: Request, res: Response) => {
     }
     let {
       title,
+      subtitle,
       description,
       // prompt,
       price,
@@ -76,7 +77,7 @@ const addService = async (req: Request, res: Response) => {
 
     const newService = new Service({
       title,
-
+      subtitle,
       description,
       price,
       about,
@@ -304,7 +305,11 @@ const getAllServices = async (req: Request, res: Response) => {
     const services = await Service.find(query)
       .skip(skip)
       .limit(limit)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "contributor",
+        select: "image",
+      });
     const count = await Service.countDocuments(query);
     if (!services) {
       return res

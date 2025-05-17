@@ -78,6 +78,10 @@ const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
       });
     }
 
+    console.log("phoneExists", phoneExists);
+    console.log("newPhone", newPhone);
+    console.log("newPhone?.user", newPhone?.user);
+
     const message = await client.messages.create({
       body: `Your verification code is ${phoneNumberVerifyCode}`,
       from: "+14176203785",
@@ -86,7 +90,7 @@ const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
 
     await newPhone?.save();
 
-    console.log("verification", message);
+    // console.log("verification", message);
 
     return res.status(HTTP_STATUS.OK).send(
       success("Verification code sent successfully", {
@@ -111,27 +115,35 @@ const verifyCode = async (req: Request, res: Response) => {
         .send(failure("Please provide phone number and code"));
     }
 
-    const verificationCheck = await Phone.findOneAndUpdate({
+    const phoneCheck = await Phone.findOne({
       phoneNumber: phone,
-      phoneNumberVerifyCode: Number(code),
     });
 
-    if (verificationCheck) {
-      verificationCheck.phoneNumberVerified = true;
-      console.log("verificationCheck", verificationCheck);
-      console.log(
-        "verificationCheck.phoneNumberVerified",
-        verificationCheck.phoneNumberVerified
-      );
-      await verificationCheck.save();
+    if (!phoneCheck) {
       return res
-        .status(HTTP_STATUS.OK)
-        .send(success("Phone number verified successfully"));
-    } else {
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("phone number does not exist"));
+    }
+
+    if (phoneCheck.phoneNumberVerifyCode !== Number(code)) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
         .send(failure("Invalid verification code"));
     }
+
+    console.log("verificationCheck", phoneCheck);
+    console.log("verificationCheck?.user", phoneCheck?.user);
+
+    phoneCheck.phoneNumberVerified = true;
+    console.log("verificationCheck", phoneCheck);
+    console.log(
+      "verificationCheck.phoneNumberVerified",
+      phoneCheck.phoneNumberVerified
+    );
+    await phoneCheck.save();
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Phone number verified successfully"));
   } catch (err) {
     console.log(err);
     return res
@@ -241,6 +253,8 @@ const signup = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
         .send(failure(`Phone number does not exist`));
     }
+    console.log("phoneCheck", phoneCheck);
+    console.log("phoneCheck.user", phoneCheck.user);
     if (!phoneCheck?.phoneNumberVerified) {
       console.log("phoneCheck", phoneCheck);
       console.log(
@@ -252,6 +266,7 @@ const signup = async (req: Request, res: Response) => {
         .send(failure(`Phone number is not verified, please verify`));
     }
     console.log("phoneCheck", phoneCheck);
+    console.log("phoneCheck.user", phoneCheck.user);
     if (phoneCheck.user) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)

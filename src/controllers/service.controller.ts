@@ -125,6 +125,12 @@ const addService = async (req: Request, res: Response) => {
     newService.description = combinedDescription;
 
     await newService.save();
+    const user = await User.findById((req as UserRequest).user._id);
+    if (!user) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    }
+    user.services.push(newService._id);
+    await user.save();
     const admin = await User.findOne({ roles: "admin" });
     const notification = new Nootification({
       message: `New service has been created: ${newService.title}.`,

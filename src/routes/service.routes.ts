@@ -20,7 +20,11 @@ import {
   //   approveServiceById,
   //   cancelServiceById,
 } from "../controllers/service.controller";
-import { userValidator, authValidator } from "../middlewares/validation";
+import {
+  userValidator,
+  authValidator,
+  serviceValidator,
+} from "../middlewares/validation";
 import {
   isAuthorizedUser,
   isAuthorizedAdmin,
@@ -30,7 +34,13 @@ import fileUpload from "../middlewares/fileUpload";
 
 // const { authValidator } = require("../middleware/authValidation");
 
-routes.post("/become-contributor", isAuthorizedUser, fileUpload(), addService);
+routes.post(
+  "/become-contributor",
+  isAuthorizedUser,
+  fileUpload(),
+  serviceValidator.addService,
+  addService
+);
 
 routes.post("/add-file-to-service/:id", fileUpload(), addFileToService);
 

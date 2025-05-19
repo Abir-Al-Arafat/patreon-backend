@@ -490,10 +490,106 @@ const discountValidator = {
   ],
 };
 
+const serviceValidator = {
+  addService: [
+    body("title")
+      .exists()
+      .withMessage("title was not provided")
+      .bail()
+      .notEmpty()
+      .withMessage("title cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("title must be a string"),
+    body("subtitle")
+      .exists()
+      .withMessage("subtitle was not provided")
+      .bail()
+      .notEmpty()
+      .withMessage("subtitle cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("subtitle must be a string"),
+    body("description")
+      .exists()
+      .withMessage("description was not provided")
+      .bail()
+      .notEmpty()
+      .withMessage("description cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("description must be a string"),
+    body("price")
+      .exists()
+      .withMessage("price was not provided")
+      .bail()
+      .notEmpty()
+      .withMessage("price cannot be empty")
+      .bail()
+      .isFloat({ min: 1, max: 100000 })
+      .withMessage("Price must be a positive number"),
+    body("about")
+      .exists()
+      .withMessage("about was not provided")
+      .bail()
+      .notEmpty()
+      .withMessage("about cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("about must be a string"),
+    body("category")
+      .exists()
+      .withMessage("category was not provided")
+      .bail()
+      .notEmpty()
+      .withMessage("category cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("category must be a string"),
+    body("explainMembership")
+      .exists()
+      .withMessage("explainMembership was not provided"),
+  ],
+
+  updateService: [
+    body("name")
+      .optional()
+      .notEmpty()
+      .withMessage("Name is required")
+      .bail()
+      .isString()
+      .withMessage("name must be a string"),
+    body("description")
+      .optional()
+      .notEmpty()
+      .withMessage("description cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("description must be a string"),
+    body("price")
+      .optional()
+      .notEmpty()
+      .withMessage("price cannot be empty")
+      .bail()
+      .isFloat({ min: 1, max: 1000 })
+      .withMessage("Price must be a positive number"),
+  ],
+
+  id: [
+    param("id")
+      .exists()
+      .withMessage("Service ID must be provided")
+      .bail()
+      .matches(/^[a-f\d]{24}$/i)
+      .withMessage("ID is not in valid mongoDB format"),
+  ],
+};
+
 export {
   productValidator,
   userValidator,
   authValidator,
   reviewValidator,
   discountValidator,
+  serviceValidator,
 };

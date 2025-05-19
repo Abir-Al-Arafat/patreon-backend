@@ -1,6 +1,7 @@
 import fs from "fs";
 import pdfParse from "pdf-parse";
 import { Request, Response } from "express";
+import { validationResult } from "express-validator";
 import openai from "../config/openaids.config";
 import { success, failure } from "../utilities/common";
 import { TUploadFields } from "../types/upload-fields";
@@ -60,6 +61,14 @@ const addService = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.UNAUTHORIZED)
         .send(failure("Please login to become a contributor"));
     }
+    const validation = validationResult(req).array();
+    console.log(validation);
+    if (validation.length > 0) {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(failure("Failed to add the service", validation[0].msg));
+    }
+
     let {
       title,
       subtitle,
@@ -70,6 +79,8 @@ const addService = async (req: Request, res: Response) => {
       category,
       explainMembership,
     } = req.body;
+
+    console.log("req.body", req.body);
 
     if (typeof explainMembership === "string") {
       explainMembership = JSON.parse(explainMembership);
@@ -86,6 +97,8 @@ const addService = async (req: Request, res: Response) => {
       contributor: (req as UserRequest).user._id,
       status: "approved",
     });
+
+    console.log("newService", newService);
 
     if (!newService) {
       return res

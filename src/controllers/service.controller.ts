@@ -274,6 +274,14 @@ const updateServiceById = async (req: Request, res: Response) => {
         .send(failure("Please provide service id"));
     }
 
+    const validation = validationResult(req).array();
+    console.log(validation);
+    if (validation.length > 0) {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(failure("Failed to update the service", validation[0].msg));
+    }
+
     let { explainMembership } = req.body;
     if (typeof explainMembership === "string") {
       explainMembership = JSON.parse(explainMembership);

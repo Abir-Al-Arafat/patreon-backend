@@ -66,7 +66,12 @@ routes.get(
   getServiceByContributor
 );
 
-routes.put("/update-service-by-id/:id", fileUpload(), updateServiceById);
+routes.put(
+  "/update-service-by-id/:id",
+  fileUpload(),
+  serviceValidator.updateService,
+  updateServiceById
+);
 
 routes.delete(
   "/delete-service-by-id/:id",

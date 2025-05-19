@@ -552,13 +552,20 @@ const serviceValidator = {
   ],
 
   updateService: [
-    body("name")
+    body("title")
       .optional()
       .notEmpty()
-      .withMessage("Name is required")
+      .withMessage("title is required")
       .bail()
       .isString()
-      .withMessage("name must be a string"),
+      .withMessage("title must be a string"),
+    body("subtitle")
+      .optional()
+      .notEmpty()
+      .withMessage("subtitle cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("subtitle must be a string"),
     body("description")
       .optional()
       .notEmpty()
@@ -571,8 +578,26 @@ const serviceValidator = {
       .notEmpty()
       .withMessage("price cannot be empty")
       .bail()
-      .isFloat({ min: 1, max: 1000 })
+      .isFloat({ min: 1, max: 10000 })
       .withMessage("Price must be a positive number"),
+    body("about")
+      .optional()
+      .notEmpty()
+      .withMessage("about cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("about must be a string"),
+    body("category")
+      .optional()
+      .notEmpty()
+      .withMessage("category cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("category must be a string"),
+    body("explainMembership")
+      .optional()
+      .notEmpty()
+      .withMessage("explainMembership cannot be empty"),
   ],
 
   id: [

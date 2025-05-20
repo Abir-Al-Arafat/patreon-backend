@@ -333,6 +333,16 @@ const getAllServices = async (req: Request, res: Response) => {
       query.category = req.query.category;
     }
 
+    if ((req as UserRequest).user?._id) {
+      const user = await User.findById((req as UserRequest).user._id).select(
+        "services"
+      );
+      if (user) {
+        query._id = { $nin: user.services };
+      }
+      console.log("user", user);
+    }
+
     const services = await Service.find(query)
       .skip(skip)
       .limit(limit)

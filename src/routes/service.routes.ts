@@ -50,7 +50,7 @@ routes.delete(
   removeFileFromService
 );
 
-routes.get("/get-all-services", getAllServices);
+routes.get("/get-all-services", isAuthorizedUser, getAllServices);
 
 routes.get("/all-categories", getAllCategories);
 

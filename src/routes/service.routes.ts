@@ -1,3 +1,4 @@
+import { Request, Response } from "express";
 import express from "express";
 import multer from "multer";
 const routes = express();
@@ -20,6 +21,10 @@ import {
   //   approveServiceById,
   //   cancelServiceById,
 } from "../controllers/service.controller";
+
+import { success, failure } from "../utilities/common";
+import HTTP_STATUS from "../constants/statusCodes";
+
 import {
   userValidator,
   authValidator,
@@ -31,18 +36,50 @@ import {
 } from "../middlewares/authValidationJWT";
 
 import fileUpload from "../middlewares/fileUpload";
+import pdfUpload from "../middlewares/pdfUpload";
+import { NextFunction } from "express-serve-static-core";
 
 // const { authValidator } = require("../middleware/authValidation");
 
 routes.post(
   "/become-contributor",
   isAuthorizedUser,
-  fileUpload(),
+  // fileUpload(),
+
+  // pdfUpload(),
+  (req: Request, res: Response, next: NextFunction) => {
+    pdfUpload()(req, res, (err) => {
+      if (err instanceof Error) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).send({
+          success: false,
+          message: "Error uploading file",
+          error: err.message,
+        }); // ✅ Send the actual error
+      }
+      next();
+    });
+  },
   serviceValidator.addService,
   addService
 );
 
-routes.post("/add-file-to-service/:id", fileUpload(), addFileToService);
+routes.post(
+  "/add-file-to-service/:id",
+  // fileUpload(),
+  (req, res, next) => {
+    pdfUpload()(req, res, (err) => {
+      if (err instanceof Error) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).send({
+          success: false,
+          message: "Error uploading file",
+          error: err.message,
+        }); // ✅ Send the actual error
+      }
+      next();
+    });
+  },
+  addFileToService
+);
 
 routes.delete(
   "/remove-file-from-service/:id",
@@ -68,7 +105,8 @@ routes.get(
 
 routes.put(
   "/update-service-by-id/:id",
-  fileUpload(),
+  // fileUpload(),
+  pdfUpload(),
   serviceValidator.updateService,
   updateServiceById
 );

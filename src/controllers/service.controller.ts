@@ -502,6 +502,13 @@ const generateReplyForService = async (req: Request, res: Response) => {
         .send(failure("Service description not found or invalid"));
     }
     const { message } = req.body;
+    const validation = validationResult(req).array();
+    console.log(validation);
+    if (validation.length > 0) {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(failure("Failed to send message", validation[0].msg));
+    }
     if (!message) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)

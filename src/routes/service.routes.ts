@@ -83,6 +83,7 @@ routes.post(
   "/generate-reply-for-service/:serviceId",
   isAuthorizedUser,
   upload.none(),
+  serviceValidator.message,
   generateReplyForService
 );
 

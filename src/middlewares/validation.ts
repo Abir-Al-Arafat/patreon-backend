@@ -600,6 +600,18 @@ const serviceValidator = {
       .withMessage("explainMembership cannot be empty"),
   ],
 
+  message: [
+    body("message")
+      .exists()
+      .withMessage("message was not provided")
+      .bail()
+      .notEmpty()
+      .withMessage("message cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("message must be a string"),
+  ],
+
   id: [
     param("id")
       .exists()

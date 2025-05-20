@@ -330,7 +330,7 @@ const getAllServices = async (req: Request, res: Response) => {
     }
 
     if (typeof req.query.category === "string") {
-      query.category = req.query.category;
+      query.category = req.query.category.toLowerCase();
     }
 
     if ((req as UserRequest).user?._id) {

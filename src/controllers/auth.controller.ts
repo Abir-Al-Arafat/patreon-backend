@@ -77,6 +77,7 @@ const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
         phoneNumberVerifyCode,
       });
     }
+    if (phoneExists) phoneExists.phoneNumberVerifyCode = phoneNumberVerifyCode;
 
     console.log("phoneExists", phoneExists);
     console.log("newPhone", newPhone);
@@ -89,8 +90,7 @@ const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
     });
 
     await newPhone?.save();
-
-    // console.log("verification", message);
+    await phoneExists?.save();
 
     return res.status(HTTP_STATUS.OK).send(
       success("Verification code sent successfully", {
@@ -125,21 +125,26 @@ const verifyCode = async (req: Request, res: Response) => {
         .send(failure("phone number does not exist"));
     }
 
+    console.log("verificationCheck", phoneCheck);
+    console.log("verificationCheck?.user", phoneCheck?.user);
+    console.log("verificationCheck", phoneCheck);
+    console.log(
+      "verificationCheck.phoneNumberVerified",
+      phoneCheck.phoneNumberVerified
+    );
+    console.log(
+      "verificationCheck.phoneNumberVerified",
+      phoneCheck.phoneNumberVerifyCode
+    );
+
     if (phoneCheck.phoneNumberVerifyCode !== Number(code)) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
         .send(failure("Invalid verification code"));
     }
 
-    console.log("verificationCheck", phoneCheck);
-    console.log("verificationCheck?.user", phoneCheck?.user);
-
     phoneCheck.phoneNumberVerified = true;
-    console.log("verificationCheck", phoneCheck);
-    console.log(
-      "verificationCheck.phoneNumberVerified",
-      phoneCheck.phoneNumberVerified
-    );
+
     await phoneCheck.save();
     return res
       .status(HTTP_STATUS.OK)

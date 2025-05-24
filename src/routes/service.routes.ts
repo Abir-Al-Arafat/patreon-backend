@@ -46,19 +46,19 @@ routes.post(
   isAuthorizedUser,
   // fileUpload(),
 
-  // pdfUpload(),
-  (req: Request, res: Response, next: NextFunction) => {
-    pdfUpload()(req, res, (err) => {
-      if (err instanceof Error) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).send({
-          success: false,
-          message: "Error uploading file",
-          error: err.message,
-        }); // ✅ Send the actual error
-      }
-      next();
-    });
-  },
+  pdfUpload(),
+  // (req: Request, res: Response, next: NextFunction) => {
+  //   pdfUpload()(req, res, (err) => {
+  //     if (err instanceof Error) {
+  //       return res.status(HTTP_STATUS.BAD_REQUEST).send({
+  //         success: false,
+  //         message: "Error uploading file",
+  //         error: err.message,
+  //       }); // ✅ Send the actual error
+  //     }
+  //     next();
+  //   });
+  // },
   serviceValidator.addService,
   addService
 );
@@ -66,18 +66,19 @@ routes.post(
 routes.post(
   "/add-file-to-service/:id",
   // fileUpload(),
-  (req, res, next) => {
-    pdfUpload()(req, res, (err) => {
-      if (err instanceof Error) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).send({
-          success: false,
-          message: "Error uploading file",
-          error: err.message,
-        }); // ✅ Send the actual error
-      }
-      next();
-    });
-  },
+  // (req, res, next) => {
+  //   pdfUpload()(req, res, (err) => {
+  //     if (err instanceof Error) {
+  //       return res.status(HTTP_STATUS.BAD_REQUEST).send({
+  //         success: false,
+  //         message: "Error uploading file",
+  //         error: err.message,
+  //       }); // ✅ Send the actual error
+  //     }
+  //     next();
+  //   });
+  // },
+  pdfUpload(),
   addFileToService
 );
 

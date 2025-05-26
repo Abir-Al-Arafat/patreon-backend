@@ -13,7 +13,7 @@ import Category from "../models/category.model";
 import serviceResponseModel from "../models/serviceResponse.model";
 import Prompt from "../models/prompt.model";
 import { UserRequest } from "./users.controller";
-
+import { parseStringPromise } from "xml2js";
 const prompt = [
   {
     question: "What areas of law do you work in?",
@@ -118,6 +118,9 @@ const addService = async (req: Request, res: Response) => {
       // newService.files = documentPaths;
 
       for (const file of files.pdfFiles) {
+        if (file.mimetype !== "application/pdf") {
+          return res.status(400).send(failure("only pdf files are allowed"));
+        }
         documentPaths.push(file.path);
 
         const dataBuffer = fs.readFileSync(file.path);
@@ -137,6 +140,48 @@ const addService = async (req: Request, res: Response) => {
 
     newService.description = combinedDescription;
 
+    // Handle icon upload
+    let iconPath: string | undefined = undefined;
+    if (files?.icon && files.icon.length > 0) {
+      const iconFile = files.icon[0];
+      console.log("iconFile", iconFile);
+
+      if (!iconFile.mimetype.startsWith("image/")) {
+        return res.status(400).send(failure("Icon must be an image file"));
+      }
+
+      // 1. SVG only
+      if (iconFile.mimetype !== "image/svg+xml") {
+        return res.status(400).send(failure("Icon must be an SVG file"));
+      }
+      // 2. Max 2KB
+      if (iconFile.size > 2048) {
+        return res.status(400).send(failure("Icon SVG must be less than 2KB"));
+      }
+
+      // 3. Check SVG width and height
+      const svgContent = fs.readFileSync(iconFile.path, "utf8");
+
+      try {
+        const svgObj = await parseStringPromise(svgContent, {
+          explicitArray: false,
+        });
+        const svgTag = svgObj.svg;
+        const width = parseInt(svgTag.$.width, 10);
+        const height = parseInt(svgTag.$.height, 10);
+
+        if (width !== 20 || height !== 20) {
+          return res
+            .status(400)
+            .send(failure("Icon SVG must be exactly 20x20 pixels"));
+        }
+      } catch (e) {
+        return res.status(400).send(failure("Invalid SVG file"));
+      }
+      iconPath = iconFile.path;
+    }
+
+    newService.icon = iconPath;
     await newService.save();
     const user = await User.findById((req as UserRequest).user._id);
     if (!user) {
@@ -309,6 +354,11 @@ const updateServiceById = async (req: Request, res: Response) => {
 
 const getAllServices = async (req: Request, res: Response) => {
   try {
+    if (!req.query.category) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Category dila na ken?"));
+    }
     let page =
       typeof req.query.page === "string" ? parseInt(req.query.page) || 1 : 1;
     let limit =

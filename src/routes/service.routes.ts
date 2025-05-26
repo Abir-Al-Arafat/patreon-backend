@@ -44,9 +44,9 @@ import { NextFunction } from "express-serve-static-core";
 routes.post(
   "/become-contributor",
   isAuthorizedUser,
-  // fileUpload(),
+  fileUpload(),
 
-  pdfUpload(),
+  // pdfUpload(),
   // (req: Request, res: Response, next: NextFunction) => {
   //   pdfUpload()(req, res, (err) => {
   //     if (err instanceof Error) {

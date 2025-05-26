@@ -41,6 +41,10 @@ const serviceSchema = new mongoose.Schema(
       },
     ],
 
+    icon: {
+      type: String,
+    },
+
     isActive: {
       type: Boolean,
       default: true,

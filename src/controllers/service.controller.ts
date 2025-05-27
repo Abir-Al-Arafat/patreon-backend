@@ -67,7 +67,7 @@ const addService = async (req: Request, res: Response) => {
     if (validation.length > 0) {
       return res
         .status(HTTP_STATUS.OK)
-        .send(failure("Failed to add the service", validation[0].msg));
+        .send(failure(validation[0].msg, "Failed to add service"));
     }
 
     let {

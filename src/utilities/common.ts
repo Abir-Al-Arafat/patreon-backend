@@ -7,7 +7,7 @@ const success = <T>(message: string, data: T | null = null) => {
   };
 };
 
-const failure = (message: string, error = null) => {
+const failure = <T>(message: string, error: T | null = null) => {
   return {
     success: false,
     message: message,

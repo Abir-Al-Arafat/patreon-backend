@@ -11,6 +11,7 @@ import User from "../models/user.model";
 import Nootification from "../models/notification.model";
 import Category from "../models/category.model";
 import serviceResponseModel from "../models/serviceResponse.model";
+
 import Prompt from "../models/prompt.model";
 import { UserRequest } from "./users.controller";
 import { parseStringPromise } from "xml2js";
@@ -183,6 +184,15 @@ const addService = async (req: Request, res: Response) => {
 
     newService.icon = iconPath;
     await newService.save();
+
+    if (category || iconPath) {
+      // Check if category exists
+      const existingCategory = await Category.findOne({ name: category });
+      if (!existingCategory) {
+        const newCategory = new Category({ name: category, image: iconPath });
+        await newCategory.save();
+      }
+    }
     const user = await User.findById((req as UserRequest).user._id);
     if (!user) {
       return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));

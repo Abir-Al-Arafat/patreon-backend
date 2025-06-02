@@ -397,7 +397,7 @@ const login = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.BAD_REQUEST)
         .send(failure("Please provide email and password"));
     }
-
+    console.log("email", req.body);
     const user = await User.findOne({ email });
     console.log("user", user);
     if (!user) {

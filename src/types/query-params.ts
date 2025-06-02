@@ -4,6 +4,8 @@ export interface CreateUserQueryParams {
 
 export interface IQuery {
   role?: string;
+  roles?: string;
+  username?: RegExp | string;
   isAffiliate?: boolean;
   isActive?: boolean;
 }

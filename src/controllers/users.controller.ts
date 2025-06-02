@@ -17,11 +17,11 @@ export interface UserRequest extends Request {
 
 const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const { role, isAffiliate, isActive } = req.query;
+    const { role, isAffiliate, isActive, username } = req.query;
     const query: IQuery = {};
 
     if (role) {
-      query.role = role as string;
+      query.roles = role as string;
     }
 
     if (typeof isAffiliate !== "undefined") {
@@ -30,6 +30,10 @@ const getAllUsers = async (req: Request, res: Response) => {
 
     if (typeof isActive !== "undefined") {
       query.isActive = isActive === "true";
+    }
+
+    if (username && typeof username === "string") {
+      query.username = new RegExp(username, "i");
     }
 
     const users = await User.find(query).select("-__v").populate("phone");

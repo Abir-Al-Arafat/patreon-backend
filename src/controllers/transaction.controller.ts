@@ -209,11 +209,17 @@ const subscribeToService = async (req: Request, res: Response) => {
 // Webhook handler for Stripe
 const handleStripeWebhook = async (req: Request, res: Response) => {
   const sig = req.headers["stripe-signature"];
+  if (!sig) {
+    return res.status(400).send("Missing Stripe signature");
+  }
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    return res.status(500).send("Stripe webhook secret is not configured");
+  }
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   let event;
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig!, endpointSecret!);
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (err: any) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }

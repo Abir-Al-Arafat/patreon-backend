@@ -10,7 +10,7 @@ import { UserRequest } from "../interfaces/user.interface";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
-export const createPaddleCheckout = async (req: Request, res: Response) => {
+const createPaddleCheckout = async (req: Request, res: Response) => {
   try {
     const { customer_email, price, product_name } = req.body;
 
@@ -54,7 +54,7 @@ export const createPaddleCheckout = async (req: Request, res: Response) => {
 };
 
 // Controller to create Stripe Connect onboarding link for contributors
-export const createStripeAccountLink = async (req: Request, res: Response) => {
+const createStripeAccountLink = async (req: Request, res: Response) => {
   try {
     if ((req as UserRequest).user || !(req as UserRequest).user._id) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
@@ -113,7 +113,7 @@ export const createStripeAccountLink = async (req: Request, res: Response) => {
 };
 
 // Controller to handle subscriptions with split payments via Stripe Connect
-export const subscribeToService = async (req: Request, res: Response) => {
+const subscribeToService = async (req: Request, res: Response) => {
   try {
     if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
@@ -207,7 +207,7 @@ export const subscribeToService = async (req: Request, res: Response) => {
 };
 
 // Webhook handler for Stripe
-export const handleStripeWebhook = async (req: Request, res: Response) => {
+const handleStripeWebhook = async (req: Request, res: Response) => {
   const sig = req.headers["stripe-signature"];
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -232,4 +232,11 @@ export const handleStripeWebhook = async (req: Request, res: Response) => {
   }
 
   res.status(200).json({ received: true });
+};
+
+export {
+  createPaddleCheckout,
+  createStripeAccountLink,
+  subscribeToService,
+  handleStripeWebhook,
 };

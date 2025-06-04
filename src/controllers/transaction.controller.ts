@@ -62,7 +62,7 @@ const createStripeAccountLink = async (req: Request, res: Response) => {
     const userId = (req as UserRequest).user._id;
     const user = await User.findById(userId);
 
-    if (!user) {
+    if (!user || !user.email) {
       return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
     }
 

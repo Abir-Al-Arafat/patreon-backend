@@ -26,6 +26,11 @@ routes.post(
   express.raw({ type: "application/json" }),
   handleStripeWebhook
 );
-routes.get("/stripe/onboarding", createStripeAccountLink);
+routes.get(
+  "/stripe/onboarding",
+  upload.none(),
+  isAuthorizedUser,
+  createStripeAccountLink
+);
 
 export default routes;

@@ -56,7 +56,12 @@ const createPaddleCheckout = async (req: Request, res: Response) => {
 // Controller to create Stripe Connect onboarding link for contributors
 const createStripeAccountLink = async (req: Request, res: Response) => {
   try {
-    if ((req as UserRequest).user || !(req as UserRequest).user._id) {
+    console.log(
+      "Creating Stripe account link...",
+      req.body,
+      (req as UserRequest).user
+    );
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
     }
     const userId = (req as UserRequest).user._id;
@@ -209,6 +214,7 @@ const subscribeToService = async (req: Request, res: Response) => {
 // Webhook handler for Stripe
 const handleStripeWebhook = async (req: Request, res: Response) => {
   const sig = req.headers["stripe-signature"];
+  console.log("sig", sig);
   if (!sig) {
     return res.status(400).send("Missing Stripe signature");
   }
@@ -220,24 +226,31 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
   let event;
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    console.log("Webhook event received:", event);
+
+    if (event.type === "payment_intent.succeeded") {
+      const metadata = event.data.object.metadata;
+      const { userId, serviceId } = metadata;
+
+      const updatedService = await Service.findByIdAndUpdate(serviceId, {
+        $addToSet: { subscribers: userId },
+      });
+
+      const updatedUser = await User.findByIdAndUpdate(userId, {
+        $addToSet: { subscriptions: serviceId },
+      });
+      console.log("Service updated:", updatedService);
+      console.log("User updated:", updatedUser);
+
+      if (!updatedService || !updatedUser) {
+        return res.status(404).send("Service or User not found");
+      }
+    }
+
+    res.status(200).json({ received: true });
   } catch (err: any) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
-
-  if (event.type === "payment_intent.succeeded") {
-    const metadata = event.data.object.metadata;
-    const { userId, serviceId } = metadata;
-
-    await Service.findByIdAndUpdate(serviceId, {
-      $addToSet: { subscribers: userId },
-    });
-
-    await User.findByIdAndUpdate(userId, {
-      $addToSet: { subscriptions: serviceId },
-    });
-  }
-
-  res.status(200).json({ received: true });
 };
 
 export {

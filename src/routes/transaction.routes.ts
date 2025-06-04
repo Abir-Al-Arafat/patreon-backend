@@ -26,7 +26,7 @@ routes.post(
   express.raw({ type: "application/json" }),
   handleStripeWebhook
 );
-routes.get(
+routes.post(
   "/stripe/onboarding",
   upload.none(),
   isAuthorizedUser,

@@ -20,7 +20,12 @@ import fileUpload from "../middlewares/fileUpload";
 
 routes.post("/checkout", upload.none(), createPaddleCheckout);
 
-routes.post("/subscribe/:serviceId", subscribeToService);
+routes.post(
+  "/subscribe/:serviceId",
+  upload.none(),
+  isAuthorizedUser,
+  subscribeToService
+);
 routes.post(
   "/webhook",
   express.raw({ type: "application/json" }),

@@ -22,15 +22,15 @@ routes.post("/checkout", upload.none(), createPaddleCheckout);
 
 routes.post(
   "/subscribe/:serviceId",
-  upload.none(),
+  // upload.none(),
   isAuthorizedUser,
   subscribeToService
 );
-routes.post(
-  "/webhook",
-  express.raw({ type: "application/json" }),
-  handleStripeWebhook
-);
+// routes.post(
+//   "/webhook",
+//   express.raw({ type: "application/json" }),
+//   handleStripeWebhook
+// );
 routes.post(
   "/stripe/onboarding",
   upload.none(),

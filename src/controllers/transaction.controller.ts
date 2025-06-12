@@ -5,6 +5,7 @@ import { success, failure } from "../utilities/common";
 import HTTP_STATUS from "../constants/statusCodes";
 import User from "../models/user.model";
 import Service from "../models/service.model";
+import Transaction from "../models/transaction.model";
 
 import { UserRequest } from "../interfaces/user.interface";
 
@@ -237,6 +238,22 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
 
     if (event.type === "payment_intent.created") {
       console.log("✅ PaymentIntent created:", paymentIntent.id);
+
+      // Log to DB
+      const newTransaction = await Transaction.create({
+        paymentIntentId: paymentIntent.id,
+        userId: paymentIntent.metadata?.userId || null,
+        serviceId: paymentIntent.metadata?.serviceId || null,
+        amount: paymentIntent.amount,
+        status: "created",
+        metadata: paymentIntent.metadata || {},
+      });
+
+      if (!newTransaction) {
+        console.error("Failed to create transaction");
+      }
+
+      console.log("Transaction created:", newTransaction);
     }
 
     if (event.type === "payment_intent.succeeded") {
@@ -264,6 +281,26 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
       if (!updatedService || !updatedUser) {
         return res.status(404).send("Service or User not found");
       }
+
+      // Update transaction status to succeeded
+      let transaction = await Transaction.findOneAndUpdate(
+        { paymentIntentId: paymentIntent.id },
+        { status: "succeeded" },
+        { new: true }
+      );
+      if (!transaction) {
+        console.error("Transaction not found for update");
+        console.log("Creating new transaction for succeeded payment intent");
+        transaction = await Transaction.create({
+          paymentIntentId: paymentIntent.id,
+          userId: paymentIntent.metadata?.userId || null,
+          serviceId: paymentIntent.metadata?.serviceId || null,
+          amount: paymentIntent.amount,
+          status: "succeeded",
+          metadata: paymentIntent.metadata || {},
+        });
+      }
+      console.log("Transaction updated:", transaction);
     }
 
     if (event.type === "payment_intent.payment_failed") {

@@ -283,15 +283,15 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
       }
 
       // Update transaction status to succeeded
-      let transaction = await Transaction.findOneAndUpdate(
+      let updatedTransaction = await Transaction.findOneAndUpdate(
         { paymentIntentId: paymentIntent.id },
         { status: "succeeded" },
         { new: true }
       );
-      if (!transaction) {
+      if (!updatedTransaction) {
         console.error("Transaction not found for update");
         console.log("Creating new transaction for succeeded payment intent");
-        transaction = await Transaction.create({
+        updatedTransaction = await Transaction.create({
           paymentIntentId: paymentIntent.id,
           userId: paymentIntent.metadata?.userId || null,
           serviceId: paymentIntent.metadata?.serviceId || null,
@@ -300,7 +300,7 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
           metadata: paymentIntent.metadata || {},
         });
       }
-      console.log("Transaction updated:", transaction);
+      console.log("Transaction updated:", updatedTransaction);
     }
 
     if (event.type === "payment_intent.payment_failed") {

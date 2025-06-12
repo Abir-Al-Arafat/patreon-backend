@@ -6,6 +6,9 @@ import {
   createPaddleCheckout,
   createStripeAccountLink,
   subscribeToService,
+  getAllTransactions,
+  getTransactionById,
+  getTransactionByUser,
   handleStripeWebhook,
 } from "../controllers/transaction.controller";
 import { userValidator, authValidator } from "../middlewares/validation";
@@ -37,5 +40,9 @@ routes.post(
   isAuthorizedUser,
   createStripeAccountLink
 );
+
+routes.get("/all", getAllTransactions);
+routes.get("/:id", getTransactionById);
+routes.get("/user/self", isAuthorizedUser, getTransactionByUser);
 
 export default routes;

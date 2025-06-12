@@ -322,9 +322,64 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
   }
 };
 
+const getAllTransactions = async (req: Request, res: Response) => {
+  try {
+    const transactions = await Transaction.find({}).sort({ createdAt: -1 });
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Transactions found", transactions));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Failed to get transactions", error.message));
+  }
+};
+
+const getTransactionById = async (req: Request, res: Response) => {
+  try {
+    const transaction = await Transaction.findById(req.params.id);
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Transaction found", transaction));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Failed to get transaction", error.message));
+  }
+};
+
+const getTransactionByUser = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const userId = (req as UserRequest).user._id;
+    if (!userId) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("User ID is required"));
+    }
+
+    const transactions = await Transaction.find({ userId }).sort({
+      createdAt: -1,
+    });
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Transactions found for user", transactions));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Failed to get user transactions", error.message));
+  }
+};
+
 export {
   createPaddleCheckout,
   createStripeAccountLink,
   subscribeToService,
   handleStripeWebhook,
+  getAllTransactions,
+  getTransactionById,
+  getTransactionByUser,
 };

@@ -120,6 +120,7 @@ const createStripeAccountLink = async (req: Request, res: Response) => {
 // Controller to handle subscriptions with split payments via Stripe Connect
 const subscribeToService = async (req: Request, res: Response) => {
   try {
+    console.log("Subscribing to service...");
     if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
     }
@@ -143,6 +144,8 @@ const subscribeToService = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Service not found"));
     }
+
+    console.log("Service found:", service);
 
     if (!service.price || service.price <= 0) {
       return res
@@ -224,27 +227,56 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   let event;
+  console.log("req.body", req.body);
+  console.log("event", event);
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
     console.log("Webhook event received:", event);
+
+    const paymentIntent = event.data.object as Stripe.PaymentIntent;
+
+    if (event.type === "payment_intent.created") {
+      console.log("✅ PaymentIntent created:", paymentIntent.id);
+    }
 
     if (event.type === "payment_intent.succeeded") {
       const metadata = event.data.object.metadata;
       const { userId, serviceId } = metadata;
 
-      const updatedService = await Service.findByIdAndUpdate(serviceId, {
-        $addToSet: { subscribers: userId },
-      });
+      const updatedService = await Service.findByIdAndUpdate(
+        serviceId,
+        {
+          $addToSet: { subscribers: userId },
+        },
+        { new: true }
+      );
 
-      const updatedUser = await User.findByIdAndUpdate(userId, {
-        $addToSet: { subscriptions: serviceId },
-      });
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          $addToSet: { subscriptions: serviceId },
+        },
+        { new: true }
+      );
       console.log("Service updated:", updatedService);
       console.log("User updated:", updatedUser);
 
       if (!updatedService || !updatedUser) {
         return res.status(404).send("Service or User not found");
       }
+    }
+
+    if (event.type === "payment_intent.payment_failed") {
+      console.warn("⚠️ PaymentIntent failed:", paymentIntent.id);
+    }
+
+    if (event.type === "payment_intent.canceled") {
+      console.warn("⚠️ PaymentIntent canceled:", paymentIntent.id);
+    }
+
+    if (event.type === "charge.succeeded") {
+      const charge = event.data.object as Stripe.Charge;
+      console.log("✅ Charge succeeded:", charge.id);
     }
 
     res.status(200).json({ received: true });

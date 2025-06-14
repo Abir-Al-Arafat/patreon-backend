@@ -360,13 +360,42 @@ const getTransactionByUser = async (
         .send(failure("User ID is required"));
     }
 
-    const transactions = await Transaction.find({ userId }).sort({
+    const { month } = req.query;
+    let query: any = { userId };
+    if (month) {
+      const monthNumber = Number(month);
+      if (isNaN(monthNumber) || monthNumber < 1 || monthNumber > 5) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .send(failure("Month has to be a number and between 1 and 5"));
+      }
+      const date = new Date();
+      date.setMonth(date.getMonth() - monthNumber + 1);
+      date.setDate(1); // Set to the first day of the month
+      query.createdAt = { $gte: date };
+    }
+
+    const transactions = await Transaction.find(query).sort({
       createdAt: -1,
     });
 
+    const totalTransactions = transactions.reduce(
+      (total, curr) => total + curr.amount!,
+      0
+    );
+
     return res
       .status(HTTP_STATUS.OK)
-      .send(success("Transactions found for user", transactions));
+      .send(
+        success(
+          `Transactions found for user${
+            month
+              ? ` in last ${month} month${Number(month) > 1 ? "s" : ""}`
+              : ""
+          }`,
+          { totalTransactions, transactions }
+        )
+      );
   } catch (error: any) {
     return res
       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)

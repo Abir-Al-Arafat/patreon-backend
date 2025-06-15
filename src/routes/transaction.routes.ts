@@ -5,6 +5,7 @@ const upload = multer();
 import {
   createPaddleCheckout,
   createStripeAccountLink,
+  createCheckoutSession,
   subscribeToService,
   getAllTransactions,
   getTransactionById,
@@ -39,6 +40,13 @@ routes.post(
   upload.none(),
   isAuthorizedUser,
   createStripeAccountLink
+);
+
+routes.post(
+  "/stripe/checkout/:serviceId",
+  upload.none(),
+  isAuthorizedUser,
+  createCheckoutSession
 );
 
 routes.get("/all", getAllTransactions);

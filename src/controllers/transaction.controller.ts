@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+
 import { Request, Response } from "express";
 import axios from "axios";
 import { success, failure } from "../utilities/common";
@@ -115,6 +116,68 @@ const createStripeAccountLink = async (req: Request, res: Response) => {
     return res
       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
       .send(failure("Failed to create onboarding link", error.message));
+  }
+};
+
+const createCheckoutSession = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?._id;
+    const { serviceId } = req.params;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    if (!serviceId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Service ID is required" });
+    }
+
+    const service = await Service.findById(serviceId).populate("contributor");
+
+    if (!service) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Service not found" });
+    }
+
+    const user = await User.findById(userId);
+    const contributor = service.contributor;
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            unit_amount: service.price! * 100,
+            product_data: {
+              name: service.title,
+              description: service.description,
+            },
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: `${process.env.CLIENT_URL}?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.CLIENT_URL}`,
+      metadata: {
+        userId: userId.toString(),
+        serviceId: service._id.toString(),
+        contributorId: contributor?._id.toString(),
+      },
+    } as Stripe.Checkout.SessionCreateParams);
+
+    return res.status(200).json({ success: true, url: session.url });
+  } catch (error: any) {
+    console.error("Stripe Checkout Session error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to create checkout session",
+      error: error.message,
+    });
   }
 };
 
@@ -411,4 +474,5 @@ export {
   getAllTransactions,
   getTransactionById,
   getTransactionByUser,
+  createCheckoutSession,
 };

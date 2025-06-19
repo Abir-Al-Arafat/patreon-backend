@@ -466,6 +466,39 @@ const getTransactionByUser = async (
   }
 };
 
+const createTransaction = async (req: Request, res: Response) => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+    }
+    const { serviceId, amount, status } = req.body;
+    if (!serviceId || !amount || !status) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Please provide serviceId,  amount, and status"));
+    }
+    if (!["created", "succeeded", "failed"].includes(status)) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Invalid status value"));
+    }
+    const transaction = await Transaction.create({
+      paymentIntentId: req.body.paymentIntentId || null,
+      userId: (req as UserRequest).user._id,
+      serviceId,
+      amount,
+      status,
+    });
+    return res
+      .status(HTTP_STATUS.CREATED)
+      .send(success("Transaction created", transaction));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Failed to create transaction", error.message));
+  }
+};
+
 export {
   createPaddleCheckout,
   createStripeAccountLink,
@@ -475,4 +508,5 @@ export {
   getTransactionById,
   getTransactionByUser,
   createCheckoutSession,
+  createTransaction,
 };

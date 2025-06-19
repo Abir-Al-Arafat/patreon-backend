@@ -6,6 +6,7 @@ import {
   createPaddleCheckout,
   createStripeAccountLink,
   createCheckoutSession,
+  createTransaction,
   subscribeToService,
   getAllTransactions,
   getTransactionById,
@@ -48,6 +49,8 @@ routes.post(
   isAuthorizedUser,
   createCheckoutSession
 );
+
+routes.post("/create", upload.none(), isAuthorizedUser, createTransaction);
 
 routes.get("/all", getAllTransactions);
 routes.get("/:id", getTransactionById);

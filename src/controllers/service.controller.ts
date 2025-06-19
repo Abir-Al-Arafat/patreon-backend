@@ -367,7 +367,7 @@ const getAllServices = async (req: Request, res: Response) => {
     if (!req.query.category) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("Category dila na ken?"));
+        .send(failure("please provide category"));
     }
     let page =
       typeof req.query.page === "string" ? parseInt(req.query.page) || 1 : 1;

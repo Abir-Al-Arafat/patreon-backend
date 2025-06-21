@@ -119,6 +119,63 @@ const createStripeAccountLink = async (req: Request, res: Response) => {
   }
 };
 
+const onboardingComplete = async (req: Request, res: Response) => {
+  try {
+    return res.status(HTTP_STATUS.OK).send(success("Onboarding Completed"));
+    // if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+    //   return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+    // }
+    // const userId = (req as UserRequest).user._id;
+    // const user = await User.findById(userId);
+
+    // if (!user || !user.stripeAccountId) {
+    //   return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    // }
+
+    // const account = await stripe.accounts.retrieve(user.stripeAccountId);
+
+    // if (!account) {
+    //   return res
+    //     .status(HTTP_STATUS.NOT_FOUND)
+    //     .send(failure("Stripe account not found"));
+    // }
+
+    // if (account.details_submitted) {
+    //   return res
+    //     .status(HTTP_STATUS.BAD_REQUEST)
+    //     .send(failure("Account details already submitted"));
+    // }
+
+    // await stripe.accounts.update(user.stripeAccountId, {
+    //   capabilities: {
+    //     transfers: { requested: true },
+    //   },
+    // });
+
+    // return res
+    //   .status(HTTP_STATUS.OK)
+    //   .send(success("Account details submitted"));
+  } catch (error: any) {
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
+      success: false,
+      message: "Failed to complete onboarding",
+      error: error.message,
+    });
+  }
+};
+
+const onboardingRefresh = async (req: Request, res: Response) => {
+  try {
+    return res.status(HTTP_STATUS.OK).send(success("Onboarding Refreshed"));
+  } catch (error: any) {
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
+      success: false,
+      message: "Failed to refresh onboarding",
+      error: error.message,
+    });
+  }
+};
+
 const createCheckoutSession = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?._id;
@@ -471,6 +528,7 @@ const createTransaction = async (req: Request, res: Response) => {
     if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
     }
+    console.log("req.body", req.body);
     const { serviceId, amount, status } = req.body;
     if (!serviceId || !amount || !status) {
       return res
@@ -489,6 +547,12 @@ const createTransaction = async (req: Request, res: Response) => {
       amount,
       status,
     });
+    if (!transaction) {
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .send(failure("Failed to create transaction"));
+    }
+    console.log("Transaction created:", transaction);
     return res
       .status(HTTP_STATUS.CREATED)
       .send(success("Transaction created", transaction));
@@ -509,4 +573,6 @@ export {
   getTransactionByUser,
   createCheckoutSession,
   createTransaction,
+  onboardingComplete,
+  onboardingRefresh,
 };

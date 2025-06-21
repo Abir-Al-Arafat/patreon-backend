@@ -20,22 +20,27 @@
 							"formdata": [
 								{
 									"key": "email",
-									"value": "wapan25662@firain.com",
+									"value": "pobame1972@leabro.com",
 									"type": "text"
 								},
 								{
 									"key": "name",
-									"value": "wapan25662@firain.com",
+									"value": "pobame1972@leabro.com",
 									"type": "text"
 								},
 								{
 									"key": "username",
-									"value": "wapan25662@firain.com",
+									"value": "pobame1972@leabro.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "wapan25662@firain.com",
+									"value": "pobame1972@leabro.com",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "+8801993819222",
 									"type": "text"
 								}
 							]
@@ -63,12 +68,12 @@
 							"formdata": [
 								{
 									"key": "email",
-									"value": "wapan25662@firain.com",
+									"value": "kiboja6175@inkight.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "wapan25662@firain.com",
+									"value": "1234",
 									"type": "text"
 								}
 							]
@@ -87,6 +92,74 @@
 					"response": []
 				},
 				{
+					"name": "login deploy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "kiboja6175@inkight.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "1234",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURLDeploy}}/auth/login",
+							"host": [
+								"{{baseURLDeploy}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verify token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "vecosal642@hazhab.com",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "123456",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/auth/verify-token",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"verify-token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "send verification code to phone",
 					"request": {
 						"method": "POST",
@@ -96,7 +169,7 @@
 							"formdata": [
 								{
 									"key": "phone",
-									"value": "+8801880798706",
+									"value": "+8801993819111",
 									"type": "text"
 								}
 							]
@@ -124,12 +197,12 @@
 							"formdata": [
 								{
 									"key": "phone",
-									"value": "+8801993819829",
+									"value": "+8801993819222",
 									"type": "text"
 								},
 								{
 									"key": "code",
-									"value": "748825",
+									"value": "964448",
 									"type": "text"
 								}
 							]
@@ -146,6 +219,110 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "verify email",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "code",
+									"value": "748825",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/auth/verify-email",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"verify-email"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reset password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "phoneNumber",
+									"value": "+8801993819111",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "1234",
+									"type": "text"
+								},
+								{
+									"key": "confirmPassword",
+									"value": "1234",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/auth/reset-password",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
 				}
 			]
 		},
@@ -164,6 +341,18 @@
 							],
 							"path": [
 								"users"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "vigawak581",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "user",
+									"disabled": true
+								}
 							]
 						}
 					},
@@ -175,13 +364,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseURL}}/users/6815ea4c347ae98f461b978b",
+							"raw": "{{baseURL}}/users/6825c189bf5e3922a2870539",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"users",
-								"6815ea4c347ae98f461b978b"
+								"6825c189bf5e3922a2870539"
 							]
 						}
 					},
@@ -189,7 +378,102 @@
 				},
 				{
 					"name": "user profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = `",
+									"<style type=\"text/css\">",
+									"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}",
+									"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}",
+									"    .tftable tr {background-color:#ffffff;}",
+									"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}",
+									"    .tftable tr:hover {background-color:#e0ffff;}",
+									"</style>",
+									"",
+									"<table class=\"tftable\" border=\"1\">",
+									"    <tr>",
+									"        <th>Field</th>",
+									"        <th>Value</th>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>_id</td>",
+									"        <td>{{response.data._id}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Name</td>",
+									"        <td>{{response.data.name}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Username</td>",
+									"        <td>{{response.data.username}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Email</td>",
+									"        <td>{{response.data.email}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Subscriber Count</td>",
+									"        <td>{{response.data.subscriberCount}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Roles</td>",
+									"        <td>{{response.data.roles}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Balance</td>",
+									"        <td>{{response.data.balance}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Email Verified</td>",
+									"        <td>{{response.data.emailVerified}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Is Active</td>",
+									"        <td>{{response.data.isActive}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Is Locked</td>",
+									"        <td>{{response.data.isLocked}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Created At</td>",
+									"        <td>{{response.data.createdAt}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Updated At</td>",
+									"        <td>{{response.data.updatedAt}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Image</td>",
+									"        <td>{{response.data.image}}</td>",
+									"    </tr>",
+									"</table>",
+									"`;",
+									"",
+									"function constructVisualizerPayload() {",
+									"    return { response: pm.response.json() }",
+									"}",
+									"",
+									"pm.visualizer.set(template, constructVisualizerPayload());"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODFjYjRkZDVlOGQ3YjUwZWEyODAwYTUiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTc0Njg4MDUxMCwiZXhwIjoxODMzMjgwNTEwfQ.RAUbASvYJQ98PBswe0se3RvYq37kg4niWYJlOqEE4IE",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -209,6 +493,16 @@
 				{
 					"name": "update profile by user",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODFjYjRkZDVlOGQ3YjUwZWEyODAwYTUiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTc0Njg4MDUxMCwiZXhwIjoxODMzMjgwNTEwfQ.RAUbASvYJQ98PBswe0se3RvYq37kg4niWYJlOqEE4IE",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PATCH",
 						"header": [],
 						"body": {
@@ -216,23 +510,29 @@
 							"formdata": [
 								{
 									"key": "name",
-									"value": "",
-									"type": "text"
+									"value": "Tush1",
+									"type": "text",
+									"disabled": true
 								},
 								{
 									"key": "username",
-									"value": "",
-									"type": "text"
+									"value": "Tush",
+									"type": "text",
+									"disabled": true
 								},
 								{
 									"key": "bio",
-									"value": "",
+									"value": "Tush",
 									"type": "text"
 								},
 								{
 									"key": "image",
 									"type": "file",
-									"src": []
+									"src": [
+										"/Users/jillur/Downloads/5 545.svg",
+										"/Users/jillur/Downloads/5 545.svg"
+									],
+									"disabled": true
 								}
 							]
 						},
@@ -245,6 +545,36 @@
 								"users",
 								"auth",
 								"update-profile-by-user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update profile image",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"value": "vecosal642@hazhab.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/auth/profile-image/update",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"auth",
+								"profile-image",
+								"update"
 							]
 						}
 					},
@@ -265,8 +595,9 @@
 							"formdata": [
 								{
 									"key": "title",
-									"value": "title",
-									"type": "text"
+									"value": "\"Marketing\"",
+									"type": "text",
+									"disabled": true
 								},
 								{
 									"key": "description",
@@ -285,17 +616,27 @@
 								},
 								{
 									"key": "category",
-									"value": "category",
+									"value": "marketing",
 									"type": "text"
 								},
 								{
 									"key": "explainMembership",
-									"value": "[\n                    \"a member\",\n                    \"b member\",\n                    \"c member\"\n                ]",
+									"value": "[\n \"a member\",\n\"b member\",\n \"c member\"\n]",
 									"type": "text"
 								},
 								{
 									"key": "pdfFiles",
-									"value": "",
+									"type": "file",
+									"src": "/Users/jillur/Downloads/Discharge (6).svg"
+								},
+								{
+									"key": "title",
+									"value": "Marketing services",
+									"type": "text"
+								},
+								{
+									"key": "subtitle",
+									"value": "helow Bangladesh",
 									"type": "text"
 								}
 							]
@@ -316,7 +657,17 @@
 				{
 					"name": "update service by id",
 					"request": {
-						"method": "POST",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODE1ZWE0YzM0N2FlOThmNDYxYjk3OGIiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTc0Njc4NzgzNCwiZXhwIjoxODMzMTg3ODM0fQ.iMAzUJZ5nkIVZtw0_LA6VOmJ2g8069ztbs2mnZE7Ks",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "formdata",
@@ -324,48 +675,55 @@
 								{
 									"key": "title",
 									"value": "",
-									"type": "text"
+									"type": "text",
+									"disabled": true
 								},
 								{
 									"key": "description",
-									"value": "",
+									"value": "fdfdf",
 									"type": "text"
 								},
 								{
 									"key": "price",
 									"value": "",
-									"type": "text"
+									"type": "text",
+									"disabled": true
 								},
 								{
 									"key": "about",
 									"value": "",
-									"type": "text"
+									"type": "text",
+									"disabled": true
 								},
 								{
 									"key": "category",
 									"value": "",
-									"type": "text"
+									"type": "text",
+									"disabled": true
 								},
 								{
 									"key": "explainMembership",
 									"value": "",
-									"type": "text"
+									"type": "text",
+									"disabled": true
 								},
 								{
 									"key": "pdfFiles",
 									"value": "",
-									"type": "text"
+									"type": "text",
+									"disabled": true
 								}
 							]
 						},
 						"url": {
-							"raw": "{{baseURL}}/update-service-by-id/6810b4cb168be94b435b49a8",
+							"raw": "{{baseURL}}/services/update-service-by-id/681df84aa6f6f326be181d01",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
+								"services",
 								"update-service-by-id",
-								"6810b4cb168be94b435b49a8"
+								"681df84aa6f6f326be181d01"
 							]
 						}
 					},
@@ -381,20 +739,20 @@
 							"formdata": [
 								{
 									"key": "pdfFiles",
-									"value": "",
-									"type": "text"
+									"type": "file",
+									"src": "/C:/Users/ABIR/Downloads/legal.pdf"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{baseURL}}/services/add-file-to-service/6810b4cb168be94b435b49a8",
+							"raw": "{{baseURL}}/services/add-file-to-service/682af48ac14d20108fc8ddc5",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"services",
 								"add-file-to-service",
-								"6810b4cb168be94b435b49a8"
+								"682af48ac14d20108fc8ddc5"
 							]
 						}
 					},
@@ -410,7 +768,7 @@
 							"formdata": [
 								{
 									"key": "message",
-									"value": "what are the services you provide?",
+									"value": "what is your name?",
 									"type": "text"
 								}
 							]
@@ -459,61 +817,69 @@
 					"response": []
 				},
 				{
+					"name": "delete service",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/delete-service-by-id/682af83ac14d20108fc8ddd",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"delete-service-by-id",
+								"682af83ac14d20108fc8ddd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "all services",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODFjYjRkZDVlOGQ3YjUwZWEyODAwYTUiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTc0Njg4MDUxMCwiZXhwIjoxODMzMjgwNTEwfQ.RAUbASvYJQ98PBswe0se3RvYq37kg4niWYJlOqEE4IE",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"body": {
 							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "title",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "description",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "price",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "about",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "category",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "explainMembership",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "pdfFiles",
-									"value": "",
-									"type": "text"
-								}
-							]
+							"formdata": []
 						},
 						"url": {
-							"raw": "{{baseURL}}/services/get-all-services",
+							"raw": "{{baseURL}}/services/get-all-services?category=Marketing",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"services",
 								"get-all-services"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "Marketing"
+								},
+								{
+									"key": "title",
+									"value": "",
+									"disabled": true
+								}
 							]
 						}
 					},
@@ -532,14 +898,14 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{baseURL}}/services/get-service-by-id/6810b4cb168be94b435b49a8",
+							"raw": "{{baseURL}}/services/get-service-by-id/68402b9a2e9573fb757540b6",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"services",
 								"get-service-by-id",
-								"6810b4cb168be94b435b49a8"
+								"68402b9a2e9573fb757540b6"
 							]
 						}
 					},
@@ -619,13 +985,431 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseURL}}/services/all-categories",
+							"raw": "{{baseURL}}/services/all-categories?query=marketing",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"services",
 								"all-categories"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "marketing"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "message replies by service id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "about",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "explainMembership",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "pdfFiles",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/get-replies-for-service/681f5a55ce0af00a5ddb0478",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"get-replies-for-service",
+								"681f5a55ce0af00a5ddb0478"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "message replies by user",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "about",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "explainMembership",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "pdfFiles",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/get-replies-by-user",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"get-replies-by-user"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "transaction",
+			"item": [
+				{
+					"name": "stripe onboarding (create stripe connect account)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "\"Marketing\"",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "description",
+									"value": "description",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "12",
+									"type": "text"
+								},
+								{
+									"key": "about",
+									"value": "about",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "marketing",
+									"type": "text"
+								},
+								{
+									"key": "explainMembership",
+									"value": "[\n \"a member\",\n\"b member\",\n \"c member\"\n]",
+									"type": "text"
+								},
+								{
+									"key": "pdfFiles",
+									"type": "file",
+									"src": "/Users/jillur/Downloads/Discharge (6).svg"
+								},
+								{
+									"key": "title",
+									"value": "Marketing services",
+									"type": "text"
+								},
+								{
+									"key": "subtitle",
+									"value": "helow Bangladesh",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/transactions/stripe/onboarding",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"transactions",
+								"stripe",
+								"onboarding"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "subscribe service",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/transactions/subscribe/68402b9a2e9573fb757540b6",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"transactions",
+								"subscribe",
+								"68402b9a2e9573fb757540b6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create checkout link",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/transactions/stripe/checkout/68402b9a2e9573fb757540b6",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"transactions",
+								"stripe",
+								"checkout",
+								"68402b9a2e9573fb757540b6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all transactions",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/transactions/all",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"transactions",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create transaction",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "serviceId",
+									"value": "682701f43f25ba42164c947d",
+									"type": "text"
+								},
+								{
+									"key": "amount",
+									"value": "39",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "succeeded",
+									"description": "succeeded",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/transactions/create",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"transactions",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "transaction by id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/transactions/684aaaebe775a379bda85202",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"transactions",
+								"684aaaebe775a379bda85202"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "transaction by user",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/transactions/user/self?month=1",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"transactions",
+								"user",
+								"self"
+							],
+							"query": [
+								{
+									"key": "month",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "webhook",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODFjYjRkZDVlOGQ3YjUwZWEyODAwYTUiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTc0Njg4MDUxMCwiZXhwIjoxODMzMjgwNTEwfQ.RAUbASvYJQ98PBswe0se3RvYq37kg4niWYJlOqEE4IE",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "localhost:3004/api/transactions/webhook",
+							"host": [
+								"localhost"
+							],
+							"port": "3004",
+							"path": [
+								"api",
+								"transactions",
+								"webhook"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "Marketing",
+									"disabled": true
+								},
+								{
+									"key": "title",
+									"value": "",
+									"disabled": true
+								}
 							]
 						}
 					},

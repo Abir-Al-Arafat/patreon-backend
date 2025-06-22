@@ -563,6 +563,35 @@ const createTransaction = async (req: Request, res: Response) => {
   }
 };
 
+const deleteStripeConnectAccount = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+    }
+    const userId = (req as UserRequest).user._id;
+    const user = await User.findById(userId);
+
+    if (!user || !user.stripeAccountId) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("User or Stripe account not found"));
+    }
+
+    await stripe.accounts.del(user.stripeAccountId);
+    user.stripeAccountId = null;
+    await user.save();
+
+    return res.status(HTTP_STATUS.OK).send(success("Stripe account deleted"));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Failed to delete Stripe account", error.message));
+  }
+};
+
 export {
   createPaddleCheckout,
   createStripeAccountLink,
@@ -575,4 +604,5 @@ export {
   createTransaction,
   onboardingComplete,
   onboardingRefresh,
+  deleteStripeConnectAccount,
 };

@@ -12,6 +12,7 @@ import {
   getTransactionById,
   getTransactionByUser,
   handleStripeWebhook,
+  deleteStripeConnectAccount,
 } from "../controllers/transaction.controller";
 import { userValidator, authValidator } from "../middlewares/validation";
 import {
@@ -55,5 +56,11 @@ routes.post("/create", upload.none(), isAuthorizedUser, createTransaction);
 routes.get("/all", getAllTransactions);
 routes.get("/:id", getTransactionById);
 routes.get("/user/self", isAuthorizedUser, getTransactionByUser);
+
+routes.delete(
+  "/stripe/delete-account",
+  isAuthorizedUser,
+  deleteStripeConnectAccount
+);
 
 export default routes;

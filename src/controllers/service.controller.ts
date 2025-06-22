@@ -673,6 +673,7 @@ const getRepliesByUser = async (req: Request, res: Response) => {
       .find({
         user: (req as UserRequest).user._id,
       })
+      .populate("user", "image")
       .sort({ createdAt: -1 });
 
     return res.status(HTTP_STATUS.OK).send(success("Replies fetched", replies));

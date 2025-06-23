@@ -662,6 +662,63 @@ const getRepliesForService = async (req: Request, res: Response) => {
   }
 };
 
+const getAllServiceMessagesByUser = async (req: Request, res: Response) => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("Please login to access your messages"));
+    }
+
+    const serviceResponses = await serviceResponseModel
+      .find({
+        user: (req as UserRequest).user._id,
+      })
+      .populate("user", "name image")
+      .populate("service", "title")
+      .sort({ createdAt: -1 });
+
+    console.log("serviceResponses", serviceResponses);
+
+    // Filter to only include one response per unique service._id
+    const uniqueResponses: any[] = [];
+    const seenServiceIds = new Set();
+
+    for (const resp of serviceResponses) {
+      const serviceId =
+        resp.service && resp.service._id ? resp.service._id.toString() : null;
+      if (serviceId && !seenServiceIds.has(serviceId)) {
+        uniqueResponses.push(resp);
+        seenServiceIds.add(serviceId);
+      }
+    }
+
+    console.log("serviceResponses (distinct)", uniqueResponses);
+
+    // Search by service title if provided
+    let filteredResponses = uniqueResponses;
+    if (typeof req.query.title === "string" && req.query.title.trim() !== "") {
+      const searchTitle = req.query.title.trim().toLowerCase();
+      filteredResponses = uniqueResponses.filter(
+        (resp) =>
+          resp.service &&
+          resp.service.title &&
+          resp.service.title.toLowerCase().includes(searchTitle)
+      );
+    }
+
+    return res.status(HTTP_STATUS.OK).send({
+      success: true,
+      message: "Messages fetched",
+      serviceResponses: filteredResponses,
+    });
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Error fetching messages", error.message));
+  }
+};
+
 const getRepliesByUser = async (req: Request, res: Response) => {
   try {
     if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
@@ -805,6 +862,7 @@ export {
   generateReplyForService,
   getRepliesForService,
   getRepliesByUser,
+  getAllServiceMessagesByUser,
   // disableServiceById,
   // enableServiceById,
   // approveServiceById,

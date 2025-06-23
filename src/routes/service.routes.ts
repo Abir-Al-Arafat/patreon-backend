@@ -16,6 +16,7 @@ import {
   generateReplyForService,
   getRepliesForService,
   getRepliesByUser,
+  getAllServiceMessagesByUser,
   //   disableServiceById,
   //   enableServiceById,
   //   approveServiceById,
@@ -129,6 +130,13 @@ routes.post(
 routes.get("/get-replies-for-service/:serviceId", getRepliesForService);
 
 routes.get("/get-replies-by-user", isAuthorizedUser, getRepliesByUser);
+
+routes.get(
+  "/get-all-service-messages-by-user",
+  upload.none(),
+  isAuthorizedUser,
+  getAllServiceMessagesByUser
+);
 
 // routes.get(
 //   "/get-replies-for-service/:serviceId",

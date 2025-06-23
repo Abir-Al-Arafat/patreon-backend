@@ -9,6 +9,7 @@ export interface IUser {
   password?: string;
   dob?: Date; //optional
   role?: string;
+  image?: string;
 }
 
 export interface UserRequest extends Request {

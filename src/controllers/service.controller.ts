@@ -747,6 +747,35 @@ const getRepliesByUser = async (req: Request, res: Response) => {
   }
 };
 
+const subscribedServices = async (req: Request, res: Response) => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("Please login to access your subscribed services"));
+    }
+    const user = await User.findById((req as UserRequest).user._id).populate({
+      path: "subscriptions",
+      select: "title description price icon category",
+      populate: {
+        path: "contributor",
+        select: "name username image",
+      },
+    });
+
+    if (!user) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    }
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Subscribed services", user.subscriptions));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Error fetching subscribed services", error.message));
+  }
+};
+
 // const disableServiceById = async (req, res) => {
 //   try {
 //     if (!req.params.id) {
@@ -869,6 +898,7 @@ export {
   getRepliesForService,
   getRepliesByUser,
   getAllServiceMessagesByUser,
+  subscribedServices,
   // disableServiceById,
   // enableServiceById,
   // approveServiceById,

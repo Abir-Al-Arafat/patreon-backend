@@ -17,6 +17,7 @@ import {
   getRepliesForService,
   getRepliesByUser,
   getAllServiceMessagesByUser,
+  subscribedServices,
   //   disableServiceById,
   //   enableServiceById,
   //   approveServiceById,
@@ -141,6 +142,8 @@ routes.get(
   isAuthorizedUser,
   getAllServiceMessagesByUser
 );
+
+routes.get("/subscribed-services", isAuthorizedUser, subscribedServices);
 
 // routes.get(
 //   "/get-replies-for-service/:serviceId",

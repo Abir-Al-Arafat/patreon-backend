@@ -38,9 +38,7 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
 
-    subscriptions: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "Subscription" },
-    ],
+    subscriptions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Service" }],
 
     services: [{ type: mongoose.Schema.Types.ObjectId, ref: "Service" }],
 

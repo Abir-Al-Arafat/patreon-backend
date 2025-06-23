@@ -528,18 +528,32 @@ const createTransaction = async (req: Request, res: Response) => {
     if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
     }
-    console.log("req.body", req.body);
+    const user = await User.findById((req as UserRequest).user._id);
+
+    if (!user) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    }
+
     const { serviceId, amount, status } = req.body;
     if (!serviceId || !amount || !status) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("Please provide serviceId,  amount, and status"));
+        .send(failure("Please provide serviceId, amount, and status"));
     }
+
+    const service = await Service.findById(serviceId);
+    if (!service) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("Service not found"));
+    }
+
     if (!["created", "succeeded", "failed"].includes(status)) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
         .send(failure("Invalid status value"));
     }
+
     const transaction = await Transaction.create({
       paymentIntentId: req.body.paymentIntentId || null,
       userId: (req as UserRequest).user._id,
@@ -547,15 +561,27 @@ const createTransaction = async (req: Request, res: Response) => {
       amount,
       status,
     });
+
+    console.log("Transaction created:", transaction);
+
     if (!transaction) {
       return res
         .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
         .send(failure("Failed to create transaction"));
     }
-    console.log("Transaction created:", transaction);
+
+    service.subscribers.push((req as any).user._id);
+
+    await service.save();
+
+    if (user) {
+      user.subscriptions.push(serviceId);
+      await user.save();
+    }
+
     return res
       .status(HTTP_STATUS.CREATED)
-      .send(success("Transaction created", transaction));
+      .send(success("Transaction created and user subscribed", transaction));
   } catch (error: any) {
     return res
       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)

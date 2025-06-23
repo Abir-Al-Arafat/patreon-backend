@@ -643,6 +643,11 @@ Be concise, clear, and strictly stay within the limits of the provided descripti
 
 const getRepliesForService = async (req: Request, res: Response) => {
   try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("Please login to access your messages"));
+    }
     if (!req.params.serviceId) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
@@ -651,6 +656,7 @@ const getRepliesForService = async (req: Request, res: Response) => {
     const replies = await serviceResponseModel
       .find({
         service: req.params.serviceId,
+        user: (req as UserRequest).user._id,
       })
       .sort({ createdAt: -1 });
 
@@ -661,7 +667,7 @@ const getRepliesForService = async (req: Request, res: Response) => {
       .send(failure("Error fetching replies", error.message));
   }
 };
-
+// all services user has messaged
 const getAllServiceMessagesByUser = async (req: Request, res: Response) => {
   try {
     if (!(req as UserRequest).user || !(req as UserRequest).user._id) {

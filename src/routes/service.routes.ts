@@ -127,7 +127,11 @@ routes.post(
   generateReplyForService
 );
 
-routes.get("/get-replies-for-service/:serviceId", getRepliesForService);
+routes.get(
+  "/get-replies-for-service/:serviceId",
+  isAuthorizedUser,
+  getRepliesForService
+);
 
 routes.get("/get-replies-by-user", isAuthorizedUser, getRepliesByUser);
 

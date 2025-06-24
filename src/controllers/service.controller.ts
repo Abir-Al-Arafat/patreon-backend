@@ -57,10 +57,21 @@ const prompt = [
 
 const addService = async (req: Request, res: Response) => {
   try {
-    if (!(req as UserRequest).user) {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
       return res
         .status(HTTP_STATUS.UNAUTHORIZED)
         .send(failure("Please login to become a contributor"));
+    }
+    const user = await User.findById((req as UserRequest).user._id);
+
+    if (!user) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    }
+
+    if (user.subscriptions.length) {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(failure("You are already a contributor"));
     }
     const validation = validationResult(req).array();
     console.log(validation);
@@ -193,7 +204,7 @@ const addService = async (req: Request, res: Response) => {
         await newCategory.save();
       }
     }
-    const user = await User.findById((req as UserRequest).user._id);
+    // const user = await User.findById((req as UserRequest).user._id);
     if (!user) {
       return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
     }
@@ -529,6 +540,14 @@ const deleteServiceById = async (req: Request, res: Response) => {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Service not found"));
+    }
+
+    const user = await User.findById(service.contributor);
+    if (user) {
+      user.services = user.services.filter(
+        (id: any) => id.toString() !== service._id.toString()
+      );
+      await user.save();
     }
 
     const paths = service.files;

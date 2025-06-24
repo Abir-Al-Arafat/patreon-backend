@@ -75,7 +75,6 @@ const addService = async (req: Request, res: Response) => {
     //     .send(failure("You are already a contributor"));
     // }
     const validation = validationResult(req).array();
-    console.log(validation);
     if (validation.length > 0) {
       return res
         .status(HTTP_STATUS.OK)

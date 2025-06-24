@@ -375,11 +375,6 @@ const updateServiceById = async (req: Request, res: Response) => {
 
 const getAllServices = async (req: Request, res: Response) => {
   try {
-    if (!req.query.category) {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("please provide category"));
-    }
     let page =
       typeof req.query.page === "string" ? parseInt(req.query.page) || 1 : 1;
     let limit =
@@ -401,8 +396,10 @@ const getAllServices = async (req: Request, res: Response) => {
     }
 
     if (typeof req.query.category === "string") {
-      query.category = req.query.category.toLowerCase();
+      query.category = new RegExp(`^${req.query.category}$`, "i");
     }
+
+    console.log("query", query);
 
     if ((req as UserRequest).user?._id) {
       const user = await User.findById((req as UserRequest).user._id).select(

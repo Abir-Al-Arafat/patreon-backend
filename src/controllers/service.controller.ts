@@ -67,12 +67,13 @@ const addService = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
     }
-
-    if (user.subscriptions.length) {
-      return res
-        .status(HTTP_STATUS.OK)
-        .send(failure("You are already a contributor"));
-    }
+    // console.log("user.subscriptions", user.subscriptions);
+    // console.log("user.subscriptions.length", user.subscriptions.length);
+    // if (user.subscriptions.length) {
+    //   return res
+    //     .status(HTTP_STATUS.OK)
+    //     .send(failure("You are already a contributor"));
+    // }
     const validation = validationResult(req).array();
     console.log(validation);
     if (validation.length > 0) {

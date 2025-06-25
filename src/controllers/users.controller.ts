@@ -36,7 +36,10 @@ const getAllUsers = async (req: Request, res: Response) => {
       query.username = new RegExp(username, "i");
     }
 
-    const users = await User.find(query).select("-__v").populate("phone");
+    const users = await User.find(query)
+      .select("-__v")
+      .populate("phone")
+      .populate("services");
     const count = await User.countDocuments(query);
 
     if (users.length) {

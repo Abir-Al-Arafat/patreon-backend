@@ -23,7 +23,7 @@ const routes = express();
 
 // /api/users
 
-routes.get("/", getAllUsers);
+routes.get("/", isAuthorizedUser, getAllUsers);
 
 // /api/users/123
 routes.get("/:id", getOneUserById);

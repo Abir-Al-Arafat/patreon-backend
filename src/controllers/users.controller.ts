@@ -17,6 +17,10 @@ export interface UserRequest extends Request {
 
 const getAllUsers = async (req: Request, res: Response) => {
   try {
+    let loggedInUser;
+    if ((req as UserRequest)?.user?._id) {
+      loggedInUser = (req as UserRequest)?.user?._id;
+    }
     const { role, isAffiliate, isActive, username } = req.query;
     const query: IQuery = {};
 
@@ -34,6 +38,10 @@ const getAllUsers = async (req: Request, res: Response) => {
 
     if (username && typeof username === "string") {
       query.username = new RegExp(username, "i");
+    }
+
+    if (loggedInUser) {
+      query._id = { $ne: loggedInUser.toString() };
     }
 
     const users = await User.find(query)

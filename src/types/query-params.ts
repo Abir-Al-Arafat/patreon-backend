@@ -8,4 +8,5 @@ export interface IQuery {
   username?: RegExp | string;
   isAffiliate?: boolean;
   isActive?: boolean;
+  _id?: string | { $ne: string };
 }

@@ -178,11 +178,16 @@ const onboardingRefresh = async (req: Request, res: Response) => {
 
 const createCheckoutSession = async (req: Request, res: Response) => {
   try {
+    if (!(req as any).user || !(req as any).user._id) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+    }
     const userId = (req as any).user?._id;
     const { serviceId } = req.params;
 
     if (!userId) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("User ID is required"));
     }
 
     if (!serviceId) {
@@ -199,8 +204,55 @@ const createCheckoutSession = async (req: Request, res: Response) => {
         .json({ success: false, message: "Service not found" });
     }
 
+    if (!service.price || service.price <= 0) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json(failure("Invalid service price"));
+    }
+
     const user = await User.findById(userId);
-    const contributor = service.contributor;
+    const contributor: any = service.contributor;
+
+    if (!contributor || !contributor.stripeAccountId) {
+      return res.status(400).json({
+        success: false,
+        message: "Contributor has not completed Stripe onboarding",
+      });
+    }
+
+    const totalAmount = service.price * 100;
+    const adminShare = Math.floor(totalAmount * 0.2); // 20% admin cut
+    const admin = await User.findOne({ roles: { $in: ["admin"] } });
+    if (!admin) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Admin account not found" });
+    }
+
+    // const session = await stripe.checkout.sessions.create({
+    //   payment_method_types: ["card"],
+    //   mode: "payment",
+    //   line_items: [
+    //     {
+    //       price_data: {
+    //         currency: "usd",
+    //         unit_amount: service.price! * 100,
+    //         product_data: {
+    //           name: service.title,
+    //           description: service.description,
+    //         },
+    //       },
+    //       quantity: 1,
+    //     },
+    //   ],
+    //   success_url: `${process.env.CLIENT_URL}?session_id={CHECKOUT_SESSION_ID}`,
+    //   cancel_url: `${process.env.CLIENT_URL}`,
+    //   metadata: {
+    //     userId: userId.toString(),
+    //     serviceId: service._id.toString(),
+    //     contributorId: contributor?._id.toString(),
+    //   },
+    // } as Stripe.Checkout.SessionCreateParams);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -208,11 +260,11 @@ const createCheckoutSession = async (req: Request, res: Response) => {
       line_items: [
         {
           price_data: {
-            currency: "usd",
-            unit_amount: service.price! * 100,
+            currency: "usd", // or contributor.preferredCurrency
+            unit_amount: totalAmount,
             product_data: {
               name: service.title,
-              description: service.description,
+              description: service.title,
             },
           },
           quantity: 1,
@@ -223,11 +275,18 @@ const createCheckoutSession = async (req: Request, res: Response) => {
       metadata: {
         userId: userId.toString(),
         serviceId: service._id.toString(),
-        contributorId: contributor?._id.toString(),
+        contributorId: contributor._id.toString(),
+        adminId: admin._id.toString(),
+      },
+      payment_intent_data: {
+        application_fee_amount: adminShare,
+        transfer_data: {
+          destination: contributor.stripeAccountId,
+        },
       },
     } as Stripe.Checkout.SessionCreateParams);
 
-    return res.status(200).json({ success: true, url: session.url });
+    return res.status(HTTP_STATUS.OK).json({ success: true, url: session.url });
   } catch (error: any) {
     console.error("Stripe Checkout Session error:", error);
     return res.status(500).json({

@@ -119,6 +119,30 @@ const createStripeAccountLink = async (req: Request, res: Response) => {
   }
 };
 
+const getConnectedAccount = async (req: Request, res: Response) => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+    }
+    const userId = (req as UserRequest).user._id;
+    const user = await User.findById(userId);
+
+    if (!user || !user.stripeAccountId) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    }
+
+    const account = await stripe.accounts.retrieve(user.stripeAccountId);
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Stripe account retrieved", account));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Failed to get Stripe account", error.message));
+  }
+};
+
 const onboardingComplete = async (req: Request, res: Response) => {
   try {
     return res.status(HTTP_STATUS.OK).send(success("Onboarding Completed"));
@@ -690,4 +714,5 @@ export {
   onboardingComplete,
   onboardingRefresh,
   deleteStripeConnectAccount,
+  getConnectedAccount,
 };

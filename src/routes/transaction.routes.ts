@@ -11,6 +11,7 @@ import {
   getAllTransactions,
   getTransactionById,
   getTransactionByUser,
+  getConnectedAccount,
   handleStripeWebhook,
   deleteStripeConnectAccount,
 } from "../controllers/transaction.controller";
@@ -42,6 +43,13 @@ routes.post(
   upload.none(),
   isAuthorizedUser,
   createStripeAccountLink
+);
+
+routes.get(
+  "/stripe/connected-account",
+  upload.none(),
+  isAuthorizedUser,
+  getConnectedAccount
 );
 
 routes.post(

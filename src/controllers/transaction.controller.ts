@@ -321,6 +321,41 @@ const createCheckoutSession = async (req: Request, res: Response) => {
   }
 };
 
+const generatestripeExpressAccountLoginLink = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+    }
+    const userId = (req as UserRequest).user._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    }
+
+    if (!user.stripeAccountId) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("User does not have a Stripe express account"));
+    }
+
+    const loginLink = await stripe.accounts.createLoginLink(
+      user.stripeAccountId
+    );
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Stripe account link created", { url: loginLink.url }));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Failed to create Stripe account link", error.message));
+  }
+};
+
 // Controller to handle subscriptions with split payments via Stripe Connect
 const subscribeToService = async (req: Request, res: Response) => {
   try {
@@ -715,4 +750,5 @@ export {
   onboardingRefresh,
   deleteStripeConnectAccount,
   getConnectedAccount,
+  generatestripeExpressAccountLoginLink,
 };

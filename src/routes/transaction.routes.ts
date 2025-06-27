@@ -14,6 +14,7 @@ import {
   getConnectedAccount,
   handleStripeWebhook,
   deleteStripeConnectAccount,
+  generatestripeExpressAccountLoginLink,
 } from "../controllers/transaction.controller";
 import { userValidator, authValidator } from "../middlewares/validation";
 import {
@@ -43,6 +44,13 @@ routes.post(
   upload.none(),
   isAuthorizedUser,
   createStripeAccountLink
+);
+
+routes.post(
+  "/stripe/generate/express-account-login-link",
+  upload.none(),
+  isAuthorizedUser,
+  generatestripeExpressAccountLoginLink
 );
 
 routes.get(

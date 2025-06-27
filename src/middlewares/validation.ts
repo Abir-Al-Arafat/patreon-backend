@@ -526,8 +526,8 @@ const serviceValidator = {
       .notEmpty()
       .withMessage("price cannot be empty")
       .bail()
-      .isFloat({ min: 1, max: 100000 })
-      .withMessage("Price must be a positive number"),
+      .isFloat({ min: 3, max: 100000 })
+      .withMessage("Price must be a positive number & greater than 3"),
     body("about")
       .exists()
       .withMessage("about was not provided")

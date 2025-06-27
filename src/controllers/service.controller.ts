@@ -419,8 +419,9 @@ const getAllServices = async (req: Request, res: Response) => {
         path: "contributor",
         select: "image",
       });
+    console.log("services", services);
     const count = await Service.countDocuments(query);
-    if (!services) {
+    if (!services.length) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Services not found"));

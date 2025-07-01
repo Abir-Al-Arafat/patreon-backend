@@ -5,6 +5,7 @@ const upload = multer();
 import {
   createPaddleCheckout,
   createStripeAccountLink,
+  createStripeCustomConnectAccount,
   createCheckoutSession,
   createTransaction,
   subscribeToService,
@@ -58,6 +59,13 @@ routes.get(
   upload.none(),
   isAuthorizedUser,
   getConnectedAccount
+);
+
+routes.post(
+  "/stripe/custom-connect-account",
+  upload.none(),
+  isAuthorizedUser,
+  createStripeCustomConnectAccount
 );
 
 routes.post(

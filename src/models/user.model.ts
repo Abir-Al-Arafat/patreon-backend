@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
 
+    stripeCustomConnectAccountId: {
+      type: String,
+    },
+
     subscriptions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Service" }],
 
     services: [{ type: mongoose.Schema.Types.ObjectId, ref: "Service" }],

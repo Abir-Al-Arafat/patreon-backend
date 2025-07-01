@@ -119,6 +119,80 @@ const createStripeAccountLink = async (req: Request, res: Response) => {
   }
 };
 
+const createStripeCustomConnectAccount = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+    }
+    const userId = (req as UserRequest).user._id;
+    const user = await User.findById(userId);
+
+    if (!user || !user.email) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    }
+
+    // if (user.stripeCustomConnectAccountId) {
+    //   return res
+    //     .status(HTTP_STATUS.BAD_REQUEST)
+    //     .send(failure("Custom Connect account already exists"));
+    // }
+
+    const account = await stripe.accounts.create({
+      type: "custom",
+      country: "US", // or the country of the user
+      email: user.email,
+      business_type: "individual",
+      capabilities: {
+        card_payments: { requested: true },
+        transfers: { requested: true },
+      },
+    });
+
+    console.log("Stripe custom account:", account);
+
+    if (!account.id) {
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .send(failure("Failed to create Stripe account"));
+    }
+
+    user.stripeCustomConnectAccountId = account.id;
+    await user.save();
+    if (!process.env.CLIENT_URL) {
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .send(failure("Client URL is not configured"));
+    }
+    const accountLink = await stripe.accountLinks.create({
+      account: user.stripeCustomConnectAccountId,
+      refresh_url: `${process.env.CLIENT_URL}/onboarding/refresh`,
+      return_url: `${process.env.CLIENT_URL}/onboarding/complete`,
+      type: "account_onboarding",
+    });
+
+    console.log("Account link:", accountLink);
+
+    if (accountLink.url) {
+      return res.status(HTTP_STATUS.OK).send(
+        success("Onboarding link created", {
+          url: accountLink.url,
+        })
+      );
+    }
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("successfully created custom connect account", account));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Failed to create onboarding link", error.message));
+  }
+};
+
 const getConnectedAccount = async (req: Request, res: Response) => {
   try {
     if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
@@ -748,6 +822,7 @@ export {
   getTransactionById,
   getTransactionByUser,
   createCheckoutSession,
+  createStripeCustomConnectAccount,
   createTransaction,
   onboardingComplete,
   onboardingRefresh,

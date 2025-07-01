@@ -133,6 +133,12 @@ const getConnectedAccount = async (req: Request, res: Response) => {
 
     const account = await stripe.accounts.retrieve(user.stripeAccountId);
 
+    if (!account) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("Stripe account not found"));
+    }
+
     return res
       .status(HTTP_STATUS.OK)
       .send(success("Stripe account retrieved", account));

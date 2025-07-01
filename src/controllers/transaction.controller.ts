@@ -222,32 +222,31 @@ const createCheckoutSession = async (req: Request, res: Response) => {
 
     if (!serviceId) {
       return res
-        .status(400)
-        .json({ success: false, message: "Service ID is required" });
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Service ID is required"));
     }
 
     const service = await Service.findById(serviceId).populate("contributor");
 
     if (!service) {
       return res
-        .status(404)
-        .json({ success: false, message: "Service not found" });
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("Service not found"));
     }
 
     if (!service.price || service.price <= 0) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .json(failure("Invalid service price"));
+        .send(failure("Invalid service price"));
     }
 
     const user = await User.findById(userId);
     const contributor: any = service.contributor;
 
     if (!contributor || !contributor.stripeAccountId) {
-      return res.status(400).json({
-        success: false,
-        message: "Contributor has not completed Stripe onboarding",
-      });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Contributor has not completed Stripe onboarding"));
     }
 
     const totalAmount = service.price * 100;
@@ -255,8 +254,8 @@ const createCheckoutSession = async (req: Request, res: Response) => {
     const admin = await User.findOne({ roles: { $in: ["admin"] } });
     if (!admin) {
       return res
-        .status(500)
-        .json({ success: false, message: "Admin account not found" });
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .send(failure("Admin account not found"));
     }
 
     // const session = await stripe.checkout.sessions.create({
@@ -319,11 +318,9 @@ const createCheckoutSession = async (req: Request, res: Response) => {
     return res.status(HTTP_STATUS.OK).json({ success: true, url: session.url });
   } catch (error: any) {
     console.error("Stripe Checkout Session error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to create checkout session",
-      error: error.message,
-    });
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Failed to create checkout session", error.message));
   }
 };
 

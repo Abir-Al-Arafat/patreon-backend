@@ -20,27 +20,27 @@
 							"formdata": [
 								{
 									"key": "email",
-									"value": "pobame1972@leabro.com",
+									"value": "faroyah599@iridales.com",
 									"type": "text"
 								},
 								{
 									"key": "name",
-									"value": "pobame1972@leabro.com",
+									"value": "faroyah599@iridales.com",
 									"type": "text"
 								},
 								{
 									"key": "username",
-									"value": "pobame1972@leabro.com",
+									"value": "faroyah599@iridales.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "pobame1972@leabro.com",
+									"value": "faroyah599@iridales.com",
 									"type": "text"
 								},
 								{
 									"key": "phone",
-									"value": "+8801993819222",
+									"value": "+8801993819221",
 									"type": "text"
 								}
 							]
@@ -68,12 +68,12 @@
 							"formdata": [
 								{
 									"key": "email",
-									"value": "kiboja6175@inkight.com",
+									"value": "faroyah599@iridales.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "1234",
+									"value": "faroyah599@iridales.com",
 									"type": "text"
 								}
 							]
@@ -169,7 +169,7 @@
 							"formdata": [
 								{
 									"key": "phone",
-									"value": "+8801993819111",
+									"value": "+8801993819221",
 									"type": "text"
 								}
 							]
@@ -197,12 +197,12 @@
 							"formdata": [
 								{
 									"key": "phone",
-									"value": "+8801993819222",
+									"value": "+8801993819221",
 									"type": "text"
 								},
 								{
 									"key": "code",
-									"value": "964448",
+									"value": "617526",
 									"type": "text"
 								}
 							]
@@ -290,14 +290,6 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "New Request",
-					"request": {
-						"method": "GET",
-						"header": []
-					},
-					"response": []
 				}
 			],
 			"auth": {
@@ -345,12 +337,7 @@
 							"query": [
 								{
 									"key": "username",
-									"value": "vigawak581",
-									"disabled": true
-								},
-								{
-									"key": "role",
-									"value": "user",
+									"value": "sazzat19201",
 									"disabled": true
 								}
 							]
@@ -364,13 +351,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseURL}}/users/6825c189bf5e3922a2870539",
+							"raw": "{{baseURL}}/users/684017d70ab5a055797e9ec2",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"users",
-								"6825c189bf5e3922a2870539"
+								"684017d70ab5a055797e9ec2"
 							]
 						}
 					},
@@ -768,20 +755,20 @@
 							"formdata": [
 								{
 									"key": "message",
-									"value": "what is your name?",
+									"value": "what kind of programming services do you have?",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{baseURL}}/services/generate-reply-for-service/6810b4cb168be94b435b49a8",
+							"raw": "{{baseURL}}/services/generate-reply-for-service/68402b9a2e9573fb757540b6",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"services",
 								"generate-reply-for-service",
-								"6810b4cb168be94b435b49a8"
+								"68402b9a2e9573fb757540b6"
 							]
 						}
 					},
@@ -826,14 +813,14 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{baseURL}}/services/delete-service-by-id/682af83ac14d20108fc8ddd",
+							"raw": "{{baseURL}}/services/delete-service-by-id/682c1398bdfb870032571b6f",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"services",
 								"delete-service-by-id",
-								"682af83ac14d20108fc8ddd"
+								"682c1398bdfb870032571b6f"
 							]
 						}
 					},
@@ -862,7 +849,7 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{baseURL}}/services/get-all-services?category=Marketing",
+							"raw": "{{baseURL}}/services/get-all-services?category=programming",
 							"host": [
 								"{{baseURL}}"
 							],
@@ -873,7 +860,7 @@
 							"query": [
 								{
 									"key": "category",
-									"value": "Marketing"
+									"value": "programming"
 								},
 								{
 									"key": "title",
@@ -898,14 +885,14 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{baseURL}}/services/get-service-by-id/68402b9a2e9573fb757540b6",
+							"raw": "{{baseURL}}/services/get-service-by-id/685e2cd049c6e391b9ca71ef",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"services",
 								"get-service-by-id",
-								"68402b9a2e9573fb757540b6"
+								"685e2cd049c6e391b9ca71ef"
 							]
 						}
 					},
@@ -1013,53 +1000,17 @@
 						"header": [],
 						"body": {
 							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "title",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "description",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "price",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "about",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "category",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "explainMembership",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "pdfFiles",
-									"value": "",
-									"type": "text"
-								}
-							]
+							"formdata": []
 						},
 						"url": {
-							"raw": "{{baseURL}}/services/get-replies-for-service/681f5a55ce0af00a5ddb0478",
+							"raw": "{{baseURL}}/services/get-replies-for-service/68402b9a2e9573fb757540b6",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"services",
 								"get-replies-for-service",
-								"681f5a55ce0af00a5ddb0478"
+								"68402b9a2e9573fb757540b6"
 							]
 						}
 					},
@@ -1075,43 +1026,7 @@
 						"header": [],
 						"body": {
 							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "title",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "description",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "price",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "about",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "category",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "explainMembership",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "pdfFiles",
-									"value": "",
-									"type": "text"
-								}
-							]
+							"formdata": []
 						},
 						"url": {
 							"raw": "{{baseURL}}/services/get-replies-by-user",
@@ -1125,6 +1040,70 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "all service messages by a user",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/get-all-service-messages-by-user",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"get-all-service-messages-by-user"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "programming",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "subscribed services",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/subscribed-services",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"subscribed-services"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "programming",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -1132,74 +1111,246 @@
 			"name": "transaction",
 			"item": [
 				{
-					"name": "stripe onboarding (create stripe connect account)",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "title",
-									"value": "\"Marketing\"",
-									"type": "text",
-									"disabled": true
+					"name": "stripe",
+					"item": [
+						{
+							"name": "stripe onboarding (create stripe connect account)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "title",
+											"value": "\"Marketing\"",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "description",
+											"value": "description",
+											"type": "text"
+										},
+										{
+											"key": "price",
+											"value": "12",
+											"type": "text"
+										},
+										{
+											"key": "about",
+											"value": "about",
+											"type": "text"
+										},
+										{
+											"key": "category",
+											"value": "marketing",
+											"type": "text"
+										},
+										{
+											"key": "explainMembership",
+											"value": "[\n \"a member\",\n\"b member\",\n \"c member\"\n]",
+											"type": "text"
+										},
+										{
+											"key": "pdfFiles",
+											"type": "file",
+											"src": "/Users/jillur/Downloads/Discharge (6).svg"
+										},
+										{
+											"key": "title",
+											"value": "Marketing services",
+											"type": "text"
+										},
+										{
+											"key": "subtitle",
+											"value": "helow Bangladesh",
+											"type": "text"
+										}
+									]
 								},
-								{
-									"key": "description",
-									"value": "description",
-									"type": "text"
-								},
-								{
-									"key": "price",
-									"value": "12",
-									"type": "text"
-								},
-								{
-									"key": "about",
-									"value": "about",
-									"type": "text"
-								},
-								{
-									"key": "category",
-									"value": "marketing",
-									"type": "text"
-								},
-								{
-									"key": "explainMembership",
-									"value": "[\n \"a member\",\n\"b member\",\n \"c member\"\n]",
-									"type": "text"
-								},
-								{
-									"key": "pdfFiles",
-									"type": "file",
-									"src": "/Users/jillur/Downloads/Discharge (6).svg"
-								},
-								{
-									"key": "title",
-									"value": "Marketing services",
-									"type": "text"
-								},
-								{
-									"key": "subtitle",
-									"value": "helow Bangladesh",
-									"type": "text"
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/onboarding",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"onboarding"
+									]
 								}
-							]
+							},
+							"response": []
 						},
-						"url": {
-							"raw": "{{baseURL}}/transactions/stripe/onboarding",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"transactions",
-								"stripe",
-								"onboarding"
-							]
+						{
+							"name": "create stripe custom connected account",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "title",
+											"value": "\"Marketing\"",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "description",
+											"value": "description",
+											"type": "text"
+										},
+										{
+											"key": "price",
+											"value": "12",
+											"type": "text"
+										},
+										{
+											"key": "about",
+											"value": "about",
+											"type": "text"
+										},
+										{
+											"key": "category",
+											"value": "marketing",
+											"type": "text"
+										},
+										{
+											"key": "explainMembership",
+											"value": "[\n \"a member\",\n\"b member\",\n \"c member\"\n]",
+											"type": "text"
+										},
+										{
+											"key": "pdfFiles",
+											"type": "file",
+											"src": "/Users/jillur/Downloads/Discharge (6).svg"
+										},
+										{
+											"key": "title",
+											"value": "Marketing services",
+											"type": "text"
+										},
+										{
+											"key": "subtitle",
+											"value": "helow Bangladesh",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/custom-connect-account",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"custom-connect-account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete stripe account",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/delete-account",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"delete-account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create checkout link",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/checkout/685e2cd049c6e391b9ca71ef",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"checkout",
+										"685e2cd049c6e391b9ca71ef"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "generate stripe express account login link",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/generate/express-account-login-link",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"generate",
+										"express-account-login-link"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "connected account details",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/connected-account",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"connected-account"
+									]
+								}
+							},
+							"response": []
 						}
-					},
-					"response": []
+					]
 				},
 				{
 					"name": "subscribe service",
@@ -1218,30 +1369,6 @@
 							"path": [
 								"transactions",
 								"subscribe",
-								"68402b9a2e9573fb757540b6"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "create checkout link",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": []
-						},
-						"url": {
-							"raw": "{{baseURL}}/transactions/stripe/checkout/68402b9a2e9573fb757540b6",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"transactions",
-								"stripe",
-								"checkout",
 								"68402b9a2e9573fb757540b6"
 							]
 						}
@@ -1416,6 +1543,38 @@
 					"response": []
 				}
 			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODU3Y2NkYTlkNDE2Y2MzMjgwYzJiNjIiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTc1MDY4NzU1MywiZXhwIjoxODM3MDg3NTUzfQ.1v_opqs1y6oRsM9ouDoSSV2cMNTzMhawgtEEiG1Qd8w",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
 		}
 	]
 }

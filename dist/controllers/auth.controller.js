@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetPassword = exports.verifyEmail = exports.verifyCode = exports.sendVerificationCodeToPhone = exports.login = exports.signup = void 0;
+exports.verifyToken = exports.resetPassword = exports.verifyEmail = exports.verifyCode = exports.sendVerificationCodeToPhone = exports.login = exports.signup = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const twilio_1 = __importDefault(require("twilio"));
@@ -66,13 +66,18 @@ const sendVerificationCodeToPhone = (req, res) => __awaiter(void 0, void 0, void
                 phoneNumberVerifyCode,
             });
         }
+        if (phoneExists)
+            phoneExists.phoneNumberVerifyCode = phoneNumberVerifyCode;
+        console.log("phoneExists", phoneExists);
+        console.log("newPhone", newPhone);
+        console.log("newPhone?.user", newPhone === null || newPhone === void 0 ? void 0 : newPhone.user);
         const message = yield client.messages.create({
             body: `Your verification code is ${phoneNumberVerifyCode}`,
             from: "+14176203785",
             to: phone,
         });
         yield (newPhone === null || newPhone === void 0 ? void 0 : newPhone.save());
-        console.log("verification", message);
+        yield (phoneExists === null || phoneExists === void 0 ? void 0 : phoneExists.save());
         return res.status(statusCodes_1.default.OK).send((0, common_1.success)("Verification code sent successfully", {
             message,
         }));
@@ -93,24 +98,29 @@ const verifyCode = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 .status(statusCodes_1.default.BAD_REQUEST)
                 .send((0, common_1.failure)("Please provide phone number and code"));
         }
-        const verificationCheck = yield phone_model_1.default.findOneAndUpdate({
+        const phoneCheck = yield phone_model_1.default.findOne({
             phoneNumber: phone,
-            phoneNumberVerifyCode: Number(code),
         });
-        if (verificationCheck) {
-            verificationCheck.phoneNumberVerified = true;
-            console.log("verificationCheck", verificationCheck);
-            console.log("verificationCheck.phoneNumberVerified", verificationCheck.phoneNumberVerified);
-            yield verificationCheck.save();
+        if (!phoneCheck) {
             return res
-                .status(statusCodes_1.default.OK)
-                .send((0, common_1.success)("Phone number verified successfully"));
+                .status(statusCodes_1.default.BAD_REQUEST)
+                .send((0, common_1.failure)("phone number does not exist"));
         }
-        else {
+        console.log("verificationCheck", phoneCheck);
+        console.log("verificationCheck?.user", phoneCheck === null || phoneCheck === void 0 ? void 0 : phoneCheck.user);
+        console.log("verificationCheck", phoneCheck);
+        console.log("verificationCheck.phoneNumberVerified", phoneCheck.phoneNumberVerified);
+        console.log("verificationCheck.phoneNumberVerified", phoneCheck.phoneNumberVerifyCode);
+        if (phoneCheck.phoneNumberVerifyCode !== Number(code)) {
             return res
                 .status(statusCodes_1.default.BAD_REQUEST)
                 .send((0, common_1.failure)("Invalid verification code"));
         }
+        phoneCheck.phoneNumberVerified = true;
+        yield phoneCheck.save();
+        return res
+            .status(statusCodes_1.default.OK)
+            .send((0, common_1.success)("Phone number verified successfully"));
     }
     catch (err) {
         console.log(err);
@@ -213,6 +223,8 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 .status(statusCodes_1.default.UNPROCESSABLE_ENTITY)
                 .send((0, common_1.failure)(`Phone number does not exist`));
         }
+        console.log("phoneCheck", phoneCheck);
+        console.log("phoneCheck.user", phoneCheck.user);
         if (!(phoneCheck === null || phoneCheck === void 0 ? void 0 : phoneCheck.phoneNumberVerified)) {
             console.log("phoneCheck", phoneCheck);
             console.log("phoneCheck?.phoneNumberVerified", phoneCheck === null || phoneCheck === void 0 ? void 0 : phoneCheck.phoneNumberVerified);
@@ -221,6 +233,7 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 .send((0, common_1.failure)(`Phone number is not verified, please verify`));
         }
         console.log("phoneCheck", phoneCheck);
+        console.log("phoneCheck.user", phoneCheck.user);
         if (phoneCheck.user) {
             return res
                 .status(statusCodes_1.default.UNPROCESSABLE_ENTITY)
@@ -422,3 +435,20 @@ const resetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.resetPassword = resetPassword;
+const verifyToken = (req, res) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res
+                .status(statusCodes_1.default.UNAUTHORIZED)
+                .send((0, common_1.failure)("Unauthorized access"));
+        }
+        return res.status(statusCodes_1.default.OK).send((0, common_1.success)("Token is valid", { user }));
+    }
+    catch (error) {
+        return res
+            .status(statusCodes_1.default.INTERNAL_SERVER_ERROR)
+            .send((0, common_1.failure)("Token verification failed", error.message));
+    }
+};
+exports.verifyToken = verifyToken;

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.discountValidator = exports.reviewValidator = exports.authValidator = exports.userValidator = exports.productValidator = void 0;
+exports.serviceValidator = exports.discountValidator = exports.reviewValidator = exports.authValidator = exports.userValidator = exports.productValidator = void 0;
 const express_validator_1 = require("express-validator");
 const productValidator = {
     create: [
@@ -484,3 +484,132 @@ const discountValidator = {
     ],
 };
 exports.discountValidator = discountValidator;
+const serviceValidator = {
+    addService: [
+        (0, express_validator_1.body)("title")
+            .exists()
+            .withMessage("title was not provided")
+            .bail()
+            .notEmpty()
+            .withMessage("title cannot be empty")
+            .bail()
+            .isString()
+            .withMessage("title must be a string"),
+        (0, express_validator_1.body)("subtitle")
+            .exists()
+            .withMessage("subtitle was not provided")
+            .bail()
+            .notEmpty()
+            .withMessage("subtitle cannot be empty")
+            .bail()
+            .isString()
+            .withMessage("subtitle must be a string"),
+        (0, express_validator_1.body)("description")
+            .exists()
+            .withMessage("description was not provided")
+            .bail()
+            .notEmpty()
+            .withMessage("description cannot be empty")
+            .bail()
+            .isString()
+            .withMessage("description must be a string"),
+        (0, express_validator_1.body)("price")
+            .exists()
+            .withMessage("price was not provided")
+            .bail()
+            .notEmpty()
+            .withMessage("price cannot be empty")
+            .bail()
+            .isFloat({ min: 1, max: 100000 })
+            .withMessage("Price must be a positive number"),
+        (0, express_validator_1.body)("about")
+            .exists()
+            .withMessage("about was not provided")
+            .bail()
+            .notEmpty()
+            .withMessage("about cannot be empty")
+            .bail()
+            .isString()
+            .withMessage("about must be a string"),
+        (0, express_validator_1.body)("category")
+            .exists()
+            .withMessage("category was not provided")
+            .bail()
+            .notEmpty()
+            .withMessage("category cannot be empty")
+            .bail()
+            .isString()
+            .withMessage("category must be a string"),
+        (0, express_validator_1.body)("explainMembership")
+            .exists()
+            .withMessage("explainMembership was not provided"),
+    ],
+    updateService: [
+        (0, express_validator_1.body)("title")
+            .optional()
+            .notEmpty()
+            .withMessage("title is required")
+            .bail()
+            .isString()
+            .withMessage("title must be a string"),
+        (0, express_validator_1.body)("subtitle")
+            .optional()
+            .notEmpty()
+            .withMessage("subtitle cannot be empty")
+            .bail()
+            .isString()
+            .withMessage("subtitle must be a string"),
+        (0, express_validator_1.body)("description")
+            .optional()
+            .notEmpty()
+            .withMessage("description cannot be empty")
+            .bail()
+            .isString()
+            .withMessage("description must be a string"),
+        (0, express_validator_1.body)("price")
+            .optional()
+            .notEmpty()
+            .withMessage("price cannot be empty")
+            .bail()
+            .isFloat({ min: 1, max: 10000 })
+            .withMessage("Price must be a positive number"),
+        (0, express_validator_1.body)("about")
+            .optional()
+            .notEmpty()
+            .withMessage("about cannot be empty")
+            .bail()
+            .isString()
+            .withMessage("about must be a string"),
+        (0, express_validator_1.body)("category")
+            .optional()
+            .notEmpty()
+            .withMessage("category cannot be empty")
+            .bail()
+            .isString()
+            .withMessage("category must be a string"),
+        (0, express_validator_1.body)("explainMembership")
+            .optional()
+            .notEmpty()
+            .withMessage("explainMembership cannot be empty"),
+    ],
+    message: [
+        (0, express_validator_1.body)("message")
+            .exists()
+            .withMessage("message was not provided")
+            .bail()
+            .notEmpty()
+            .withMessage("message cannot be empty")
+            .bail()
+            .isString()
+            .withMessage("message must be a string"),
+    ],
+    id: [
+        (0, express_validator_1.param)("id")
+            .exists()
+            .withMessage("Service ID must be provided")
+            .bail()
+            .matches(/^[a-f\d]{24}$/i)
+            .withMessage("ID is not in valid mongoDB format"),
+    ],
+};
+exports.serviceValidator = serviceValidator;

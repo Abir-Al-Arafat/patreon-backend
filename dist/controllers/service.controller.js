@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRepliesByUser = exports.getRepliesForService = exports.generateReplyForService = exports.deleteServiceById = exports.updateServiceById = exports.getServiceByContributor = exports.getServiceById = exports.getAllCategories = exports.getAllServices = exports.removeFileFromService = exports.addFileToService = exports.addService = void 0;
 const fs_1 = __importDefault(require("fs"));
 const pdf_parse_1 = __importDefault(require("pdf-parse"));
+const express_validator_1 = require("express-validator");
 const openaids_config_1 = __importDefault(require("../config/openaids.config"));
 const common_1 = require("../utilities/common");
 const statusCodes_1 = __importDefault(require("../constants/statusCodes"));
@@ -23,6 +24,7 @@ const user_model_1 = __importDefault(require("../models/user.model"));
 const notification_model_1 = __importDefault(require("../models/notification.model"));
 const category_model_1 = __importDefault(require("../models/category.model"));
 const serviceResponse_model_1 = __importDefault(require("../models/serviceResponse.model"));
+const xml2js_1 = require("xml2js");
 const prompt = [
     {
         question: "What areas of law do you work in?",
@@ -68,14 +70,23 @@ const addService = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 .status(statusCodes_1.default.UNAUTHORIZED)
                 .send((0, common_1.failure)("Please login to become a contributor"));
         }
-        let { title, description, 
+        const validation = (0, express_validator_1.validationResult)(req).array();
+        console.log(validation);
+        if (validation.length > 0) {
+            return res
+                .status(statusCodes_1.default.OK)
+                .send((0, common_1.failure)(validation[0].msg, "Failed to add service"));
+        }
+        let { title, subtitle, description, 
         // prompt,
         price, about, category, explainMembership, } = req.body;
+        console.log("req.body", req.body);
         if (typeof explainMembership === "string") {
             explainMembership = JSON.parse(explainMembership);
         }
         const newService = new service_model_1.default({
             title,
+            subtitle,
             description,
             price,
             about,
@@ -84,6 +95,7 @@ const addService = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             contributor: req.user._id,
             status: "approved",
         });
+        console.log("newService", newService);
         if (!newService) {
             return res
                 .status(statusCodes_1.default.BAD_REQUEST)
@@ -98,6 +110,9 @@ const addService = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             // });
             // newService.files = documentPaths;
             for (const file of files.pdfFiles) {
+                if (file.mimetype !== "application/pdf") {
+                    return res.status(400).send((0, common_1.failure)("only pdf files are allowed"));
+                }
                 documentPaths.push(file.path);
                 const dataBuffer = fs_1.default.readFileSync(file.path);
                 const pdfData = yield (0, pdf_parse_1.default)(dataBuffer);
@@ -113,7 +128,58 @@ const addService = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             combinedDescription += `${extractedText}`;
         }
         newService.description = combinedDescription;
+        // Handle icon upload
+        let iconPath = undefined;
+        if ((files === null || files === void 0 ? void 0 : files.icon) && files.icon.length > 0) {
+            const iconFile = files.icon[0];
+            console.log("iconFile", iconFile);
+            if (!iconFile.mimetype.startsWith("image/")) {
+                return res.status(400).send((0, common_1.failure)("Icon must be an image file"));
+            }
+            // 1. SVG only
+            if (iconFile.mimetype !== "image/svg+xml") {
+                return res.status(400).send((0, common_1.failure)("Icon must be an SVG file"));
+            }
+            // 2. Max 2KB
+            if (iconFile.size > 2048) {
+                return res.status(400).send((0, common_1.failure)("Icon SVG must be less than 2KB"));
+            }
+            // 3. Check SVG width and height
+            const svgContent = fs_1.default.readFileSync(iconFile.path, "utf8");
+            try {
+                const svgObj = yield (0, xml2js_1.parseStringPromise)(svgContent, {
+                    explicitArray: false,
+                });
+                const svgTag = svgObj.svg;
+                const width = parseInt(svgTag.$.width, 10);
+                const height = parseInt(svgTag.$.height, 10);
+                if (width !== 20 || height !== 20) {
+                    return res
+                        .status(400)
+                        .send((0, common_1.failure)("Icon SVG must be exactly 20x20 pixels"));
+                }
+            }
+            catch (e) {
+                return res.status(400).send((0, common_1.failure)("Invalid SVG file"));
+            }
+            iconPath = iconFile.path;
+        }
+        newService.icon = iconPath;
         yield newService.save();
+        if (category || iconPath) {
+            // Check if category exists
+            const existingCategory = yield category_model_1.default.findOne({ name: category });
+            if (!existingCategory) {
+                const newCategory = new category_model_1.default({ name: category, image: iconPath });
+                yield newCategory.save();
+            }
+        }
+        const user = yield user_model_1.default.findById(req.user._id);
+        if (!user) {
+            return res.status(statusCodes_1.default.NOT_FOUND).send((0, common_1.failure)("User not found"));
+        }
+        user.services.push(newService._id);
+        yield user.save();
         const admin = yield user_model_1.default.findOne({ roles: "admin" });
         const notification = new notification_model_1.default({
             message: `New service has been created: ${newService.title}.`,
@@ -238,6 +304,13 @@ const updateServiceById = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 .status(statusCodes_1.default.NOT_FOUND)
                 .send((0, common_1.failure)("Please provide service id"));
         }
+        const validation = (0, express_validator_1.validationResult)(req).array();
+        console.log(validation);
+        if (validation.length > 0) {
+            return res
+                .status(statusCodes_1.default.OK)
+                .send((0, common_1.failure)("Failed to update the service", validation[0].msg));
+        }
         let { explainMembership } = req.body;
         if (typeof explainMembership === "string") {
             explainMembership = JSON.parse(explainMembership);
@@ -263,8 +336,13 @@ const updateServiceById = (req, res) => __awaiter(void 0, void 0, void 0, functi
 });
 exports.updateServiceById = updateServiceById;
 const getAllServices = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     try {
+        if (!req.query.category) {
+            return res
+                .status(statusCodes_1.default.BAD_REQUEST)
+                .send((0, common_1.failure)("Category dila na ken?"));
+        }
         let page = typeof req.query.page === "string" ? parseInt(req.query.page) || 1 : 1;
         let limit = typeof req.query.limit === "string"
             ? parseInt((_a = req.query.limit) !== null && _a !== void 0 ? _a : "10")
@@ -275,15 +353,29 @@ const getAllServices = (req, res) => __awaiter(void 0, void 0, void 0, function*
             limit = 10;
         const skip = (page - 1) * limit;
         let query = {};
-        if (typeof req.query.category === "string") {
-            query.category = {
-                $regex: new RegExp(req.query.category, "i"),
+        if (typeof req.query.title === "string") {
+            query.title = {
+                $regex: new RegExp(req.query.title, "i"),
             };
+        }
+        if (typeof req.query.category === "string") {
+            query.category = req.query.category.toLowerCase();
+        }
+        if ((_b = req.user) === null || _b === void 0 ? void 0 : _b._id) {
+            const user = yield user_model_1.default.findById(req.user._id).select("services");
+            if (user) {
+                query._id = { $nin: user.services };
+            }
+            console.log("user", user);
         }
         const services = yield service_model_1.default.find(query)
             .skip(skip)
             .limit(limit)
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .populate({
+            path: "contributor",
+            select: "image",
+        });
         const count = yield service_model_1.default.countDocuments(query);
         if (!services) {
             return res
@@ -445,6 +537,13 @@ const generateReplyForService = (req, res) => __awaiter(void 0, void 0, void 0, 
                 .send((0, common_1.failure)("Service description not found or invalid"));
         }
         const { message } = req.body;
+        const validation = (0, express_validator_1.validationResult)(req).array();
+        console.log(validation);
+        if (validation.length > 0) {
+            return res
+                .status(statusCodes_1.default.OK)
+                .send((0, common_1.failure)("Failed to send message", validation[0].msg));
+        }
         if (!message) {
             return res
                 .status(statusCodes_1.default.BAD_REQUEST)

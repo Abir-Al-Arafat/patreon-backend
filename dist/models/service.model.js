@@ -8,6 +8,9 @@ const serviceSchema = new mongoose_1.default.Schema({
     title: {
         type: String,
     },
+    subtitle: {
+        type: String,
+    },
     description: {
         type: String,
     },
@@ -32,6 +35,9 @@ const serviceSchema = new mongoose_1.default.Schema({
             type: String,
         },
     ],
+    icon: {
+        type: String,
+    },
     isActive: {
         type: Boolean,
         default: true,

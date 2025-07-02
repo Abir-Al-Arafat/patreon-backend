@@ -11,7 +11,7 @@ const userSchema = new mongoose_1.default.Schema({
     },
     username: {
         type: String,
-        required: [true, "please provide a username"],
+        // required: [true, "please provide a username"],
         unique: true,
     },
     email: {

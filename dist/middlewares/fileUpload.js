@@ -38,16 +38,21 @@ const configureFileUpload = () => {
             "audioFile",
             "pdfFiles",
             "previewPdfFiles",
+            "icon",
         ];
         if (file.fieldname === undefined) {
             // Allow requests without any files
             cb(null, true);
         }
         else if (allowedFieldnames.includes(file.fieldname)) {
-            if (file.mimetype.startsWith("image/") ||
+            if ((file.mimetype.startsWith("image/") && file.fieldname !== "icon") ||
                 file.mimetype.startsWith("video/") ||
                 file.mimetype.startsWith("audio/") ||
                 file.mimetype === "application/pdf") {
+                cb(null, true);
+            }
+            else if (file.fieldname === "icon" &&
+                file.mimetype.startsWith("image/")) {
                 cb(null, true);
             }
             else {
@@ -67,8 +72,9 @@ const configureFileUpload = () => {
         { name: "categoryImage", maxCount: 1 },
         { name: "videoFile", maxCount: 1 },
         { name: "audioFile", maxCount: 1 },
-        { name: "pdfFiles", maxCount: 5 }, // ✅ Added PDF field
-        { name: "previewPdfFiles", maxCount: 3 }, // ✅ Added preview PDF field
+        { name: "pdfFiles", maxCount: 5 },
+        { name: "previewPdfFiles", maxCount: 3 },
+        { name: "icon", maxCount: 1 }, // ✅ Added icon field
     ]);
     return upload;
 };

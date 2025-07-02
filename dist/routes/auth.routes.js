@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const auth_controller_1 = require("../controllers/auth.controller");
 const multer_1 = __importDefault(require("multer"));
+const authValidationJWT_1 = require("../middlewares/authValidationJWT");
 // const { authValidator } = require("../middleware/authValidation");
 const routes = (0, express_1.default)();
 const upload = (0, multer_1.default)();
@@ -32,6 +33,7 @@ routes.post("/reset-password",
 // userValidator.create,
 // authValidator.create,
 upload.none(), auth_controller_1.resetPassword);
+routes.post("/verify-token", authValidationJWT_1.isAuthorizedUser, upload.none(), auth_controller_1.verifyToken);
 // routes.post(
 //   "/auth/create-admin",
 //   // userValidator.create,

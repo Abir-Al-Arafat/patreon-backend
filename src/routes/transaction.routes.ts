@@ -6,6 +6,7 @@ import {
   createPaddleCheckout,
   createStripeAccountLink,
   createStripeCustomConnectAccount,
+  getStripeCustomConnectAccountByUser,
   createCheckoutSession,
   createTransaction,
   subscribeToService,
@@ -66,6 +67,13 @@ routes.post(
   upload.none(),
   isAuthorizedUser,
   createStripeCustomConnectAccount
+);
+
+routes.get(
+  "/stripe/custom-connect-account",
+  upload.none(),
+  isAuthorizedUser,
+  getStripeCustomConnectAccountByUser
 );
 
 routes.post(

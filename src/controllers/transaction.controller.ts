@@ -193,6 +193,41 @@ const createStripeCustomConnectAccount = async (
   }
 };
 
+const getStripeCustomConnectAccountByUser = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+    }
+    const userId = (req as UserRequest).user._id;
+    const user = await User.findById(userId);
+
+    if (!user || !user.stripeCustomConnectAccountId) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    }
+
+    const account = await stripe.accounts.retrieve(
+      user.stripeCustomConnectAccountId
+    );
+
+    if (!account) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("Stripe account not found"));
+    }
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Stripe account retrieved", account));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Failed to get Stripe account", error.message));
+  }
+};
+
 const getConnectedAccount = async (req: Request, res: Response) => {
   try {
     if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
@@ -823,6 +858,7 @@ export {
   getTransactionByUser,
   createCheckoutSession,
   createStripeCustomConnectAccount,
+  getStripeCustomConnectAccountByUser,
   createTransaction,
   onboardingComplete,
   onboardingRefresh,

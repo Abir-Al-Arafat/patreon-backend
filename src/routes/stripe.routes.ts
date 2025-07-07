@@ -11,6 +11,7 @@ import {
 import {
   createRecipientForDirectBankTransfer,
   updateRecipientForDirectBankTransfer,
+  attachBankAccountToRecipient,
 } from "../controllers/stripe.controller";
 
 import {
@@ -40,5 +41,12 @@ routes.put(
   upload.none(),
   isAuthorizedUser,
   updateRecipientForDirectBankTransfer
+);
+
+routes.put(
+  "/attach-bank-account",
+  upload.none(),
+  isAuthorizedUser,
+  attachBankAccountToRecipient
 );
 export default routes;

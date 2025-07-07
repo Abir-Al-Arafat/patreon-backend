@@ -7,6 +7,8 @@ import { UserRequest } from "../interfaces/user.interface";
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY as string;
 
+const STRIPE_API_VERSION = "2025-06-30.preview";
+
 const createRecipientForDirectBankTransfer = async (
   req: Request,
   res: Response
@@ -181,7 +183,61 @@ const updateRecipientForDirectBankTransfer = async (
   }
 };
 
+const attachBankAccountToRecipient = async (req: Request, res: Response) => {
+  if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+    return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+  }
+
+  const user = await User.findById((req as UserRequest).user._id);
+  if (!user || !user.recipientId) {
+    return res
+      .status(HTTP_STATUS.BAD_REQUEST)
+      .send(failure("Recipient not found"));
+  }
+
+  const { routing_number, account_number } = req.body;
+
+  if (!routing_number || !account_number) {
+    return res
+      .status(HTTP_STATUS.BAD_REQUEST)
+      .send(failure("Routing number and account number are required"));
+  }
+
+  try {
+    const vaultResp = await axios.post(
+      "https://api.stripe.com/v2/core/vault/us_bank_accounts",
+      {
+        routing_number,
+        account_number,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
+          "Stripe-Version": STRIPE_API_VERSION,
+          "Stripe-Context": user.recipientId,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Bank account attached successfully", vaultResp.data));
+  } catch (error: any) {
+    console.error("Vault error:", error.response?.data || error.message);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(
+        failure(
+          "Failed to attach bank account",
+          error.response?.data || error.message
+        )
+      );
+  }
+};
+
 export {
   createRecipientForDirectBankTransfer,
   updateRecipientForDirectBankTransfer,
+  attachBankAccountToRecipient,
 };

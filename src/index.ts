@@ -52,6 +52,7 @@ app.use(`${baseApiUrl}/users`, userRouter);
 app.use(`${baseApiUrl}/auth`, authRouter);
 app.use(`${baseApiUrl}/services`, serviceRouter);
 app.use(`${baseApiUrl}/transactions`, transactionRouter);
+app.use(`${baseApiUrl}/stripe`, stripeRouter);
 app.use(`/onboarding`, stripeRouter);
 
 app.get("/", (req, res) => {

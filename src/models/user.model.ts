@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
 
+    country: {
+      type: String,
+    },
+
     paymentIntent: {
       type: String,
     },
@@ -39,6 +43,10 @@ const userSchema = new mongoose.Schema(
     },
 
     stripeCustomConnectAccountId: {
+      type: String,
+    },
+
+    recipientId: {
       type: String,
     },
 

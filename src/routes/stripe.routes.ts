@@ -12,6 +12,8 @@ import {
   createRecipientForDirectBankTransfer,
   updateRecipientForDirectBankTransfer,
   attachBankAccountToRecipient,
+  sendPayoutToRecipient,
+  getFinancialAccounts,
 } from "../controllers/stripe.controller";
 
 import {
@@ -49,4 +51,19 @@ routes.put(
   isAuthorizedUser,
   attachBankAccountToRecipient
 );
+
+routes.post(
+  "/send-payout",
+  upload.none(),
+  isAuthorizedUser,
+  sendPayoutToRecipient
+);
+
+routes.get(
+  "/financial-accounts",
+  upload.none(),
+  // isAuthorizedUser,
+  getFinancialAccounts
+);
+
 export default routes;

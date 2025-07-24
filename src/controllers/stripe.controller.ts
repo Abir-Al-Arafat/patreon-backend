@@ -338,6 +338,67 @@ const attachBankAccountToRecipient = async (req: Request, res: Response) => {
 //       );
 //   }
 // };
+// const sendPayoutToRecipient = async (req: Request, res: Response) => {
+//   if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+//     return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+//   }
+
+//   const user = await User.findById((req as UserRequest).user._id);
+//   if (!user) {
+//     return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("User not found"));
+//   }
+
+//   // You should store this in DB when attaching bank account
+//   const { recipientId } = user;
+//   const {
+//     amount,
+//     currency = "usd",
+//     description = "Payout from platform",
+//     bankAccountId,
+//   } = req.body;
+
+//   if (!recipientId || !bankAccountId || !amount) {
+//     return res
+//       .status(HTTP_STATUS.BAD_REQUEST)
+//       .send(failure("Missing recipient, bank account ID, or amount"));
+//   }
+
+//   try {
+//     const payoutResponse = await axios.post(
+//       // "https://api.stripe.com/v2/core/payouts",
+//       "https://api.stripe.com/v2/core/recipient_transfers",
+//       {
+//         amount, // e.g. 500 for $5.00
+//         currency,
+//         destination: bankAccountId, // e.g. usba_...
+//         description,
+//         recipient: recipientId,
+//       },
+//       {
+//         headers: {
+//           Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
+//           "Content-Type": "application/json",
+//           "Stripe-Version": "2025-03-31.preview", // Required for Global Payouts
+//         },
+//       }
+//     );
+
+//     return res.status(HTTP_STATUS.OK).send(
+//       success("Payout sent successfully", {
+//         payoutId: payoutResponse.data.id,
+//         status: payoutResponse.data.status,
+//       })
+//     );
+//   } catch (error: any) {
+//     console.error("Payout error:", error.response?.data || error.message);
+//     return res
+//       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+//       .send(
+//         failure("Failed to send payout", error.response?.data || error.message)
+//       );
+//   }
+// };
+
 const sendPayoutToRecipient = async (req: Request, res: Response) => {
   if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
     return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
@@ -348,13 +409,12 @@ const sendPayoutToRecipient = async (req: Request, res: Response) => {
     return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("User not found"));
   }
 
-  // You should store this in DB when attaching bank account
   const { recipientId } = user;
   const {
     amount,
     currency = "usd",
     description = "Payout from platform",
-    bankAccountId,
+    bankAccountId, // usba_...
   } = req.body;
 
   if (!recipientId || !bankAccountId || !amount) {
@@ -365,11 +425,11 @@ const sendPayoutToRecipient = async (req: Request, res: Response) => {
 
   try {
     const payoutResponse = await axios.post(
-      "https://api.stripe.com/v2/core/payouts",
+      "https://api.stripe.com/v2/core/outbound_payments", // ✅ Correct endpoint
       {
-        amount, // e.g. 500 for $5.00
+        amount,
         currency,
-        destination: bankAccountId, // e.g. usba_...
+        destination: bankAccountId,
         description,
         recipient: recipientId,
       },
@@ -377,7 +437,7 @@ const sendPayoutToRecipient = async (req: Request, res: Response) => {
         headers: {
           Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
           "Content-Type": "application/json",
-          "Stripe-Version": "2025-03-31.preview", // Required for Global Payouts
+          "Stripe-Version": "2025-03-31.preview", // ✅ Required for Global Payouts
         },
       }
     );
@@ -397,6 +457,7 @@ const sendPayoutToRecipient = async (req: Request, res: Response) => {
       );
   }
 };
+
 const getFinancialAccounts = async (req: Request, res: Response) => {
   try {
     const financialAccounts = await stripe.treasury.financialAccounts.list({

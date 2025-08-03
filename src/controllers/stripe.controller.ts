@@ -284,122 +284,117 @@ const attachBankAccountToRecipient = async (req: Request, res: Response) => {
   }
 };
 
-// const sendPayoutToRecipient = async (req: Request, res: Response) => {
-//   if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
-//     return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
-//   }
+const setDefaultPayoutMethod = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findById((req as UserRequest).user._id);
+    if (!user || !user.recipientId) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Missing recipient ID"));
+    }
 
-//   const user = await User.findById((req as UserRequest).user._id);
-//   if (!user || !user.recipientId) {
-//     return res
-//       .status(HTTP_STATUS.BAD_REQUEST)
-//       .send(failure("Recipient not found"));
-//   }
+    const { bankAccountId, currency = "usd" } = req.body;
+    console.log("bankAccountId:", bankAccountId);
+    console.log("currency:", currency);
+    const response = await axios.post(
+      `https://api.stripe.com/v2/core/recipients/${user.recipientId}/payout_methods`,
+      {
+        type: "financial_account",
+        financial_account: bankAccountId,
+        currency: currency.toLowerCase(),
+        is_default: true,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`,
+          "Content-Type": "application/json",
+          "Stripe-Version": "2025-03-31.preview",
+        },
+      }
+    );
 
-//   let { amount, currency, financialAccountId } = req.body;
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Default payout method set", response.data));
+  } catch (error: any) {
+    console.error(
+      "Set default payout method error:",
+      error.response?.data || error.message
+    );
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(
+        failure(
+          "Failed to set default payout method",
+          error.response?.data || error.message
+        )
+      );
+  }
+};
 
-//   financialAccountId = `fa_test_${Math.random().toString(36).substr(2, 14)}`;
+const getPayoutMethodId = async (req: Request, res: Response) => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+    }
 
-//   if (!amount || !currency || !financialAccountId) {
-//     return res
-//       .status(HTTP_STATUS.BAD_REQUEST)
-//       .send(failure("Amount, currency, and financial account ID are required"));
-//   }
+    const user = await User.findById((req as UserRequest).user._id);
+    if (!user) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("User not found"));
+    }
 
-//   try {
-//     const payoutResp = await axios.post(
-//       "https://api.stripe.com/v2/core/outbound_payments",
-//       {
-//         amount,
-//         currency,
-//         recipient: {
-//           id: user.recipientId,
-//         },
-//       },
-//       {
-//         headers: {
-//           Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
-//           "Stripe-Version": STRIPE_API_VERSION,
-//           "Stripe-Context": financialAccountId,
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
+    const { recipientId } = user;
+    if (!recipientId) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Missing recipient ID"));
+    }
 
-//     return res
-//       .status(HTTP_STATUS.OK)
-//       .send(success("Payout sent successfully", payoutResp.data));
-//   } catch (error: any) {
-//     console.error("Payout error:", error.response?.data || error.message);
-//     return res
-//       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-//       .send(
-//         failure("Failed to send payout", error.response?.data || error.message)
-//       );
-//   }
-// };
-// const sendPayoutToRecipient = async (req: Request, res: Response) => {
-//   if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
-//     return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
-//   }
+    const response = await axios.get(
+      `https://api.stripe.com/v2/money_management/recipients/${recipientId}/payout_methods`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`,
+          "Content-Type": "application/json",
+          "Stripe-Version": "2025-03-31.preview",
+        },
+      }
+    );
 
-//   const user = await User.findById((req as UserRequest).user._id);
-//   if (!user) {
-//     return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("User not found"));
-//   }
+    const payoutMethods = response.data?.data;
+    if (!payoutMethods || payoutMethods.length === 0) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("No payout methods found"));
+    }
 
-//   // You should store this in DB when attaching bank account
-//   const { recipientId } = user;
-//   const {
-//     amount,
-//     currency = "usd",
-//     description = "Payout from platform",
-//     bankAccountId,
-//   } = req.body;
+    const payoutMethodId = payoutMethods[0].id;
 
-//   if (!recipientId || !bankAccountId || !amount) {
-//     return res
-//       .status(HTTP_STATUS.BAD_REQUEST)
-//       .send(failure("Missing recipient, bank account ID, or amount"));
-//   }
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Payout method ID fetched", { payoutMethodId }));
+  } catch (error: any) {
+    console.error(
+      "Payout method fetch error:",
+      error.response?.data || error.message
+    );
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(
+        failure(
+          "Failed to get payout method ID",
+          error.response?.data || error.message
+        )
+      );
+  }
+};
 
-//   try {
-//     const payoutResponse = await axios.post(
-//       // "https://api.stripe.com/v2/core/payouts",
-//       "https://api.stripe.com/v2/core/recipient_transfers",
-//       {
-//         amount, // e.g. 500 for $5.00
-//         currency,
-//         destination: bankAccountId, // e.g. usba_...
-//         description,
-//         recipient: recipientId,
-//       },
-//       {
-//         headers: {
-//           Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
-//           "Content-Type": "application/json",
-//           "Stripe-Version": "2025-03-31.preview", // Required for Global Payouts
-//         },
-//       }
-//     );
-
-//     return res.status(HTTP_STATUS.OK).send(
-//       success("Payout sent successfully", {
-//         payoutId: payoutResponse.data.id,
-//         status: payoutResponse.data.status,
-//       })
-//     );
-//   } catch (error: any) {
-//     console.error("Payout error:", error.response?.data || error.message);
-//     return res
-//       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-//       .send(
-//         failure("Failed to send payout", error.response?.data || error.message)
-//       );
-//   }
-// };
-
-const sendPayoutToRecipient = async (req: Request, res: Response) => {
+const sendPayoutToRecipient = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
     return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
   }
@@ -411,33 +406,51 @@ const sendPayoutToRecipient = async (req: Request, res: Response) => {
 
   const { recipientId } = user;
   const {
-    amount,
+    amount, // must be number (e.g. 500 for $5)
     currency = "usd",
     description = "Payout from platform",
-    bankAccountId, // usba_...
   } = req.body;
 
-  if (!recipientId || !bankAccountId || !amount) {
+  const platformFinancialAccountId =
+    process.env.STRIPE_PLATFORM_FINANCIAL_ACCOUNT_ID;
+
+  if (!recipientId || !amount || !platformFinancialAccountId) {
     return res
       .status(HTTP_STATUS.BAD_REQUEST)
-      .send(failure("Missing recipient, bank account ID, or amount"));
+      .send(failure("Missing recipient ID, amount, or financial account ID"));
   }
+
+  console.log("currency:", currency);
 
   try {
     const payoutResponse = await axios.post(
-      "https://api.stripe.com/v2/core/outbound_payments", // ✅ Correct endpoint
+      "https://api.stripe.com/v2/money_management/outbound_payments",
       {
-        amount,
-        currency,
-        destination: bankAccountId,
+        amount: {
+          value: Number(amount),
+          currency: currency.toLowerCase(),
+          // currency: "usd",
+        },
         description,
-        recipient: recipientId,
+        from: {
+          financial_account: platformFinancialAccountId,
+          currency: currency.toLowerCase(),
+          // currency: "usd",
+        },
+        to: {
+          recipient: recipientId,
+          payout_method: {
+            type: "financial_account",
+            financial_account: process.env.STRIPE_PLATFORM_FINANCIAL_ACCOUNT_ID, // or usba_xxx if directly attached
+            currency: currency.toLowerCase(),
+          },
+        },
       },
       {
         headers: {
-          Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
+          Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`,
           "Content-Type": "application/json",
-          "Stripe-Version": "2025-03-31.preview", // ✅ Required for Global Payouts
+          "Stripe-Version": "2025-03-31.preview",
         },
       }
     );
@@ -458,11 +471,34 @@ const sendPayoutToRecipient = async (req: Request, res: Response) => {
   }
 };
 
+// const getFinancialAccounts = async (req: Request, res: Response) => {
+//   try {
+//     const financialAccounts = await stripe.treasury.financialAccounts.list({
+//       limit: 10,
+//     });
+
+//     return res
+//       .status(HTTP_STATUS.OK)
+//       .send(success("Financial accounts fetched", financialAccounts.data));
+//   } catch (error: any) {
+//     console.error("Error fetching financial accounts:", error.message);
+//     return res
+//       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+//       .send(failure("Failed to fetch financial accounts", error.message));
+//   }
+// };
 const getFinancialAccounts = async (req: Request, res: Response) => {
   try {
-    const financialAccounts = await stripe.treasury.financialAccounts.list({
-      limit: 10,
-    });
+    const financialAccounts = await axios.get(
+      "https://api.stripe.com/v2/money_management/financial_accounts",
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`,
+          "Content-Type": "application/json",
+          "Stripe-Version": "2025-03-31.preview",
+        },
+      }
+    );
 
     return res
       .status(HTTP_STATUS.OK)
@@ -479,6 +515,8 @@ export {
   createRecipientForDirectBankTransfer,
   updateRecipientForDirectBankTransfer,
   attachBankAccountToRecipient,
+  setDefaultPayoutMethod,
+  getPayoutMethodId,
   sendPayoutToRecipient,
   getFinancialAccounts,
 };

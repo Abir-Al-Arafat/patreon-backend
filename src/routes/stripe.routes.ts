@@ -12,6 +12,8 @@ import {
   createRecipientForDirectBankTransfer,
   updateRecipientForDirectBankTransfer,
   attachBankAccountToRecipient,
+  setDefaultPayoutMethod,
+  getPayoutMethodId,
   sendPayoutToRecipient,
   getFinancialAccounts,
 } from "../controllers/stripe.controller";
@@ -52,6 +54,20 @@ routes.put(
   attachBankAccountToRecipient
 );
 
+routes.put(
+  "/set-default-payout-method",
+  upload.none(),
+  isAuthorizedUser,
+  setDefaultPayoutMethod
+);
+
+routes.get(
+  "/get-payout-method-id",
+  upload.none(),
+  isAuthorizedUser,
+  getPayoutMethodId
+);
+
 routes.post(
   "/send-payout",
   upload.none(),
@@ -61,7 +77,7 @@ routes.post(
 
 routes.get(
   "/financial-accounts",
-  upload.none(),
+
   // isAuthorizedUser,
   getFinancialAccounts
 );

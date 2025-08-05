@@ -12,6 +12,9 @@ const STRIPE_API_VERSION = "2025-06-30.preview";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
+const sandboxFinancialAddressId =
+  "finaddr_test_61So2ffQe4OD9kWgR16SdWwgJYE9E1sPZ4SL3UTcGWky";
+
 const createRecipientForDirectBankTransfer = async (
   req: Request,
   res: Response
@@ -530,6 +533,57 @@ const getFinancialAddress = async (
   }
 };
 
+const addFundToFinancialAccount = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const { value, currency, network } = req.body;
+    if (!value || !currency || !network) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Missing value, currency, or network"));
+    }
+    console.log("Adding funds to financial account:", value, currency, network);
+    const fundAdded = await axios.post(
+      `https://api.stripe.com/v2/test_helpers/financial_addresses/${sandboxFinancialAddressId}/credit`,
+      {
+        amount: {
+          value: value,
+          currency: currency.toLowerCase(),
+        },
+        network: network.toLowerCase(),
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`,
+          "Content-Type": "application/json",
+          "Stripe-Version": "2025-07-30.preview",
+        },
+      }
+    );
+    console.log("Funds added to financial account:", fundAdded);
+    console.log("Funds added to financial account:", fundAdded.data);
+    if (!fundAdded || !fundAdded.data || !fundAdded.data.id) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(
+          failure(
+            "Failed to add funds to financial account",
+            "Invalid response"
+          )
+        );
+    }
+    return res.status(HTTP_STATUS.OK).send(success("Funds added successfully"));
+  } catch (error: any) {
+    console.error("Error adding funds to financial account:", error.message);
+    console.error("Error adding funds to financial account:", error);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Failed to add funds to financial account", error.message));
+  }
+};
+
 export {
   createRecipientForDirectBankTransfer,
   updateRecipientForDirectBankTransfer,
@@ -540,4 +594,5 @@ export {
   sendPayoutToRecipient,
   getFinancialAccounts,
   getFinancialAddress,
+  addFundToFinancialAccount,
 };

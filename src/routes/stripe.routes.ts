@@ -18,6 +18,7 @@ import {
   sendPayoutToRecipient,
   getFinancialAccounts,
   getFinancialAddress,
+  addFundToFinancialAccount,
 } from "../controllers/stripe.controller";
 
 import {
@@ -96,6 +97,13 @@ routes.get(
   // upload.none(),
   // isAuthorizedUser,
   getFinancialAddress
+);
+
+routes.post(
+  "/add-fund-to-financial-account",
+  upload.none(),
+  // isAuthorizedUser,
+  addFundToFinancialAccount
 );
 
 export default routes;

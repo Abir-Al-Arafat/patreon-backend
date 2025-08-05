@@ -14,8 +14,10 @@ import {
   attachBankAccountToRecipient,
   setDefaultPayoutMethod,
   getPayoutMethodId,
+  createTestBankAccountGBP,
   sendPayoutToRecipient,
   getFinancialAccounts,
+  getFinancialAddress,
 } from "../controllers/stripe.controller";
 
 import {
@@ -61,6 +63,13 @@ routes.put(
   setDefaultPayoutMethod
 );
 
+routes.post(
+  "/create-test-bank-account-gbp",
+  upload.none(),
+  isAuthorizedUser,
+  createTestBankAccountGBP
+);
+
 routes.get(
   "/get-payout-method-id",
   upload.none(),
@@ -80,6 +89,13 @@ routes.get(
 
   // isAuthorizedUser,
   getFinancialAccounts
+);
+
+routes.get(
+  "/financial-address",
+  // upload.none(),
+  // isAuthorizedUser,
+  getFinancialAddress
 );
 
 export default routes;

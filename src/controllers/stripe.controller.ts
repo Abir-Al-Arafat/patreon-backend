@@ -12,51 +12,6 @@ const STRIPE_API_VERSION = "2025-06-30.preview";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
-// const financialAccounts = async () => {
-//   try {
-//     const financialAccounts = await stripe.v2.moneyManagement.financialAccounts.list();
-//   } catch (error: any) {
-//     console.error("Error fetching financial accounts:", error.message);
-//   }
-// };
-
-// const createRecipient = async (req: Request, res: Response) => {
-//   if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
-//     return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
-//   }
-//   const user = await User.findById((req as UserRequest).user._id);
-//   if (!user) {
-//     return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("User not found"));
-//   }
-
-//   try {
-//     const account = await stripe.v2.core.accounts.create({
-//   contact_email: 'jenny.rosen@example.com',
-//   display_name: 'Jenny Rosen',
-//   identity: {
-//     country: 'us',
-//     entity_type: 'individual',
-//   },
-//   configuration: {
-//     recipient: {
-//       capabilities: {
-//         bank_accounts: {
-//           local: {
-//             requested: true,
-//           },
-//         },
-//       },
-//     },
-//   },
-//   include: ['identity', 'configuration.recipient', 'requirements'],
-// });
-//     return res.status(HTTP_STATUS.OK).send(success("Financial accounts fetched successfully", account));
-//   } catch (error: any) {
-//     console.error("Error fetching financial accounts:", error.message);
-//     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(failure("Failed to fetch financial accounts", error.message));
-//   }
-// };
-
 const createRecipientForDirectBankTransfer = async (
   req: Request,
   res: Response
@@ -77,7 +32,8 @@ const createRecipientForDirectBankTransfer = async (
         contact_email: user.email,
         display_name: user.name || user.username || "Anonymous User",
         identity: {
-          country: "US",
+          country: "GB",
+          // country: "US",
           entity_type: "individual",
         },
         configuration: {
@@ -332,6 +288,61 @@ const setDefaultPayoutMethod = async (req: Request, res: Response) => {
   }
 };
 
+const createTestBankAccountGBP = async (req: Request, res: Response) => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+    }
+    const user = await User.findById((req as UserRequest).user._id);
+    if (!user) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("User not found"));
+    }
+    if (!user.recipientId) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Recipient ID not found for user"));
+    }
+    const recipientId = user.recipientId;
+    const response = await axios.post(
+      `https://api.stripe.com/v2/test_helpers/recipients/${recipientId}/payout_methods`,
+      {
+        type: "financial_account",
+        currency: "gbp",
+        is_default: true,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`,
+          "Content-Type": "application/json",
+          "Stripe-Version": "2025-03-31.preview",
+        },
+      }
+    );
+    console.log("✅ Test GBP bank account created:");
+    console.log(response.data); // Contains `usba_...` ID
+
+    return res.status(HTTP_STATUS.OK).send(
+      success("Test GBP bank account created successfully", {
+        id: response.data.id,
+      })
+    );
+  } catch (error: any) {
+    console.error("❌ Error creating test GBP bank account:");
+    console.error(error.response?.data || error.message);
+
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(
+        failure(
+          "Failed to create test GBP bank account",
+          error.response?.data || error.message
+        )
+      );
+  }
+};
+
 const getPayoutMethodId = async (req: Request, res: Response) => {
   try {
     if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
@@ -407,6 +418,7 @@ const sendPayoutToRecipient = async (
   const { recipientId } = user;
   const {
     amount, // must be number (e.g. 500 for $5)
+    bankAccountId,
     currency = "usd",
     description = "Payout from platform",
   } = req.body;
@@ -439,11 +451,7 @@ const sendPayoutToRecipient = async (
         },
         to: {
           recipient: recipientId,
-          payout_method: {
-            type: "financial_account",
-            financial_account: process.env.STRIPE_PLATFORM_FINANCIAL_ACCOUNT_ID, // or usba_xxx if directly attached
-            currency: currency.toLowerCase(),
-          },
+          payout_method: bankAccountId,
         },
       },
       {
@@ -471,22 +479,6 @@ const sendPayoutToRecipient = async (
   }
 };
 
-// const getFinancialAccounts = async (req: Request, res: Response) => {
-//   try {
-//     const financialAccounts = await stripe.treasury.financialAccounts.list({
-//       limit: 10,
-//     });
-
-//     return res
-//       .status(HTTP_STATUS.OK)
-//       .send(success("Financial accounts fetched", financialAccounts.data));
-//   } catch (error: any) {
-//     console.error("Error fetching financial accounts:", error.message);
-//     return res
-//       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-//       .send(failure("Failed to fetch financial accounts", error.message));
-//   }
-// };
 const getFinancialAccounts = async (req: Request, res: Response) => {
   try {
     const financialAccounts = await axios.get(
@@ -511,12 +503,41 @@ const getFinancialAccounts = async (req: Request, res: Response) => {
   }
 };
 
+const getFinancialAddress = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const financialAccount = await axios.get(
+      `https://api.stripe.com/v2/money_management/financial_addresses`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`,
+          "Content-Type": "application/json",
+          "Stripe-Version": "2025-07-30.preview",
+        },
+      }
+    );
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Financial account fetched", financialAccount.data));
+  } catch (error: any) {
+    console.error("Error fetching financial account:", error.message);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Failed to fetch financial account", error.message));
+  }
+};
+
 export {
   createRecipientForDirectBankTransfer,
   updateRecipientForDirectBankTransfer,
   attachBankAccountToRecipient,
   setDefaultPayoutMethod,
   getPayoutMethodId,
+  createTestBankAccountGBP,
   sendPayoutToRecipient,
   getFinancialAccounts,
+  getFinancialAddress,
 };

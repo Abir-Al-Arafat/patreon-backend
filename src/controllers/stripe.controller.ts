@@ -549,7 +549,7 @@ const addFundToFinancialAccount = async (
       `https://api.stripe.com/v2/test_helpers/financial_addresses/${sandboxFinancialAddressId}/credit`,
       {
         amount: {
-          value: value,
+          value: 2500,
           currency: currency.toLowerCase(),
         },
         network: network.toLowerCase(),
@@ -564,7 +564,7 @@ const addFundToFinancialAccount = async (
     );
     console.log("Funds added to financial account:", fundAdded);
     console.log("Funds added to financial account:", fundAdded.data);
-    if (!fundAdded || !fundAdded.data || !fundAdded.data.id) {
+    if (!fundAdded || !fundAdded.data) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
         .send(

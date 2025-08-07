@@ -34,6 +34,14 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
 
+    payouts: {
+      type: [String],
+    },
+
+    attachedBankAccounts: {
+      type: [String],
+    },
+
     paymentIntent: {
       type: String,
     },

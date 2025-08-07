@@ -11,7 +11,8 @@ import {
 import {
   createRecipientForDirectBankTransfer,
   updateRecipientForDirectBankTransfer,
-  attachBankAccountToRecipient,
+  attachBankAccountToRecipientUS,
+  attachBankAccountToRecipientGB,
   setDefaultPayoutMethod,
   getPayoutMethodId,
   createTestBankAccountGBP,
@@ -51,10 +52,17 @@ routes.put(
 );
 
 routes.put(
-  "/attach-bank-account",
+  "/attach-bank-account-us",
   upload.none(),
   isAuthorizedUser,
-  attachBankAccountToRecipient
+  attachBankAccountToRecipientUS
+);
+
+routes.put(
+  "/attach-bank-account-gb",
+  upload.none(),
+  isAuthorizedUser,
+  attachBankAccountToRecipientGB
 );
 
 routes.put(

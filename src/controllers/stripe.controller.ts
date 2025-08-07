@@ -190,7 +190,7 @@ const updateRecipientForDirectBankTransfer = async (
   }
 };
 
-const attachBankAccountToRecipient = async (req: Request, res: Response) => {
+const attachBankAccountToRecipientUS = async (req: Request, res: Response) => {
   if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
     return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
   }
@@ -226,6 +226,76 @@ const attachBankAccountToRecipient = async (req: Request, res: Response) => {
         },
       }
     );
+
+    if (!vaultResp.data || !vaultResp.data.id) {
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .send(failure("Failed to attach bank account"));
+    }
+
+    user.attachedBankAccounts.push(vaultResp.data.id);
+    await user.save();
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Bank account attached successfully", vaultResp.data));
+  } catch (error: any) {
+    console.error("Vault error:", error.response?.data || error.message);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(
+        failure(
+          "Failed to attach bank account",
+          error.response?.data || error.message
+        )
+      );
+  }
+};
+const attachBankAccountToRecipientGB = async (req: Request, res: Response) => {
+  if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+    return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+  }
+
+  const user = await User.findById((req as UserRequest).user._id);
+  if (!user || !user.recipientId) {
+    return res
+      .status(HTTP_STATUS.BAD_REQUEST)
+      .send(failure("Recipient not found"));
+  }
+
+  const { sort_code, account_number } = req.body;
+
+  if (!sort_code || !account_number) {
+    return res
+      .status(HTTP_STATUS.BAD_REQUEST)
+      .send(failure("Routing number and account number are required"));
+  }
+
+  try {
+    const vaultResp = await axios.post(
+      "https://api.stripe.com/v2/core/vault/gb_bank_accounts",
+      {
+        sort_code,
+        account_number,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
+          "Stripe-Version": STRIPE_API_VERSION,
+          "Stripe-Context": user.recipientId,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!vaultResp || !vaultResp.data) {
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .send(failure("Failed to attach bank account"));
+    }
+
+    user.attachedBankAccounts.push(vaultResp.data.id);
+    await user.save();
 
     return res
       .status(HTTP_STATUS.OK)
@@ -466,6 +536,15 @@ const sendPayoutToRecipient = async (
       }
     );
 
+    if (!payoutResponse || !payoutResponse.data) {
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .send(failure("Failed to send payout"));
+    }
+
+    user.payouts.push(payoutResponse.data.id);
+    await user.save();
+
     return res.status(HTTP_STATUS.OK).send(
       success("Payout sent successfully", {
         payoutId: payoutResponse.data.id,
@@ -587,7 +666,8 @@ const addFundToFinancialAccount = async (
 export {
   createRecipientForDirectBankTransfer,
   updateRecipientForDirectBankTransfer,
-  attachBankAccountToRecipient,
+  attachBankAccountToRecipientUS,
+  attachBankAccountToRecipientGB,
   setDefaultPayoutMethod,
   getPayoutMethodId,
   createTestBankAccountGBP,

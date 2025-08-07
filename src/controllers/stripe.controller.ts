@@ -12,8 +12,8 @@ const STRIPE_API_VERSION = "2025-06-30.preview";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
-const sandboxFinancialAddressId =
-  "finaddr_test_61So2ffQe4OD9kWgR16SdWwgJYE9E1sPZ4SL3UTcGWky";
+const sandboxFinancialAddressId = process.env
+  .STRIPE_SANDBOX_FINANCIAL_ADDRESS_ID as string;
 
 const createRecipientForDirectBankTransfer = async (
   req: Request,

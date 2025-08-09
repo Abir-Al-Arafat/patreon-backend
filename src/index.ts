@@ -7,6 +7,7 @@ import { Request, Response, NextFunction } from "express";
 import databaseConnection from "./config/database";
 import userRouter from "./routes/user.routes";
 import authRouter from "./routes/auth.routes";
+import walletRouter from "./routes/wallet.routes";
 import serviceRouter from "./routes/service.routes";
 import transactionRouter from "./routes/transaction.routes";
 import stripeRouter from "./routes/stripe.routes";
@@ -50,6 +51,7 @@ app.use("/public", express.static(path.join(__dirname, "public")));
 
 app.use(`${baseApiUrl}/users`, userRouter);
 app.use(`${baseApiUrl}/auth`, authRouter);
+app.use(`${baseApiUrl}/wallets`, walletRouter);
 app.use(`${baseApiUrl}/services`, serviceRouter);
 app.use(`${baseApiUrl}/transactions`, transactionRouter);
 app.use(`${baseApiUrl}/stripe`, stripeRouter);

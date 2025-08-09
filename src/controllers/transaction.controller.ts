@@ -398,7 +398,8 @@ const createCheckoutSession = async (req: Request, res: Response) => {
       line_items: [
         {
           price_data: {
-            currency: "usd", // or contributor.preferredCurrency
+            // currency: "usd", // or contributor.preferredCurrency
+            currency: "gbp", // or contributor.preferredCurrency
             unit_amount: totalAmount,
             product_data: {
               name: service.title,

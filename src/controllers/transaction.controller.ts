@@ -8,6 +8,8 @@ import User from "../models/user.model";
 import Service from "../models/service.model";
 import Transaction from "../models/transaction.model";
 
+import { getWalletByUserId } from "../services/wallet.service";
+import { getUserById } from "../services/user.service";
 import { UserRequest } from "../interfaces/user.interface";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
@@ -329,6 +331,12 @@ const createCheckoutSession = async (req: Request, res: Response) => {
         .send(failure("User ID is required"));
     }
 
+    const user = await getUserById(userId);
+
+    if (!user) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    }
+
     if (!serviceId) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
@@ -349,16 +357,79 @@ const createCheckoutSession = async (req: Request, res: Response) => {
         .send(failure("Invalid service price"));
     }
 
-    const user = await User.findById(userId);
     const contributor: any = service.contributor;
 
-    if (!contributor || !contributor.stripeAccountId) {
+    if (!contributor) {
       return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("Contributor has not completed Stripe onboarding"));
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("Contributor not found"));
     }
 
     const totalAmount = service.price * 100;
+
+    if (!contributor.stripeAccountId) {
+      if (!contributor.wallet) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .send(
+            failure(
+              "Contributor has not completed Stripe onboarding and does not have a wallet too"
+            )
+          );
+      }
+
+      const wallet = await getWalletByUserId(contributor._id);
+
+      if (!wallet) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .send(
+            failure(
+              "Contributor has not completed Stripe onboarding and does not have a wallet too"
+            )
+          );
+      }
+
+      const contributorShare = Math.floor(totalAmount * 0.8);
+      wallet.balance += contributorShare;
+      await wallet.save();
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        mode: "payment",
+        line_items: [
+          {
+            price_data: {
+              currency: "gbp",
+              unit_amount: service.price! * 100,
+              product_data: {
+                name: service.title,
+                description: service.title,
+              },
+            },
+            quantity: 1,
+          },
+        ],
+        success_url: `${process.env.CLIENT_URL}?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.CLIENT_URL}`,
+        metadata: {
+          userId: userId.toString(),
+          serviceId: service._id.toString(),
+          contributorId: contributor?._id.toString(),
+        },
+      } as Stripe.Checkout.SessionCreateParams);
+
+      if (!session || !session.url) {
+        return res
+          .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+          .send(failure("Failed to create checkout session"));
+      }
+
+      return res
+        .status(HTTP_STATUS.OK)
+        .json({ success: true, url: session.url });
+    }
+
     const adminShare = Math.floor(totalAmount * 0.2); // 20% admin cut
     const admin = await User.findOne({ roles: { $in: ["admin"] } });
     if (!admin) {
@@ -366,31 +437,6 @@ const createCheckoutSession = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
         .send(failure("Admin account not found"));
     }
-
-    // const session = await stripe.checkout.sessions.create({
-    //   payment_method_types: ["card"],
-    //   mode: "payment",
-    //   line_items: [
-    //     {
-    //       price_data: {
-    //         currency: "usd",
-    //         unit_amount: service.price! * 100,
-    //         product_data: {
-    //           name: service.title,
-    //           description: service.description,
-    //         },
-    //       },
-    //       quantity: 1,
-    //     },
-    //   ],
-    //   success_url: `${process.env.CLIENT_URL}?session_id={CHECKOUT_SESSION_ID}`,
-    //   cancel_url: `${process.env.CLIENT_URL}`,
-    //   metadata: {
-    //     userId: userId.toString(),
-    //     serviceId: service._id.toString(),
-    //     contributorId: contributor?._id.toString(),
-    //   },
-    // } as Stripe.Checkout.SessionCreateParams);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],

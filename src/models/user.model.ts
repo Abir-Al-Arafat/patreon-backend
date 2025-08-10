@@ -87,12 +87,6 @@ const userSchema = new mongoose.Schema(
       enum: ["male", "female", "other"],
     },
 
-    balance: {
-      type: Number,
-      min: 0,
-      default: 0,
-    },
-
     dateOfBirth: {
       type: Date,
     },
@@ -118,6 +112,11 @@ const userSchema = new mongoose.Schema(
     isLocked: {
       type: Boolean,
       default: false,
+    },
+
+    wallet: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Wallet",
     },
 
     reviewId: { type: mongoose.Schema.Types.ObjectId, ref: "Review" },

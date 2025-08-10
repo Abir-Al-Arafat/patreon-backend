@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import mongoose, { ObjectId } from "mongoose";
 import { validationResult } from "express-validator";
 import {
   success,
@@ -16,7 +17,8 @@ import { emailWithNodemailerGmail } from "../config/email.config";
 import { CreateUserQueryParams } from "../types/query-params";
 
 import { IUser } from "../interfaces/user.interface";
-import { ObjectId } from "mongoose";
+import IWallet from "../interfaces/wallet.interface";
+
 import {
   createWallet,
   getAllWallets,
@@ -24,31 +26,40 @@ import {
   deleteWalletByUserId,
 } from "../services/wallet.service";
 
+import { getUserById } from "../services/user.service";
+
 const openWallet = async (req: Request, res: Response) => {
   try {
     if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
     }
     const userId: ObjectId = (req as UserRequest)?.user?._id!;
-    const validation = validationResult(req).array();
-    if (validation.length) {
-      return res
-        .status(HTTP_STATUS.OK)
-        .send(failure(validation[0].msg, "Failed to create wallet"));
+    const user = await getUserById(userId);
+
+    if (!user) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
     }
-    const wallet = await getWalletByUserId(userId as ObjectId);
+
+    if (user.wallet) {
+      return res
+        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+        .send(failure(`user already has a wallet`));
+    }
+
+    const wallet = await getWalletByUserId(userId);
     if (wallet) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
         .send(failure(`user already has a wallet`));
     }
-    const newWallet = await createWallet(userId);
+    const newWallet: IWallet = await createWallet(userId);
     if (!newWallet) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
         .send(failure(`Failed to create wallet`));
     }
-
+    user.wallet = newWallet._id as mongoose.Types.ObjectId;
+    await user.save();
     return res
       .status(HTTP_STATUS.CREATED)
       .send(success("user wallet created", newWallet));
@@ -99,8 +110,17 @@ const deleteWalletByUser = async (req: Request, res: Response) => {
       return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
     }
     const userId: ObjectId = (req as UserRequest).user._id!;
+    const user = await getUserById(userId);
+
+    if (!user) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    }
+
+    user.wallet = null;
+    await user.save();
     const wallet = await deleteWalletByUserId(userId);
-    if (!wallet) {
+
+    if (!wallet.deletedCount) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
         .send(failure(`user does not have a wallet`));

@@ -10,7 +10,6 @@ const WalletSchema: Schema = new Schema(
     },
     balance: { type: Number, default: 0 },
     currency: { type: String, default: "GBP" },
-    lastUpdated: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );

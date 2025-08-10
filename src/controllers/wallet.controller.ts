@@ -29,14 +29,14 @@ const openWallet = async (req: Request, res: Response) => {
     if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
     }
-    const userId: any = (req as UserRequest)?.user?._id;
+    const userId: ObjectId = (req as UserRequest)?.user?._id!;
     const validation = validationResult(req).array();
     if (validation.length) {
       return res
         .status(HTTP_STATUS.OK)
         .send(failure(validation[0].msg, "Failed to create wallet"));
     }
-    const wallet = await getWalletByUserId(userId);
+    const wallet = await getWalletByUserId(userId as ObjectId);
     if (wallet) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
@@ -78,7 +78,7 @@ const getWalletByUser = async (req: Request, res: Response) => {
     if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
     }
-    const userId = (req as UserRequest).user._id;
+    const userId: ObjectId = (req as UserRequest).user._id!;
     const wallet = await getWalletByUserId(userId);
     if (!wallet) {
       return res
@@ -98,7 +98,7 @@ const deleteWalletByUser = async (req: Request, res: Response) => {
     if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
     }
-    const userId = (req as UserRequest).user._id;
+    const userId: ObjectId = (req as UserRequest).user._id!;
     const wallet = await deleteWalletByUserId(userId);
     if (!wallet) {
       return res

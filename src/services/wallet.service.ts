@@ -11,12 +11,12 @@ const getAllWallets = async () => {
   return wallets;
 };
 
-const getWalletByUserId = async (userId: ObjectId | undefined) => {
+const getWalletByUserId = async (userId: ObjectId) => {
   const wallet = await walletModel.findOne({ user: userId });
   return wallet;
 };
 
-const deleteWalletByUserId = async (userId: ObjectId | undefined) => {
+const deleteWalletByUserId = async (userId: ObjectId) => {
   const wallet = await walletModel.deleteOne({ user: userId });
   return wallet;
 };

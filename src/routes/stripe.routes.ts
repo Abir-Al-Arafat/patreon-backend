@@ -16,6 +16,8 @@ import {
   setDefaultPayoutMethod,
   getPayoutMethodId,
   createTestBankAccountGBP,
+  getAllStorageBalances,
+  getSpecificStorageBalance,
   sendPayoutToRecipient,
   getFinancialAccounts,
   getFinancialAddress,
@@ -84,6 +86,20 @@ routes.get(
   upload.none(),
   isAuthorizedUser,
   getPayoutMethodId
+);
+
+routes.get(
+  "/storage-balance",
+  upload.none(),
+  // isAuthorizedUser,
+  getAllStorageBalances
+);
+
+routes.get(
+  "/storage-balance/specific-account/:pfaId",
+  upload.none(),
+  // isAuthorizedUser,
+  getSpecificStorageBalance
 );
 
 routes.post(

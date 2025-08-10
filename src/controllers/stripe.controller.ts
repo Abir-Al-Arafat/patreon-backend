@@ -15,6 +15,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 const sandboxFinancialAddressId = process.env
   .STRIPE_SANDBOX_FINANCIAL_ADDRESS_ID as string;
 
+const platformFinancialAccountId =
+  process.env.STRIPE_PLATFORM_FINANCIAL_ACCOUNT_ID;
+
 const createRecipientForDirectBankTransfer = async (
   req: Request,
   res: Response
@@ -475,6 +478,155 @@ const getPayoutMethodId = async (req: Request, res: Response) => {
   }
 };
 
+const getAllStorageBalances = async (req: Request, res: Response) => {
+  try {
+    // Step 1: Retrieve all Financial Accounts
+    const accountsResponse = await axios.get(
+      "https://api.stripe.com/v2/money_management/financial_accounts",
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`,
+          "Stripe-Version": "2025-07-30.preview",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const accounts = accountsResponse.data.data;
+
+    if (!accounts || accounts.length === 0) {
+      return res
+        .status(404)
+        .json({ error: { message: "No financial accounts found" } });
+    }
+
+    // Create a safe extraction function for balances
+    const extractBalances = (balanceObj: any) => {
+      if (!balanceObj) return [];
+
+      // Convert to a more readable format
+      // This handles both direct values and nested objects
+      try {
+        // If it's a plain object with currency keys
+        return Object.entries(balanceObj).map(([currency, data]) => {
+          // Handle different possible structures
+          return {
+            currency,
+            amount: typeof data === "object" ? (data as any).value || 0 : data,
+          };
+        });
+      } catch (error) {
+        console.error("Error extracting balance:", error);
+        return []; // Return empty array if extraction fails
+      }
+    };
+
+    // Process each account to extract balance information
+    const balanceInfoList = accounts.map((account: any) => {
+      // Log to understand the structure
+      console.log(
+        `Balance structure for account ${account.id}:`,
+        JSON.stringify(account.balance, null, 2)
+      );
+
+      return {
+        id: account.id,
+        type: account.type,
+        status: account.status,
+        country: account.country,
+        holds_currencies: account.storage?.holds_currencies || [],
+        available_balances: extractBalances(account.balance?.available),
+        inbound_pending_balances: extractBalances(
+          account.balance?.inbound_pending
+        ),
+        outbound_pending_balances: extractBalances(
+          account.balance?.outbound_pending
+        ),
+      };
+    });
+
+    res.status(200).json({ storage_balances: balanceInfoList });
+  } catch (error: any) {
+    console.error("Error retrieving storage balances:", error.message);
+    console.error("Full error:", error);
+    res.status(error.response?.status || 500).json({
+      error: {
+        message:
+          error.response?.data?.error?.message ||
+          "Something went wrong while retrieving storage balances",
+      },
+    });
+  }
+};
+
+const getSpecificStorageBalance = async (req: Request, res: Response) => {
+  try {
+    // STRIPE_PLATFORM_FINANCIAL_ACCOUNT_ID
+    const { pfaId } = req.params;
+    if (!pfaId) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Missing PFA ID"));
+    }
+
+    // Retrieve the specific financial account by ID
+    const response = await axios.get(
+      `https://api.stripe.com/v2/money_management/financial_accounts/${pfaId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`,
+          "Stripe-Version": "2025-07-30.preview",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const account = response.data;
+
+    // Format the balance information
+    // Format the balance information based on the actual structure
+    const balanceInfo = {
+      id: account.id,
+      type: account.type,
+      status: account.status,
+      country: account.country,
+      // Extract available balances for each currency
+      available_balances: Object.entries(account.balance.available || {}).map(
+        ([currency, data]) => ({
+          currency,
+          amount: (data as any).value,
+        })
+      ),
+      // Extract inbound pending balances
+      inbound_pending_balances: Object.entries(
+        account.balance.inbound_pending || {}
+      ).map(([currency, data]) => ({
+        currency,
+        amount: (data as any).value,
+      })),
+      // Extract outbound pending balances
+      outbound_pending_balances: Object.entries(
+        account.balance.outbound_pending || {}
+      ).map(([currency, data]) => ({
+        currency,
+        amount: (data as any).value,
+      })),
+    };
+
+    res
+      .status(HTTP_STATUS.OK)
+      .send(success("Storage balance retrieved", balanceInfo));
+  } catch (error: any) {
+    console.error(
+      "Error retrieving storage balance:",
+      error.response?.data || error.message
+    );
+    res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Error retrieving storage balance", error.message));
+  }
+};
+
 const sendPayoutToRecipient = async (
   req: Request,
   res: Response
@@ -495,9 +647,6 @@ const sendPayoutToRecipient = async (
     currency = "usd",
     description = "Payout from platform",
   } = req.body;
-
-  const platformFinancialAccountId =
-    process.env.STRIPE_PLATFORM_FINANCIAL_ACCOUNT_ID;
 
   if (!recipientId || !amount || !platformFinancialAccountId) {
     return res
@@ -671,6 +820,8 @@ export {
   setDefaultPayoutMethod,
   getPayoutMethodId,
   createTestBankAccountGBP,
+  getAllStorageBalances,
+  getSpecificStorageBalance,
   sendPayoutToRecipient,
   getFinancialAccounts,
   getFinancialAddress,

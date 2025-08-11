@@ -8,6 +8,7 @@ import {
   createStripeCustomConnectAccount,
   getStripeCustomConnectAccountByUser,
   createCheckoutSession,
+  getUserCheckoutSession,
   createTransaction,
   subscribeToService,
   getAllTransactions,
@@ -81,6 +82,13 @@ routes.post(
   upload.none(),
   isAuthorizedUser,
   createCheckoutSession
+);
+
+routes.get(
+  "/stripe/checkout/:sessionId",
+  upload.none(),
+  isAuthorizedUser,
+  getUserCheckoutSession
 );
 
 routes.post("/create", upload.none(), isAuthorizedUser, createTransaction);

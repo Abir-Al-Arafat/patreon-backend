@@ -6,13 +6,13 @@ const configureFileUpload = () => {
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       if (file.mimetype.startsWith("image/")) {
-        cb(null, path.join(__dirname, "../public/uploads/images"));
+        cb(null, path.join(__dirname, "../../public/uploads/images"));
       } else if (file.mimetype.startsWith("video/")) {
         cb(null, path.join(__dirname, "../public/uploads/videos"));
       } else if (file.mimetype.startsWith("audio/")) {
         cb(null, path.join(__dirname, "../public/uploads/audios"));
       } else if (file.mimetype === "application/pdf") {
-        cb(null, path.join(__dirname, "../public/uploads/pdfs"));
+        cb(null, path.join(__dirname, "../../public/uploads/pdfs"));
       } else {
         cb(new Error("Invalid file type"), "");
       }

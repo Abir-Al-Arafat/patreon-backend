@@ -8,6 +8,8 @@ import User from "../models/user.model";
 import Service from "../models/service.model";
 import Transaction from "../models/transaction.model";
 
+import { createTransaction as createTransactionService } from "../services/transaction.service";
+
 import { getWalletByUserId } from "../services/wallet.service";
 import { getUserById } from "../services/user.service";
 import { UserRequest } from "../interfaces/user.interface";
@@ -480,6 +482,80 @@ const createCheckoutSession = async (req: Request, res: Response) => {
   }
 };
 
+const getUserCheckoutSession = async (req: Request, res: Response) => {
+  try {
+    const { sessionId } = req.params;
+    if (!sessionId) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Please provide session id"));
+    }
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    const paidCurrency =
+      session.presentment_details?.presentment_currency || session.currency;
+    const paidAmount = session.amount_total; // in smallest unit of paidCurrency
+
+    let amountInGBP = paidAmount;
+
+    // if (paidCurrency?.toLowerCase() !== "gbp") {
+    //   const exchangeRates = await stripe.exchangeRates.list();
+    //   const rates = exchangeRates.data[0].rates; // base is USD
+
+    //   const usdToBdt = rates["bdt"];
+    //   const usdToGbp = rates["gbp"];
+
+    //   if (!usdToBdt || !usdToGbp) {
+    //     throw new Error("Required exchange rates not found");
+    //   }
+
+    //   const bdtToGbp = usdToGbp / usdToBdt;
+
+    //   const amountInBdt = paidAmount! / 100; // if paidAmount in cents
+    //   const amountInGbp = amountInBdt * bdtToGbp;
+    //   const amountInGbpCents = Math.round(amountInGbp * 100);
+    // }
+    // const paymentIntent = await stripe.paymentIntents.retrieve(
+    //   session.payment_intent as string
+    // );
+
+    // const chargeId = paymentIntent.latest_charge;
+    // const charge = await stripe.charges.retrieve(chargeId as string);
+    // const balanceTransactionId = charge.balance_transaction;
+    // const balanceTransaction = await stripe.balanceTransactions.retrieve(
+    //   balanceTransactionId as string
+    // );
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Checkout session retrieved", { session }));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Failed to retrieve checkout session", error.message));
+  }
+};
+
+const getPaymentDetailsOfUser = async (req: Request, res: Response) => {
+  try {
+    const { paymentIntentId } = req.params;
+    if (!paymentIntentId) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Please provide session id"));
+    }
+    //     const paymentIntent = await stripe.paymentIntents.retrieve(
+    //   payment_intent as string
+    // );
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Checkout session retrieved", paymentIntentId));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Failed to retrieve checkout session", error.message));
+  }
+};
+
 const generatestripeExpressAccountLoginLink = async (
   req: Request,
   res: Response
@@ -811,11 +887,18 @@ const createTransaction = async (req: Request, res: Response) => {
       return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
     }
 
-    const { serviceId, amount, status } = req.body;
-    if (!serviceId || !amount || !status) {
+    const { serviceId, sessionId, amount, status } = req.body;
+    if (!serviceId || !sessionId) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("Please provide serviceId, amount, and status"));
+        .send(failure("Please provide serviceId and sessionId"));
+    }
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (!session || session.payment_status !== "paid") {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("session not found or not paid"));
     }
 
     const service = await Service.findById(serviceId);
@@ -825,40 +908,47 @@ const createTransaction = async (req: Request, res: Response) => {
         .send(failure("Service not found"));
     }
 
-    if (!["created", "succeeded", "failed"].includes(status)) {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("Invalid status value"));
-    }
+    const amount_in_gbp = session.amount_total! / 100;
 
-    const transaction = await Transaction.create({
-      paymentIntentId: req.body.paymentIntentId || null,
-      userId: (req as UserRequest).user._id,
-      serviceId,
-      amount,
-      status,
-    });
+    // if (!["created", "succeeded", "failed"].includes(status)) {
+    //   return res
+    //     .status(HTTP_STATUS.BAD_REQUEST)
+    //     .send(failure("Invalid status value"));
+    // }
 
-    console.log("Transaction created:", transaction);
+    // const transaction = await Transaction.create({
+    //   payment_intent: session.payment_intent,
+    //   userId: (req as UserRequest).user._id,
+    //   serviceId,
+    //   contributorId: service.contributor,
+    //   session_id: session.id,
+    //   amount_subtotal: session.amount_subtotal,
+    //   amount_total: session.amount_total,
+    //   amount,
+    //   status,
+    // });
 
-    if (!transaction) {
-      return res
-        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-        .send(failure("Failed to create transaction"));
-    }
+    // console.log("Transaction created:", transaction);
+    console.log("amount_in_gbp", amount_in_gbp);
 
-    service.subscribers.push((req as any).user._id);
+    // if (!transaction) {
+    //   return res
+    //     .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    //     .send(failure("Failed to create transaction"));
+    // }
 
-    await service.save();
+    // service.subscribers.push((req as any).user._id);
 
-    if (user) {
-      user.subscriptions.push(serviceId);
-      await user.save();
-    }
+    // await service.save();
+
+    // if (user) {
+    //   user.subscriptions.push(serviceId);
+    //   await user.save();
+    // }
 
     return res
       .status(HTTP_STATUS.CREATED)
-      .send(success("Transaction created and user subscribed", transaction));
+      .send(success("Transaction created and user subscribed", amount_in_gbp));
   } catch (error: any) {
     return res
       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
@@ -904,6 +994,7 @@ export {
   getTransactionById,
   getTransactionByUser,
   createCheckoutSession,
+  getUserCheckoutSession,
   createStripeCustomConnectAccount,
   getStripeCustomConnectAccountByUser,
   createTransaction,

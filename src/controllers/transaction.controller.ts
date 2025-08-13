@@ -887,7 +887,7 @@ const createTransaction = async (req: Request, res: Response) => {
       return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
     }
 
-    const { serviceId, sessionId, amount, status } = req.body;
+    const { serviceId, sessionId } = req.body;
     if (!serviceId || !sessionId) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
@@ -916,39 +916,47 @@ const createTransaction = async (req: Request, res: Response) => {
     //     .send(failure("Invalid status value"));
     // }
 
-    // const transaction = await Transaction.create({
-    //   payment_intent: session.payment_intent,
-    //   userId: (req as UserRequest).user._id,
-    //   serviceId,
-    //   contributorId: service.contributor,
-    //   session_id: session.id,
-    //   amount_subtotal: session.amount_subtotal,
-    //   amount_total: session.amount_total,
-    //   amount,
-    //   status,
-    // });
+    const transactionExists = await Transaction.findOne({
+      payment_intent: session.payment_intent,
+      session_id: session.id,
+    });
+    if (transactionExists) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Transaction already exists"));
+    }
 
-    // console.log("Transaction created:", transaction);
+    const transaction = await Transaction.create({
+      payment_intent: session.payment_intent,
+      userId: (req as UserRequest).user._id,
+      serviceId,
+      contributorId: service.contributor,
+      session_id: session.id,
+      amount_subtotal: session.amount_subtotal,
+      amount_total: session.amount_total,
+      amount_in_gbp,
+      status: "succeeded",
+    });
+
+    console.log("Transaction created:", transaction);
     console.log("amount_in_gbp", amount_in_gbp);
 
-    // if (!transaction) {
-    //   return res
-    //     .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-    //     .send(failure("Failed to create transaction"));
-    // }
+    if (!transaction) {
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .send(failure("Failed to create transaction"));
+    }
 
-    // service.subscribers.push((req as any).user._id);
+    service.subscribers.push((req as any).user._id);
 
-    // await service.save();
+    await service.save();
 
-    // if (user) {
-    //   user.subscriptions.push(serviceId);
-    //   await user.save();
-    // }
+    user.subscriptions.push(serviceId);
+    await user.save();
 
     return res
       .status(HTTP_STATUS.CREATED)
-      .send(success("Transaction created and user subscribed", amount_in_gbp));
+      .send(success("Transaction created and user subscribed", transaction));
   } catch (error: any) {
     return res
       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)

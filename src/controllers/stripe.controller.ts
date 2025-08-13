@@ -654,6 +654,12 @@ const sendPayoutToRecipient = async (
       .send(failure("Missing recipient ID, amount, or financial account ID"));
   }
 
+  if (amount <= 40) {
+    return res
+      .status(HTTP_STATUS.BAD_REQUEST)
+      .send(failure("Amount must be greater than £40"));
+  }
+
   console.log("currency:", currency);
 
   try {

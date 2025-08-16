@@ -7,6 +7,7 @@ import User from "../models/user.model";
 import { UserRequest } from "../interfaces/user.interface";
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY as string;
+const STRIPE_VAULT_KEY = process.env.STRIPE_VAULT_KEY as string;
 
 const STRIPE_API_VERSION = "2025-06-30.preview";
 
@@ -313,6 +314,197 @@ const attachBankAccountToRecipientGB = async (req: Request, res: Response) => {
           error.response?.data || error.message
         )
       );
+  }
+};
+
+const getStripeExternalAccountList = async (req: Request, res: Response) => {
+  try {
+    if (
+      ((req as UserRequest) && !(req as UserRequest).user) ||
+      !(req as UserRequest).user._id
+    ) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+    }
+    const user = await User.findById((req as UserRequest).user._id);
+    if (!user || !user.recipientId) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Missing recipient ID"));
+    }
+
+    const bankAccountId = user.attachedBankAccounts[0];
+
+    // const recipientResp = await axios.get(
+    //   `https://api.stripe.com/v2/core/recipients/${user.recipientId}`,
+    //   {
+    //     headers: {
+    //       Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
+    //       "Stripe-Version": STRIPE_API_VERSION,
+    //     },
+    //   }
+    // );
+    console.log("STRIPE_VAULT_KEY", STRIPE_VAULT_KEY);
+    console.log("bankAccountId", bankAccountId);
+    console.log("user.recipientId", user.recipientId);
+    const accounts = await axios.get(
+      `https://api.stripe.com/v1/accounts/${user.recipientId}/external_accounts`,
+      {
+        headers: {
+          Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
+          "Stripe-Version": STRIPE_API_VERSION,
+        },
+      }
+    );
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(
+        success("External accounts fetched successfully", accounts.data.data)
+      );
+  } catch (error: any) {
+    console.error(
+      "Error getting external accounts:",
+      error.response?.data || error.message
+    );
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(
+        failure(
+          "Failed to get external accounts",
+          error.response?.data || error.message
+        )
+      );
+  }
+};
+
+const getBankAccountDetails = async (req: Request, res: Response) => {
+  try {
+    if (
+      ((req as UserRequest) && !(req as UserRequest).user) ||
+      !(req as UserRequest).user._id
+    ) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+    }
+
+    const user = await User.findById((req as UserRequest).user._id);
+    if (!user || !user.recipientId) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Missing recipient ID"));
+    }
+
+    const bankAccountId = user.attachedBankAccounts[0];
+    const recipientId = user.recipientId;
+
+    console.log("recipientId", recipientId);
+    console.log("bankAccountId", bankAccountId);
+    console.log("process.env.STRIPE_SECRET_KEY", process.env.STRIPE_SECRET_KEY);
+
+    if (!bankAccountId) {
+      return res.status(400).json({
+        error: { message: "Bank account ID is required" },
+      });
+    }
+
+    // Set up headers including the Stripe-Context header with recipient's Account ID
+    const headers = {
+      Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`,
+      "Content-Type": "application/json",
+      "Stripe-Version": "2025-07-30.preview", // Make sure to use the correct API version for Global Payouts
+      "Stripe-Context": recipientId, // Set the recipient's Account ID as the context
+    };
+
+    // For GB bank accounts in Global Payouts
+    const response = await axios.get(
+      `https://api.stripe.com/v2/core/vault/gb_bank_accounts/${bankAccountId}`,
+      { headers }
+    );
+
+    console.log("response.data", response.data);
+
+    const bankAccount = response.data;
+
+    // Format the response - the actual fields available depend on the bank account type
+    const bankAccountDetails = {
+      id: bankAccount.id,
+      last4: bankAccount.last4,
+      bank_name: bankAccount.bank_name,
+      sort_code: bankAccount.sort_code, // For UK accounts
+      account_holder_type: bankAccount.account_holder_type,
+      status: bankAccount.status,
+      currency: bankAccount.currency,
+      // Note: full account numbers are not returned for security reasons
+    };
+
+    res.status(200).json({ bank_account: bankAccountDetails });
+  } catch (error: any) {
+    console.error(
+      "Error retrieving bank account details:",
+      error.response?.data || error.message
+    );
+    res.status(error.response?.status || 500).json({
+      error: {
+        message:
+          error.response?.data?.error?.message ||
+          "Something went wrong while retrieving bank account details",
+      },
+    });
+  }
+};
+
+const getRecipientPayoutMethods = async (req: Request, res: Response) => {
+  try {
+    if (
+      ((req as UserRequest) && !(req as UserRequest).user) ||
+      !(req as UserRequest).user._id
+    ) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+    }
+    const user = await User.findById((req as UserRequest).user._id);
+    if (!user || !user.recipientId) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Missing recipient ID"));
+    }
+    const recipientId = user.recipientId;
+
+    if (!recipientId) {
+      return res.status(400).json({
+        error: { message: "Recipient ID is required" },
+      });
+    }
+
+    const headers = {
+      Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`,
+      "Content-Type": "application/json",
+      "Stripe-Version": "2025-07-30.preview",
+      "Stripe-Context": recipientId,
+    };
+
+    const response = await axios.get(
+      "https://api.stripe.com/v2/money_management/payout_methods",
+      { headers }
+    );
+
+    // Log the full response for debugging
+    console.log(
+      "Payout Methods Response:",
+      JSON.stringify(response.data, null, 2)
+    );
+
+    res.status(200).json(response.data);
+  } catch (error: any) {
+    console.error(
+      "Error retrieving payout methods:",
+      error.response?.data || error.message
+    );
+    res.status(error.response?.status || 500).json({
+      error: {
+        message:
+          error.response?.data?.error?.message ||
+          "Something went wrong while retrieving payout methods",
+      },
+    });
   }
 };
 
@@ -823,6 +1015,9 @@ export {
   updateRecipientForDirectBankTransfer,
   attachBankAccountToRecipientUS,
   attachBankAccountToRecipientGB,
+  getStripeExternalAccountList,
+  getBankAccountDetails,
+  getRecipientPayoutMethods,
   setDefaultPayoutMethod,
   getPayoutMethodId,
   createTestBankAccountGBP,

@@ -13,6 +13,9 @@ import {
   updateRecipientForDirectBankTransfer,
   attachBankAccountToRecipientUS,
   attachBankAccountToRecipientGB,
+  getStripeExternalAccountList,
+  getBankAccountDetails,
+  getRecipientPayoutMethods,
   setDefaultPayoutMethod,
   getPayoutMethodId,
   createTestBankAccountGBP,
@@ -65,6 +68,27 @@ routes.put(
   upload.none(),
   isAuthorizedUser,
   attachBankAccountToRecipientGB
+);
+
+routes.get(
+  "/external-accounts",
+  upload.none(),
+  isAuthorizedUser,
+  getStripeExternalAccountList
+);
+
+routes.get(
+  "/bank-account-details",
+  upload.none(),
+  isAuthorizedUser,
+  getBankAccountDetails
+);
+
+routes.get(
+  "/recipient-payout-methods",
+  upload.none(),
+  isAuthorizedUser,
+  getRecipientPayoutMethods
 );
 
 routes.put(

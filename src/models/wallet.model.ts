@@ -10,6 +10,7 @@ const WalletSchema: Schema = new Schema(
     },
     balance: { type: Number, default: 0 },
     currency: { type: String, default: "GBP" },
+    transactions: [{ type: Schema.Types.ObjectId, ref: "Transaction" }],
   },
   { timestamps: true }
 );

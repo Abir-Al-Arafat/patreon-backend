@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-
+import { ObjectId } from "mongoose";
 import { Request, Response } from "express";
 import axios from "axios";
 import { success, failure } from "../utilities/common";
@@ -953,6 +953,13 @@ const createTransaction = async (req: Request, res: Response) => {
 
     user.subscriptions.push(serviceId);
     await user.save();
+
+    const wallet = await getWalletByUserId(service?.contributor as any);
+
+    if (wallet) {
+      wallet.transactions.push(transaction._id);
+      await wallet.save();
+    }
 
     return res
       .status(HTTP_STATUS.CREATED)

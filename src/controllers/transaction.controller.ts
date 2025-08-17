@@ -393,7 +393,7 @@ const createCheckoutSession = async (req: Request, res: Response) => {
       }
 
       const contributorShare = Math.floor(totalAmount * 0.8);
-      wallet.balance += contributorShare;
+      wallet.balance += contributorShare / 100;
       await wallet.save();
 
       const session = await stripe.checkout.sessions.create({

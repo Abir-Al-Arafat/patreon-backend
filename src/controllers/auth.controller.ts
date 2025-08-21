@@ -59,6 +59,8 @@ const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
       process.env.TWILIO_AUTH_TOKEN as string
     );
 
+    console.log("client", client);
+
     const { phone } = req.body;
 
     if (!phone) {
@@ -97,8 +99,20 @@ const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
         message,
       })
     );
-  } catch (err) {
+  } catch (err: any) {
     console.log(err);
+
+    if (err.status && err.code) {
+      return res.status(err.status).send({
+        success: false,
+        message: "Twilio Error",
+        error: {
+          code: err.code,
+          message: err.message,
+          moreInfo: err.moreInfo || null,
+        },
+      });
+    }
     return res
       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
       .send(failure("INTERNAL SERVER ERROR"));
@@ -241,7 +255,7 @@ const signup = async (req: Request, res: Response) => {
     //     .send(failure(`Admin cannot be signed up`));
     // }
 
-    console.log("req.body", req.body);
+    // console.log("req.body", req.body);
 
     if (!req.body.email || !req.body.password || !req.body.phone) {
       return res
@@ -397,9 +411,9 @@ const login = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.BAD_REQUEST)
         .send(failure("Please provide email and password"));
     }
-    console.log("email", req.body);
+    // console.log("email", req.body);
     const user = await User.findOne({ email });
-    console.log("user", user);
+    // console.log("user", user);
     if (!user) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
@@ -407,7 +421,7 @@ const login = async (req: Request, res: Response) => {
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("isMatch", isMatch);
+    // console.log("isMatch", isMatch);
     if (!isMatch) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
@@ -492,7 +506,7 @@ const resetPassword = async (req: Request, res: Response) => {
         .send(failure("No user found with this phone number"));
     }
 
-    console.log(user);
+    // console.log(user);
 
     console.log("password", password);
     console.log("confirmPassword", confirmPassword);

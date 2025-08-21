@@ -92,7 +92,7 @@ const addService = async (req: Request, res: Response) => {
       explainMembership,
     } = req.body;
 
-    console.log("req.body", req.body);
+    // console.log("req.body", req.body);
 
     if (typeof explainMembership === "string") {
       explainMembership = JSON.parse(explainMembership);
@@ -110,7 +110,7 @@ const addService = async (req: Request, res: Response) => {
       status: "approved",
     });
 
-    console.log("newService", newService);
+    // console.log("newService", newService);
 
     if (!newService) {
       return res
@@ -138,9 +138,9 @@ const addService = async (req: Request, res: Response) => {
         const dataBuffer = fs.readFileSync(file.path);
         const pdfData = await pdfParse(dataBuffer);
         extractedText += pdfData.text + "\n"; // Append text from each file
-        console.log("dataBuffer", dataBuffer);
-        console.log("pdfData", pdfData);
-        console.log("extractedText", extractedText);
+        // console.log("dataBuffer", dataBuffer);
+        // console.log("pdfData", pdfData);
+        // console.log("extractedText", extractedText);
       }
 
       newService.files = documentPaths;
@@ -156,7 +156,7 @@ const addService = async (req: Request, res: Response) => {
     let iconPath: string | undefined = undefined;
     if (files?.icon && files.icon.length > 0) {
       const iconFile = files.icon[0];
-      console.log("iconFile", iconFile);
+      // console.log("iconFile", iconFile);
 
       if (!iconFile.mimetype.startsWith("image/")) {
         return res.status(400).send(failure("Icon must be an image file"));
@@ -266,9 +266,9 @@ const addFileToService = async (req: Request, res: Response) => {
       const dataBuffer = fs.readFileSync(file.path);
       const pdfData = await pdfParse(dataBuffer);
       extractedText += pdfData.text + "\n"; // Append text from each file
-      console.log("dataBuffer", dataBuffer);
-      console.log("pdfData", pdfData);
-      console.log("extractedText", extractedText);
+      // console.log("dataBuffer", dataBuffer);
+      // console.log("pdfData", pdfData);
+      // console.log("extractedText", extractedText);
     }
 
     let combinedDescription: string = service.description
@@ -341,7 +341,7 @@ const updateServiceById = async (req: Request, res: Response) => {
     }
 
     const validation = validationResult(req).array();
-    console.log(validation);
+    // console.log(validation);
     if (validation.length > 0) {
       return res
         .status(HTTP_STATUS.OK)
@@ -399,7 +399,7 @@ const getAllServices = async (req: Request, res: Response) => {
       query.category = new RegExp(`^${req.query.category}$`, "i");
     }
 
-    console.log("query", query);
+    // console.log("query", query);
 
     if ((req as UserRequest).user?._id) {
       const user = await User.findById((req as UserRequest).user._id).select(
@@ -408,7 +408,7 @@ const getAllServices = async (req: Request, res: Response) => {
       if (user) {
         query._id = { $nin: user.services };
       }
-      console.log("user", user);
+      // console.log("user", user);
     }
 
     const services = await Service.find(query)
@@ -419,7 +419,7 @@ const getAllServices = async (req: Request, res: Response) => {
         path: "contributor",
         select: "image",
       });
-    console.log("services", services);
+    // console.log("services", services);
     const count = await Service.countDocuments(query);
     if (!services.length) {
       return res
@@ -573,7 +573,7 @@ const generateReplyForService = async (req: Request, res: Response) => {
     }
     const { message } = req.body;
     const validation = validationResult(req).array();
-    console.log(validation);
+    // console.log(validation);
     if (validation.length > 0) {
       return res
         .status(HTTP_STATUS.OK)
@@ -684,7 +684,7 @@ const getAllServiceMessagesByUser = async (req: Request, res: Response) => {
       .populate("service", "title")
       .sort({ createdAt: -1 });
 
-    console.log("serviceResponses", serviceResponses);
+    // console.log("serviceResponses", serviceResponses);
 
     // Filter to only include one response per unique service._id
     const uniqueResponses: any[] = [];
@@ -699,7 +699,7 @@ const getAllServiceMessagesByUser = async (req: Request, res: Response) => {
       }
     }
 
-    console.log("serviceResponses (distinct)", uniqueResponses);
+    // console.log("serviceResponses (distinct)", uniqueResponses);
 
     // Search by service title if provided
     let filteredResponses = uniqueResponses;

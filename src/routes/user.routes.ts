@@ -6,6 +6,7 @@ import {
   getNotificationsByUserId,
   getAllNotifications,
   updateUserById,
+  deleteUserByUser,
   profile,
   updateProfileByUser,
   updateProfileImageByUser,
@@ -45,5 +46,7 @@ routes.patch(
   fileUpload(),
   updateProfileImageByUser
 );
+
+routes.delete("/auth/delete-user", isAuthorizedUser, deleteUserByUser);
 
 export default routes;

@@ -9,6 +9,8 @@ import { validationResult } from "express-validator";
 import HTTP_STATUS from "../constants/statusCodes";
 import User from "../models/user.model";
 import Notification from "../models/notification.model";
+import Phone from "../models/phone.model";
+import Wallet from "../models/wallet.model";
 import { IUser } from "../interfaces/user.interface";
 
 export interface UserRequest extends Request {
@@ -212,7 +214,7 @@ const updateProfileByUser = async (req: Request, res: Response) => {
       if (files?.image[0]) {
         // Delete old image file if it exists
         if (user.image) {
-          const oldImagePath = path.join(__dirname, "../", user.image);
+          const oldImagePath = path.join(__dirname, "../../", user.image);
           fs.unlink(oldImagePath, (err) => {
             if (err) {
               console.error("Failed to delete old image:", err);
@@ -225,6 +227,8 @@ const updateProfileByUser = async (req: Request, res: Response) => {
         user.image = imageFileName;
       }
     }
+
+    console.log("user image", user.image);
 
     const updatedUser = await User.findByIdAndUpdate(
       (req as UserRequest).user?._id,
@@ -375,6 +379,40 @@ const getAllNotifications = async (req: Request, res: Response) => {
   }
 };
 
+const deleteUserByUser = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findByIdAndDelete((req as UserRequest).user?._id);
+    if (!user) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send({ message: "User not found" });
+    }
+    const deletedPhones = await Phone.deleteMany({ user: user._id });
+    const deletedWallet = await Wallet.deleteMany({ user: user._id });
+    const deletePhone = await Phone.findByIdAndDelete(user.phone);
+    if (user.image) {
+      const oldImagePath = path.join(__dirname, "../../", user.image);
+      fs.unlink(oldImagePath, (err) => {
+        if (err) {
+          console.error("Failed to delete old image:", err);
+        }
+      });
+    }
+    console.log("user", user);
+    console.log("deletedPhones", deletedPhones);
+    console.log("deletedWallet", deletedWallet);
+    console.log("deletedPhone", deletePhone);
+    return res
+      .status(HTTP_STATUS.OK)
+      .send({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send({ message: "INTERNAL SERVER ERROR" });
+  }
+};
+
 export {
   getAllUsers,
   getOneUserById,
@@ -384,4 +422,5 @@ export {
   profile,
   updateProfileByUser,
   updateProfileImageByUser,
+  deleteUserByUser,
 };

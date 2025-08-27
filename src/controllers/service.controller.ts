@@ -196,18 +196,16 @@ const addService = async (req: Request, res: Response) => {
     newService.icon = iconPath;
     await newService.save();
 
-    if (category || iconPath) {
-      // Check if category exists
-      const existingCategory = await Category.findOne({ name: category });
-      if (!existingCategory) {
-        const newCategory = new Category({ name: category, image: iconPath });
-        await newCategory.save();
-      }
-    }
+    // if (category || iconPath) {
+    //   // Check if category exists
+    //   const existingCategory = await Category.findOne({ name: category });
+    //   if (!existingCategory) {
+    //     const newCategory = new Category({ name: category, image: iconPath });
+    //     await newCategory.save();
+    //   }
+    // }
     // const user = await User.findById((req as UserRequest).user._id);
-    if (!user) {
-      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
-    }
+
     user.services.push(newService._id);
     await user.save();
     const admin = await User.findOne({ roles: "admin" });
@@ -216,10 +214,13 @@ const addService = async (req: Request, res: Response) => {
       admin: admin && admin._id,
       type: "service",
       serviceId: newService._id, // service id
+      contributor: user._id,
     });
 
     if (!notification) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Error"));
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Error creating notification"));
     }
     await notification.save();
 

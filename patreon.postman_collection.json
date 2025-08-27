@@ -20,27 +20,27 @@
 							"formdata": [
 								{
 									"key": "email",
-									"value": "faroyah599@iridales.com",
+									"value": "xaweri7678@im5z.com",
 									"type": "text"
 								},
 								{
 									"key": "name",
-									"value": "faroyah599@iridales.com",
+									"value": "xaweri7678@im5z.com",
 									"type": "text"
 								},
 								{
 									"key": "username",
-									"value": "faroyah599@iridales.com",
+									"value": "xaweri7678@im5z.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "faroyah599@iridales.com",
+									"value": "xaweri7678@im5z.com",
 									"type": "text"
 								},
 								{
 									"key": "phone",
-									"value": "+8801993819221",
+									"value": "+8801743484812",
 									"type": "text"
 								}
 							]
@@ -68,12 +68,12 @@
 							"formdata": [
 								{
 									"key": "email",
-									"value": "faroyah599@iridales.com",
+									"value": "admin@email.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "faroyah599@iridales.com",
+									"value": "admin@email.com",
 									"type": "text"
 								}
 							]
@@ -169,7 +169,7 @@
 							"formdata": [
 								{
 									"key": "phone",
-									"value": "+8801993819221",
+									"value": "+8801761269546",
 									"type": "text"
 								}
 							]
@@ -197,12 +197,12 @@
 							"formdata": [
 								{
 									"key": "phone",
-									"value": "+8801993819221",
+									"value": "+8801743484818",
 									"type": "text"
 								},
 								{
 									"key": "code",
-									"value": "617526",
+									"value": "903164",
 									"type": "text"
 								}
 							]
@@ -570,6 +570,181 @@
 			]
 		},
 		{
+			"name": "wallet",
+			"item": [
+				{
+					"name": "create wallet",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/wallets",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"wallets"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "sazzat19201",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all wallets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/wallets",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"wallets"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "sazzat19201",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "wallet by user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/wallets/self",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"wallets",
+								"self"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "wallet by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/wallets/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"wallets",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "wallet by user",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/wallets/self",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"wallets",
+								"self"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "sazzat19201",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "contact us",
+			"item": [
+				{
+					"name": "create contact us",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "title",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "description",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/contact-us",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"contact-us"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "sazzat19201",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all contact-us",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/contact-us",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"contact-us"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "services",
 			"item": [
 				{
@@ -582,13 +757,17 @@
 							"formdata": [
 								{
 									"key": "title",
-									"value": "\"Marketing\"",
-									"type": "text",
-									"disabled": true
+									"value": "programming",
+									"type": "text"
+								},
+								{
+									"key": "subtitle",
+									"value": "programming",
+									"type": "text"
 								},
 								{
 									"key": "description",
-									"value": "description",
+									"value": "programming",
 									"type": "text"
 								},
 								{
@@ -603,7 +782,7 @@
 								},
 								{
 									"key": "category",
-									"value": "marketing",
+									"value": "programming",
 									"type": "text"
 								},
 								{
@@ -614,17 +793,7 @@
 								{
 									"key": "pdfFiles",
 									"type": "file",
-									"src": "/Users/jillur/Downloads/Discharge (6).svg"
-								},
-								{
-									"key": "title",
-									"value": "Marketing services",
-									"type": "text"
-								},
-								{
-									"key": "subtitle",
-									"value": "helow Bangladesh",
-									"type": "text"
+									"src": []
 								}
 							]
 						},
@@ -755,7 +924,7 @@
 							"formdata": [
 								{
 									"key": "message",
-									"value": "what kind of programming services do you have?",
+									"value": "what is finance",
 									"type": "text"
 								}
 							]
@@ -849,7 +1018,7 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{baseURL}}/services/get-all-services?category=programming",
+							"raw": "{{baseURL}}/services/get-all-services",
 							"host": [
 								"{{baseURL}}"
 							],
@@ -859,12 +1028,13 @@
 							],
 							"query": [
 								{
-									"key": "category",
-									"value": "programming"
-								},
-								{
 									"key": "title",
 									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "category",
+									"value": "Finance",
 									"disabled": true
 								}
 							]
@@ -885,14 +1055,14 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{baseURL}}/services/get-service-by-id/685e2cd049c6e391b9ca71ef",
+							"raw": "{{baseURL}}/services/get-service-by-id/68402b9a2e9573fb757540b6",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"services",
 								"get-service-by-id",
-								"685e2cd049c6e391b9ca71ef"
+								"68402b9a2e9573fb757540b6"
 							]
 						}
 					},
@@ -904,6 +1074,16 @@
 						"disableBodyPruning": true
 					},
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODU3Y2NkYTlkNDE2Y2MzMjgwYzJiNjIiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTc1NTE2ODEwMCwiZXhwIjoxODQxNTY4MTAwfQ.7qtFivTAF27z9nTMaAtQuCSuaubHs49NQ5d35I-ks-Y",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"body": {
@@ -1114,6 +1294,477 @@
 					"name": "stripe",
 					"item": [
 						{
+							"name": "direct bank transfers",
+							"item": [
+								{
+									"name": "stripe bank account details",
+									"item": [
+										{
+											"name": "stripe external account list",
+											"protocolProfileBehavior": {
+												"disableBodyPruning": true
+											},
+											"request": {
+												"method": "GET",
+												"header": [],
+												"body": {
+													"mode": "formdata",
+													"formdata": [
+														{
+															"key": "sort_code",
+															"value": "108800",
+															"type": "text"
+														},
+														{
+															"key": "account_number",
+															"value": "00012345",
+															"type": "text"
+														}
+													]
+												},
+												"url": {
+													"raw": "{{baseURL}}/stripe/external-accounts",
+													"host": [
+														"{{baseURL}}"
+													],
+													"path": [
+														"stripe",
+														"external-accounts"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "bank account",
+											"protocolProfileBehavior": {
+												"disableBodyPruning": true
+											},
+											"request": {
+												"method": "GET",
+												"header": [],
+												"body": {
+													"mode": "formdata",
+													"formdata": [
+														{
+															"key": "sort_code",
+															"value": "108800",
+															"type": "text"
+														},
+														{
+															"key": "account_number",
+															"value": "00012345",
+															"type": "text"
+														}
+													]
+												},
+												"url": {
+													"raw": "{{baseURL}}/stripe/bank-account-details",
+													"host": [
+														"{{baseURL}}"
+													],
+													"path": [
+														"stripe",
+														"bank-account-details"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "payout method",
+											"protocolProfileBehavior": {
+												"disableBodyPruning": true
+											},
+											"request": {
+												"method": "GET",
+												"header": [],
+												"body": {
+													"mode": "formdata",
+													"formdata": [
+														{
+															"key": "sort_code",
+															"value": "108800",
+															"type": "text"
+														},
+														{
+															"key": "account_number",
+															"value": "00012345",
+															"type": "text"
+														}
+													]
+												},
+												"url": {
+													"raw": "{{baseURL}}/stripe/recipient-payout-methods",
+													"host": [
+														"{{baseURL}}"
+													],
+													"path": [
+														"stripe",
+														"recipient-payout-methods"
+													]
+												}
+											},
+											"response": []
+										}
+									]
+								},
+								{
+									"name": "create recipient",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{baseURL}}/stripe/create-recipient",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"create-recipient"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "update recipient",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "first_name",
+													"value": "viga",
+													"type": "text"
+												},
+												{
+													"key": "last_name",
+													"value": "wak",
+													"type": "text"
+												},
+												{
+													"key": "address_line1",
+													"value": "221B Baker Street",
+													"type": "text"
+												},
+												{
+													"key": "city",
+													"value": "London",
+													"type": "text"
+												},
+												{
+													"key": "state",
+													"value": "England",
+													"type": "text"
+												},
+												{
+													"key": "postal_code",
+													"value": "NW1 6XE",
+													"type": "text"
+												},
+												{
+													"key": "country",
+													"value": "GB",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/update-recipient",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"update-recipient"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "attach bank account gb",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "sort_code",
+													"value": "108800",
+													"type": "text"
+												},
+												{
+													"key": "account_number",
+													"value": "00012345",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/attach-bank-account-gb",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"attach-bank-account-gb"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "send global payout",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "amount",
+													"value": "50",
+													"type": "text"
+												},
+												{
+													"key": "bankAccountId",
+													"value": "gbba_test_61T65NMkOMIob2VIu16T64BuJNE938cKWcfMWfFj6Sfo",
+													"type": "text"
+												},
+												{
+													"key": "currency",
+													"value": "gbp",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/send-payout",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"send-payout"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "attach bank account us",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "routing_number",
+													"value": "110000000",
+													"type": "text"
+												},
+												{
+													"key": "account_number",
+													"value": "000123456789",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/attach-bank-account-us",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"attach-bank-account-us"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add Fund To Financial Account",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "value",
+													"value": "2500",
+													"type": "text"
+												},
+												{
+													"key": "currency",
+													"value": "gbp",
+													"type": "text"
+												},
+												{
+													"key": "network",
+													"value": "fps",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/add-fund-to-financial-account",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"add-fund-to-financial-account"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "set default payout method",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "bankAccountId",
+													"value": "usba_test_61SrYa7jkd2GmCZjV16SrXjOIzSQeMhfzeTXw40lsNdg",
+													"type": "text"
+												},
+												{
+													"key": "currency",
+													"value": "gbp",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/set-default-payout-method",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"set-default-payout-method"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "financial accounts",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": []
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/financial-accounts",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"financial-accounts"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "financial address",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": []
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/financial-address",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"financial-address"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "specific storage balance",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": []
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/storage-balance/specific-account/fa_test_65So2dSKGOlvdPrfBWZ16SdWwgJYE9E1sPZ4SL3UTcG7mC",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"storage-balance",
+												"specific-account",
+												"fa_test_65So2dSKGOlvdPrfBWZ16SdWwgJYE9E1sPZ4SL3UTcG7mC"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "all storage balances",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": []
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/storage-balance",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"storage-balance"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
 							"name": "stripe onboarding (create stripe connect account)",
 							"request": {
 								"method": "POST",
@@ -1254,6 +1905,79 @@
 							"response": []
 						},
 						{
+							"name": "stripe custom connected account",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "title",
+											"value": "\"Marketing\"",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "description",
+											"value": "description",
+											"type": "text"
+										},
+										{
+											"key": "price",
+											"value": "12",
+											"type": "text"
+										},
+										{
+											"key": "about",
+											"value": "about",
+											"type": "text"
+										},
+										{
+											"key": "category",
+											"value": "marketing",
+											"type": "text"
+										},
+										{
+											"key": "explainMembership",
+											"value": "[\n \"a member\",\n\"b member\",\n \"c member\"\n]",
+											"type": "text"
+										},
+										{
+											"key": "pdfFiles",
+											"type": "file",
+											"src": "/Users/jillur/Downloads/Discharge (6).svg"
+										},
+										{
+											"key": "title",
+											"value": "Marketing services",
+											"type": "text"
+										},
+										{
+											"key": "subtitle",
+											"value": "helow Bangladesh",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/custom-connect-account",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"custom-connect-account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "delete stripe account",
 							"request": {
 								"method": "DELETE",
@@ -1286,7 +2010,7 @@
 									"formdata": []
 								},
 								"url": {
-									"raw": "{{baseURL}}/transactions/stripe/checkout/685e2cd049c6e391b9ca71ef",
+									"raw": "{{baseURL}}/transactions/stripe/checkout/68997e70c02a06b2188667eb",
 									"host": [
 										"{{baseURL}}"
 									],
@@ -1294,7 +2018,34 @@
 										"transactions",
 										"stripe",
 										"checkout",
-										"685e2cd049c6e391b9ca71ef"
+										"68997e70c02a06b2188667eb"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get checkout session details",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/checkout/cs_test_a1htnvJFkN45MQtmAVbFlag7L2EAKNERP26xecfpjtfJt2KMhM0bUx5vsx",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"checkout",
+										"cs_test_a1htnvJFkN45MQtmAVbFlag7L2EAKNERP26xecfpjtfJt2KMhM0bUx5vsx"
 									]
 								}
 							},
@@ -1326,6 +2077,32 @@
 						},
 						{
 							"name": "connected account details",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/connected-account",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"connected-account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "stripe checkout session",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -1410,18 +2187,12 @@
 							"formdata": [
 								{
 									"key": "serviceId",
-									"value": "682701f43f25ba42164c947d",
+									"value": "68997e70c02a06b2188667eb",
 									"type": "text"
 								},
 								{
-									"key": "amount",
-									"value": "39",
-									"type": "text"
-								},
-								{
-									"key": "status",
-									"value": "succeeded",
-									"description": "succeeded",
+									"key": "sessionId",
+									"value": "cs_test_a1htnvJFkN45MQtmAVbFlag7L2EAKNERP26xecfpjtfJt2KMhM0bUx5vsx",
 									"type": "text"
 								}
 							]

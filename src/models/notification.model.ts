@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const notificationSchema = new mongoose.Schema(
   {
-    uploader: {
+    contributor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
@@ -10,18 +10,7 @@ const notificationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    confession: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Confession",
-    },
-    story: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Story",
-    },
-    forum: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Forum",
-    },
+
     status: {
       type: String,
       enum: ["pending", "approved", "cancelled"],
@@ -48,6 +37,4 @@ const notificationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// const Notification = mongoose.model("Notification", notificationSchema);
-// module.exports = Notification;
 export default mongoose.model("Notification", notificationSchema);

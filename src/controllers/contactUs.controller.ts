@@ -36,11 +36,11 @@ const addContactUs = async (req: Request, res: Response) => {
   }
 
   // Validate request
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
+  const validation = validationResult(req).array();
+  if (validation.length) {
     return res
-      .status(HTTP_STATUS.BAD_REQUEST)
-      .send(failure("Validation error", errors.array()[0].msg));
+      .status(HTTP_STATUS.OK)
+      .send(failure("Failed to send meassage", validation[0].msg));
   }
 
   req.body.user = (req as UserRequest)?.user?._id;

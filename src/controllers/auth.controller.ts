@@ -318,7 +318,7 @@ const signup = async (req: Request, res: Response) => {
 
       return res
         .status(HTTP_STATUS.OK)
-        .send(success("Please verify your email"));
+        .send(failure("Please verify your email"));
     }
 
     if (emailCheck) {

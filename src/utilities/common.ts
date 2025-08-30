@@ -1,3 +1,4 @@
+import { Document } from "mongoose";
 const success = <T>(message: string, data: T | null = null) => {
   return {
     success: true,
@@ -6,7 +7,7 @@ const success = <T>(message: string, data: T | null = null) => {
   };
 };
 
-const failure = (message: string, error = null) => {
+const failure = <T>(message: string, error: T | null = null) => {
   return {
     success: false,
     message: message,
@@ -20,4 +21,10 @@ const generateRandomCode = (length: number) => {
   return Math.floor(min + Math.random() * (max - min + 1));
 };
 
-export { success, failure, generateRandomCode };
+const sanitizeUser = (user: Document | any): any => {
+  const userObj = user.toObject ? user.toObject() : { ...user };
+  delete userObj.password;
+  return userObj;
+};
+
+export { success, failure, generateRandomCode, sanitizeUser };

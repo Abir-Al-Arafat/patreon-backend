@@ -9,6 +9,8 @@ import { validationResult } from "express-validator";
 import HTTP_STATUS from "../constants/statusCodes";
 import User from "../models/user.model";
 import Notification from "../models/notification.model";
+import Phone from "../models/phone.model";
+import Wallet from "../models/wallet.model";
 import { IUser } from "../interfaces/user.interface";
 
 export interface UserRequest extends Request {
@@ -17,11 +19,15 @@ export interface UserRequest extends Request {
 
 const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const { role, isAffiliate, isActive } = req.query;
+    let loggedInUser;
+    if ((req as UserRequest)?.user?._id) {
+      loggedInUser = (req as UserRequest)?.user?._id;
+    }
+    const { role, isAffiliate, isActive, username } = req.query;
     const query: IQuery = {};
 
     if (role) {
-      query.role = role as string;
+      query.roles = role as string;
     }
 
     if (typeof isAffiliate !== "undefined") {
@@ -32,7 +38,18 @@ const getAllUsers = async (req: Request, res: Response) => {
       query.isActive = isActive === "true";
     }
 
-    const users = await User.find(query).select("-__v");
+    if (username && typeof username === "string") {
+      query.username = new RegExp(username, "i");
+    }
+
+    if (loggedInUser) {
+      query._id = { $ne: loggedInUser.toString() };
+    }
+
+    const users = await User.find(query)
+      .select("-__v")
+      .populate("phone")
+      .populate("services");
     const count = await User.countDocuments(query);
 
     if (users.length) {
@@ -173,6 +190,73 @@ const updateProfileByUser = async (req: Request, res: Response) => {
   try {
     const { name, phone, image } = req.body;
     console.log("body", req.body);
+    console.log("image body", req.body.image);
+    console.log("image body", typeof req.body.image);
+    const user = await User.findById((req as UserRequest).user?._id);
+    if (typeof req.body.image === "string") {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send({ message: "Please provide image, you have given string" });
+    }
+    if (!user) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send({ message: "User not found" });
+    }
+
+    const files = req.files as TUploadFields;
+
+    console.log("files", files);
+    console.log("files", files?.["image"]);
+
+    if (req.files && files?.["image"]) {
+      let imageFileName = "";
+      if (files?.image[0]) {
+        // Delete old image file if it exists
+        if (user.image) {
+          const oldImagePath = path.join(__dirname, "../../", user.image);
+          fs.unlink(oldImagePath, (err) => {
+            if (err) {
+              console.error("Failed to delete old image:", err);
+            }
+          });
+        }
+
+        // Add public/uploads link to the new image file
+        imageFileName = `public/uploads/images/${files?.image[0]?.filename}`;
+        user.image = imageFileName;
+      }
+    }
+
+    console.log("user image", user.image);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      (req as UserRequest).user?._id,
+      req.body,
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send({ message: "User not found" });
+    }
+
+    console.log(updatedUser);
+    await user.save();
+    return res
+      .status(HTTP_STATUS.ACCEPTED)
+      .send(success("Profile updated successfully", updatedUser));
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send({ message: "INTERNAL SERVER ERROR" });
+  }
+};
+
+const updateProfileImageByUser = async (req: Request, res: Response) => {
+  try {
     const user = await User.findById((req as UserRequest).user?._id);
     if (!user) {
       return res
@@ -184,6 +268,12 @@ const updateProfileByUser = async (req: Request, res: Response) => {
 
     console.log("files", files);
     console.log("files", files?.["image"]);
+
+    if (!req.files || !files?.["image"]) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send({ message: "Please provide image" });
+    }
 
     if (req.files && files?.["image"]) {
       let imageFileName = "";
@@ -206,7 +296,7 @@ const updateProfileByUser = async (req: Request, res: Response) => {
 
     const updatedUser = await User.findByIdAndUpdate(
       (req as UserRequest).user?._id,
-      req.body,
+      { image: user.image },
       { new: true }
     );
 
@@ -220,7 +310,7 @@ const updateProfileByUser = async (req: Request, res: Response) => {
     await user.save();
     return res
       .status(HTTP_STATUS.ACCEPTED)
-      .send(success("Profile updated successfully", updatedUser));
+      .send(success("Profile image updated successfully", updatedUser));
   } catch (error) {
     console.log(error);
     return res
@@ -289,6 +379,40 @@ const getAllNotifications = async (req: Request, res: Response) => {
   }
 };
 
+const deleteUserByUser = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findByIdAndDelete((req as UserRequest).user?._id);
+    if (!user) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send({ message: "User not found" });
+    }
+    const deletedPhones = await Phone.deleteMany({ user: user._id });
+    const deletedWallet = await Wallet.deleteMany({ user: user._id });
+    const deletePhone = await Phone.findByIdAndDelete(user.phone);
+    if (user.image) {
+      const oldImagePath = path.join(__dirname, "../../", user.image);
+      fs.unlink(oldImagePath, (err) => {
+        if (err) {
+          console.error("Failed to delete old image:", err);
+        }
+      });
+    }
+    console.log("user", user);
+    console.log("deletedPhones", deletedPhones);
+    console.log("deletedWallet", deletedWallet);
+    console.log("deletedPhone", deletePhone);
+    return res
+      .status(HTTP_STATUS.OK)
+      .send({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send({ message: "INTERNAL SERVER ERROR" });
+  }
+};
+
 export {
   getAllUsers,
   getOneUserById,
@@ -297,4 +421,6 @@ export {
   updateUserById,
   profile,
   updateProfileByUser,
+  updateProfileImageByUser,
+  deleteUserByUser,
 };

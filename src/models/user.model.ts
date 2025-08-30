@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
     },
     username: {
       type: String,
-      required: [true, "please provide a username"],
+      // required: [true, "please provide a username"],
       unique: true,
     },
     email: {
@@ -18,7 +18,6 @@ const userSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      required: false,
     },
     password: {
       type: String,
@@ -30,13 +29,35 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
 
+    country: {
+      type: String,
+    },
+
+    payouts: {
+      type: [String],
+    },
+
+    attachedBankAccounts: {
+      type: [String],
+    },
+
     paymentIntent: {
       type: String,
     },
 
-    subscriptions: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "Subscription" },
-    ],
+    stripeAccountId: {
+      type: String,
+    },
+
+    stripeCustomConnectAccountId: {
+      type: String,
+    },
+
+    recipientId: {
+      type: String,
+    },
+
+    subscriptions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Service" }],
 
     services: [{ type: mongoose.Schema.Types.ObjectId, ref: "Service" }],
 
@@ -56,18 +77,13 @@ const userSchema = new mongoose.Schema(
     },
 
     phone: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Phone",
     },
 
     gender: {
       type: String,
       enum: ["male", "female", "other"],
-    },
-
-    balance: {
-      type: Number,
-      min: 0,
-      default: 0,
     },
 
     dateOfBirth: {
@@ -95,6 +111,11 @@ const userSchema = new mongoose.Schema(
     isLocked: {
       type: Boolean,
       default: false,
+    },
+
+    wallet: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Wallet",
     },
 
     reviewId: { type: mongoose.Schema.Types.ObjectId, ref: "Review" },

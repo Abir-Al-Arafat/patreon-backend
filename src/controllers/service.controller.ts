@@ -1,5 +1,7 @@
 import fs from "fs";
+import pdfParse from "pdf-parse";
 import { Request, Response } from "express";
+import { validationResult } from "express-validator";
 import openai from "../config/openaids.config";
 import { success, failure } from "../utilities/common";
 import { TUploadFields } from "../types/upload-fields";
@@ -7,9 +9,12 @@ import HTTP_STATUS from "../constants/statusCodes";
 import Service from "../models/service.model";
 import User from "../models/user.model";
 import Nootification from "../models/notification.model";
+import Category from "../models/category.model";
+import serviceResponseModel from "../models/serviceResponse.model";
+
 import Prompt from "../models/prompt.model";
 import { UserRequest } from "./users.controller";
-
+import { parseStringPromise } from "xml2js";
 const prompt = [
   {
     question: "What areas of law do you work in?",
@@ -52,30 +57,51 @@ const prompt = [
 
 const addService = async (req: Request, res: Response) => {
   try {
-    if (!(req as UserRequest).user) {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
       return res
         .status(HTTP_STATUS.UNAUTHORIZED)
         .send(failure("Please login to become a contributor"));
     }
-    let { title, prompt, price, about, category, explainMembership } = req.body;
+    const user = await User.findById((req as UserRequest).user._id);
+
+    if (!user) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    }
+    // console.log("user.subscriptions", user.subscriptions);
+    // console.log("user.subscriptions.length", user.subscriptions.length);
+    // if (user.subscriptions.length) {
+    //   return res
+    //     .status(HTTP_STATUS.OK)
+    //     .send(failure("You are already a contributor"));
+    // }
+    const validation = validationResult(req).array();
+    if (validation.length > 0) {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(failure(validation[0].msg, "Failed to add service"));
+    }
+
+    let {
+      title,
+      subtitle,
+      description,
+      // prompt,
+      price,
+      about,
+      category,
+      explainMembership,
+    } = req.body;
+
+    // console.log("req.body", req.body);
 
     if (typeof explainMembership === "string") {
       explainMembership = JSON.parse(explainMembership);
     }
 
-    if (typeof prompt === "string") {
-      prompt = JSON.parse(prompt);
-    }
-
-    // Insert all prompts at once
-    const createdPrompts = await Prompt.insertMany(prompt);
-
-    // Map their IDs
-    const promptIds = createdPrompts.map((p) => p._id);
-
     const newService = new Service({
       title,
-      prompt: promptIds,
+      subtitle,
+      description,
       price,
       about,
       category,
@@ -83,6 +109,8 @@ const addService = async (req: Request, res: Response) => {
       contributor: (req as UserRequest).user._id,
       status: "approved",
     });
+
+    // console.log("newService", newService);
 
     if (!newService) {
       return res
@@ -92,26 +120,107 @@ const addService = async (req: Request, res: Response) => {
 
     const documentPaths: string[] = [];
     const files = req.files as TUploadFields;
+
+    let extractedText = "";
+
     if (files?.pdfFiles) {
-      files.pdfFiles.forEach((file: Express.Multer.File) => {
+      // files.pdfFiles.forEach((file: Express.Multer.File) => {
+      //   documentPaths.push(file.path);
+      // });
+      // newService.files = documentPaths;
+
+      for (const file of files.pdfFiles) {
+        if (file.mimetype !== "application/pdf") {
+          return res.status(400).send(failure("only pdf files are allowed"));
+        }
         documentPaths.push(file.path);
-      });
+
+        const dataBuffer = fs.readFileSync(file.path);
+        const pdfData = await pdfParse(dataBuffer);
+        extractedText += pdfData.text + "\n"; // Append text from each file
+        // console.log("dataBuffer", dataBuffer);
+        // console.log("pdfData", pdfData);
+        // console.log("extractedText", extractedText);
+      }
+
       newService.files = documentPaths;
     }
+    let combinedDescription: string = description ? description : "";
+    if (extractedText) {
+      combinedDescription += `${extractedText}`;
+    }
 
-    console.log("documentPaths", documentPaths);
+    newService.description = combinedDescription;
 
+    // Handle icon upload
+    let iconPath: string | undefined = undefined;
+    if (files?.icon && files.icon.length > 0) {
+      const iconFile = files.icon[0];
+      // console.log("iconFile", iconFile);
+
+      if (!iconFile.mimetype.startsWith("image/")) {
+        return res.status(400).send(failure("Icon must be an image file"));
+      }
+
+      // 1. SVG only
+      if (iconFile.mimetype !== "image/svg+xml") {
+        return res.status(400).send(failure("Icon must be an SVG file"));
+      }
+      // 2. Max 2KB
+      if (iconFile.size > 2048) {
+        return res.status(400).send(failure("Icon SVG must be less than 2KB"));
+      }
+
+      // 3. Check SVG width and height
+      const svgContent = fs.readFileSync(iconFile.path, "utf8");
+
+      try {
+        const svgObj = await parseStringPromise(svgContent, {
+          explicitArray: false,
+        });
+        const svgTag = svgObj.svg;
+        const width = parseInt(svgTag.$.width, 10);
+        const height = parseInt(svgTag.$.height, 10);
+
+        if (width !== 20 || height !== 20) {
+          return res
+            .status(400)
+            .send(failure("Icon SVG must be exactly 20x20 pixels"));
+        }
+      } catch (e) {
+        return res.status(400).send(failure("Invalid SVG file"));
+      }
+      iconPath = iconFile.path;
+    }
+
+    newService.icon = iconPath;
     await newService.save();
+
+    // if (category || iconPath) {
+    //   // Check if category exists
+    //   const existingCategory = await Category.findOne({ name: category });
+    //   if (!existingCategory) {
+    //     const newCategory = new Category({ name: category, image: iconPath });
+    //     await newCategory.save();
+    //   }
+    // }
+    // const user = await User.findById((req as UserRequest).user._id);
+
+    user.services.push(newService._id);
+    await user.save();
     const admin = await User.findOne({ roles: "admin" });
     const notification = new Nootification({
       message: `New service has been created: ${newService.title}.`,
       admin: admin && admin._id,
       type: "service",
       serviceId: newService._id, // service id
+      contributor: user._id,
     });
 
     if (!notification) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Error"));
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Error creating notification"));
     }
     await notification.save();
 
@@ -152,6 +261,26 @@ const addFileToService = async (req: Request, res: Response) => {
       documentPaths.push(file.path);
     });
     service.files = [...service.files, ...documentPaths];
+
+    let extractedText = "";
+    for (const file of files.pdfFiles) {
+      const dataBuffer = fs.readFileSync(file.path);
+      const pdfData = await pdfParse(dataBuffer);
+      extractedText += pdfData.text + "\n"; // Append text from each file
+      // console.log("dataBuffer", dataBuffer);
+      // console.log("pdfData", pdfData);
+      // console.log("extractedText", extractedText);
+    }
+
+    let combinedDescription: string = service.description
+      ? service.description
+      : "";
+
+    if (extractedText) {
+      combinedDescription += `${extractedText}`;
+      service.description = combinedDescription;
+    }
+
     await service.save();
     return res
       .status(HTTP_STATUS.OK)
@@ -212,6 +341,14 @@ const updateServiceById = async (req: Request, res: Response) => {
         .send(failure("Please provide service id"));
     }
 
+    const validation = validationResult(req).array();
+    // console.log(validation);
+    if (validation.length > 0) {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(failure("Failed to update the service", validation[0].msg));
+    }
+
     let { explainMembership } = req.body;
     if (typeof explainMembership === "string") {
       explainMembership = JSON.parse(explainMembership);
@@ -253,18 +390,39 @@ const getAllServices = async (req: Request, res: Response) => {
 
     let query: any = {};
 
-    if (typeof req.query.category === "string") {
-      query.category = {
-        $regex: new RegExp(req.query.category, "i"),
+    if (typeof req.query.title === "string") {
+      query.title = {
+        $regex: new RegExp(req.query.title, "i"),
       };
+    }
+
+    if (typeof req.query.category === "string") {
+      query.category = new RegExp(`^${req.query.category}$`, "i");
+    }
+
+    // console.log("query", query);
+
+    if ((req as UserRequest).user?._id) {
+      const user = await User.findById((req as UserRequest).user._id).select(
+        "services"
+      );
+      if (user) {
+        query._id = { $nin: user.services };
+      }
+      // console.log("user", user);
     }
 
     const services = await Service.find(query)
       .skip(skip)
       .limit(limit)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "contributor",
+        select: "image",
+      });
+    // console.log("services", services);
     const count = await Service.countDocuments(query);
-    if (!services) {
+    if (!services.length) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Services not found"));
@@ -287,8 +445,8 @@ const getAllServices = async (req: Request, res: Response) => {
 
 const getAllCategories = async (req: Request, res: Response) => {
   try {
-    const categories = await Service.distinct("category");
-    if (!categories) {
+    const categories = await Category.find();
+    if (!categories.length) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Categories not found"));
@@ -337,7 +495,7 @@ const getServiceByContributor = async (req: Request, res: Response) => {
       contributor: (req as UserRequest).user._id,
     });
 
-    if (!service) {
+    if (!service.length) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Service not found"));
@@ -366,6 +524,14 @@ const deleteServiceById = async (req: Request, res: Response) => {
         .send(failure("Service not found"));
     }
 
+    const user = await User.findById(service.contributor);
+    if (user) {
+      user.services = user.services.filter(
+        (id: any) => id.toString() !== service._id.toString()
+      );
+      await user.save();
+    }
+
     const paths = service.files;
     for (const path of paths) {
       if (fs.existsSync(path)) {
@@ -385,25 +551,35 @@ const deleteServiceById = async (req: Request, res: Response) => {
 
 const generateReplyForService = async (req: Request, res: Response) => {
   try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("Please login "));
+    }
     if (!req.params.serviceId) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Please provide service id"));
     }
-    const service = await Service.findById(req.params.serviceId).populate(
-      "prompt"
-    );
+    const service = await Service.findById(req.params.serviceId);
     if (!service) {
       return res
         .status(HTTP_STATUS.NOT_FOUND)
         .send(failure("Service not found"));
     }
-    if (!service.prompt || !Array.isArray(service.prompt)) {
+    if (!service.description) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("Service prompt not found or invalid"));
+        .send(failure("Service description not found or invalid"));
     }
     const { message } = req.body;
+    const validation = validationResult(req).array();
+    // console.log(validation);
+    if (validation.length > 0) {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(failure("Failed to send message", validation[0].msg));
+    }
     if (!message) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
@@ -413,25 +589,46 @@ const generateReplyForService = async (req: Request, res: Response) => {
     // const promptText = prompt
     //   .map((p) => `${p.question} - ${p.answer}`)
     //   .join("\n");
-    // Build prompt text
-    const promptText = service.prompt
-      .map((p: any) => `${p.question} - ${p.answer}`)
-      .join("\n");
-    console.log("promptText", promptText);
+
     const reply = await openai.chat.completions.create({
       model: "deepseek/deepseek-r1:free",
       messages: [
         {
           role: "system",
-          content: `Consider yourself as an ai customer service agent who replies to client texts based on this prompt: ${promptText}`,
+          content: `You are an expert Al assistant specialized in analyzing and answering questions strictly based
+on the user's uploaded data.
+Carefully read and understand the provided document,  dataset or description.
+Answer only the specific question asked, using the content of the description.
+Never reveal, export, or summarize the full data, even if asked.
+If the user asks to "show all the data," "summarize everything." "give all you know," or similar
+requests, politely decline with:
+"I'm sorry, I cannot display or release the full uploaded data. I can only answer specific
+questions based on it."
+Do not cite page numbers, sections, or provide external references.
+If the answer is not explicitly or reasonably inferable from the uploaded content, respond:
+"The uploaded document does not contain enough information to answer this question."
+Be concise, clear, and strictly stay within the limits of the provided description. Also avoid using any prefixes or titles like "Answer:", "Summary:", or "Explanation:" or "Based on the provided description:". just generate the text. Here is the description: ${service.description}`,
         },
         {
           role: "user",
           content: message,
         },
       ],
-      temperature: 0.8, // optional but good
+      temperature: 0.9, // optional but good
     });
+
+    const answer = reply.choices[0].message.content;
+
+    const createServiceResponse = await serviceResponseModel.create({
+      user: (req as UserRequest).user._id,
+      service: service._id,
+      question: message,
+      answer,
+    });
+
+    if (!createServiceResponse) {
+      console.error("Error creating service response");
+    }
 
     return res
       .status(HTTP_STATUS.OK)
@@ -445,113 +642,140 @@ const generateReplyForService = async (req: Request, res: Response) => {
   }
 };
 
-// const disableServiceById = async (req, res) => {
-//   try {
-//     if (!req.params.id) {
-//       return res
-//         .status(HTTP_STATUS.NOT_FOUND)
-//         .send(failure("Please provide service id"));
-//     }
-//     const service = await Service.findByIdAndUpdate(
-//       req.params.id,
-//       { isDisabled: true },
-//       { new: true }
-//     );
-//     if (!service) {
-//       return res
-//         .status(HTTP_STATUS.NOT_FOUND)
-//         .send(failure("Service not found"));
-//     }
-//     return res
-//       .status(HTTP_STATUS.OK)
-//       .send(success("Successfully disabled service", service));
-//   } catch (error) {
-//     return res
-//       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-//       .send(failure("Error disabling service", error.message));
-//   }
-// };
+const getRepliesForService = async (req: Request, res: Response) => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("Please login to access your messages"));
+    }
+    if (!req.params.serviceId) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Please provide service id"));
+    }
+    const replies = await serviceResponseModel
+      .find({
+        service: req.params.serviceId,
+        user: (req as UserRequest).user._id,
+      })
+      .sort({ createdAt: -1 });
 
-// const enableServiceById = async (req, res) => {
-//   try {
-//     if (!req.params.id) {
-//       return res
-//         .status(HTTP_STATUS.NOT_FOUND)
-//         .send(failure("Please provide service id"));
-//     }
-//     const service = await Service.findByIdAndUpdate(
-//       req.params.id,
-//       { isDisabled: false },
-//       { new: true }
-//     );
-//     if (!service) {
-//       return res
-//         .status(HTTP_STATUS.NOT_FOUND)
-//         .send(failure("Service not found"));
-//     }
-//     return res
-//       .status(HTTP_STATUS.OK)
-//       .send(success("Successfully enabled service", service));
-//   } catch (error) {
-//     return res
-//       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-//       .send(failure("Error enabling service", error.message));
-//   }
-// };
+    return res.status(HTTP_STATUS.OK).send(success("Replies fetched", replies));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Error fetching replies", error.message));
+  }
+};
+// all services user has messaged
+const getAllServiceMessagesByUser = async (req: Request, res: Response) => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("Please login to access your messages"));
+    }
 
-// const approveServiceById = async (req, res) => {
-//   try {
-//     if (!req.params.id) {
-//       return res
-//         .status(HTTP_STATUS.NOT_FOUND)
-//         .send(failure("Please provide service id"));
-//     }
-//     const service = await Service.findByIdAndUpdate(
-//       req.params.id,
-//       { status: "approved" },
-//       { new: true }
-//     );
-//     if (!service) {
-//       return res
-//         .status(HTTP_STATUS.NOT_FOUND)
-//         .send(failure("Service not found"));
-//     }
-//     return res
-//       .status(HTTP_STATUS.OK)
-//       .send(success("Successfully approved service", service));
-//   } catch (error) {
-//     return res
-//       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-//       .send(failure("Error approving service", error.message));
-//   }
-// };
+    const serviceResponses = await serviceResponseModel
+      .find({
+        user: (req as UserRequest).user._id,
+      })
+      .populate("user", "name image")
+      .populate("service", "title")
+      .sort({ createdAt: -1 });
 
-// const cancelServiceById = async (req, res) => {
-//   try {
-//     if (!req.params.id) {
-//       return res
-//         .status(HTTP_STATUS.NOT_FOUND)
-//         .send(failure("Please provide service id"));
-//     }
-//     const service = await Service.findByIdAndUpdate(
-//       req.params.id,
-//       { status: "cancelled" },
-//       { new: true }
-//     );
-//     if (!service) {
-//       return res
-//         .status(HTTP_STATUS.NOT_FOUND)
-//         .send(failure("Service not found"));
-//     }
-//     return res
-//       .status(HTTP_STATUS.OK)
-//       .send(success("Successfully approved service", service));
-//   } catch (error) {
-//     return res
-//       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-//       .send(failure("Error approving service", error.message));
-//   }
-// };
+    // console.log("serviceResponses", serviceResponses);
+
+    // Filter to only include one response per unique service._id
+    const uniqueResponses: any[] = [];
+    const seenServiceIds = new Set();
+
+    for (const resp of serviceResponses) {
+      const serviceId =
+        resp.service && resp.service._id ? resp.service._id.toString() : null;
+      if (serviceId && !seenServiceIds.has(serviceId)) {
+        uniqueResponses.push(resp);
+        seenServiceIds.add(serviceId);
+      }
+    }
+
+    // console.log("serviceResponses (distinct)", uniqueResponses);
+
+    // Search by service title if provided
+    let filteredResponses = uniqueResponses;
+    if (typeof req.query.title === "string" && req.query.title.trim() !== "") {
+      const searchTitle = req.query.title.trim().toLowerCase();
+      filteredResponses = uniqueResponses.filter(
+        (resp) =>
+          resp.service &&
+          resp.service.title &&
+          resp.service.title.toLowerCase().includes(searchTitle)
+      );
+    }
+
+    return res.status(HTTP_STATUS.OK).send({
+      success: true,
+      message: "Messages fetched",
+      serviceResponses: filteredResponses,
+    });
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Error fetching messages", error.message));
+  }
+};
+
+const getRepliesByUser = async (req: Request, res: Response) => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("Please login to access your replies"));
+    }
+    const replies = await serviceResponseModel
+      .find({
+        user: (req as UserRequest).user._id,
+      })
+      .populate("user", "name image")
+      .sort({ createdAt: -1 });
+
+    return res.status(HTTP_STATUS.OK).send(success("Replies fetched", replies));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Error fetching replies", error.message));
+  }
+};
+
+const subscribedServices = async (req: Request, res: Response) => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("Please login to access your subscribed services"));
+    }
+    const user = await User.findById((req as UserRequest).user._id).populate({
+      path: "subscriptions",
+      select: "title description price icon category",
+      populate: {
+        path: "contributor",
+        select: "name username image",
+      },
+    });
+
+    if (!user) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    }
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Subscribed services", user.subscriptions));
+  } catch (error: any) {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Error fetching subscribed services", error.message));
+  }
+};
 
 export {
   addService,
@@ -564,8 +788,8 @@ export {
   updateServiceById,
   deleteServiceById,
   generateReplyForService,
-  // disableServiceById,
-  // enableServiceById,
-  // approveServiceById,
-  // cancelServiceById,
+  getRepliesForService,
+  getRepliesByUser,
+  getAllServiceMessagesByUser,
+  subscribedServices,
 };

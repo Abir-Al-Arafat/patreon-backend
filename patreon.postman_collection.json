@@ -1,0 +1,2351 @@
+{
+	"info": {
+		"_postman_id": "069a6b43-b2e7-492a-8023-e53e2745b5ff",
+		"name": "patreon",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39467598",
+		"_collection_link": "https://patreon-ali.postman.co/workspace/Team-Workspace~124740c9-a47c-4508-878e-151004ab26c6/collection/39467598-069a6b43-b2e7-492a-8023-e53e2745b5ff?action=share&source=collection_link&creator=39467598"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "signup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "xaweri7678@im5z.com",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "xaweri7678@im5z.com",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "xaweri7678@im5z.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "xaweri7678@im5z.com",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "+8801743484812",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/auth/signup",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "admin@email.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "admin@email.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login deploy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "kiboja6175@inkight.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "1234",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURLDeploy}}/auth/login",
+							"host": [
+								"{{baseURLDeploy}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verify token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "vecosal642@hazhab.com",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "123456",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/auth/verify-token",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"verify-token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "send verification code to phone",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "phone",
+									"value": "+8801761269546",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/auth/send-verification-code-to-phone",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"send-verification-code-to-phone"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verify code",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "phone",
+									"value": "+8801743484818",
+									"type": "text"
+								},
+								{
+									"key": "code",
+									"value": "903164",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/auth/verify-code",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"verify-code"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verify email",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "code",
+									"value": "748825",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/auth/verify-email",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"verify-email"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reset password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "phoneNumber",
+									"value": "+8801993819111",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "1234",
+									"type": "text"
+								},
+								{
+									"key": "confirmPassword",
+									"value": "1234",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/auth/reset-password",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "all users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/users",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "sazzat19201",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "one user by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/users/684017d70ab5a055797e9ec2",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"684017d70ab5a055797e9ec2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = `",
+									"<style type=\"text/css\">",
+									"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}",
+									"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}",
+									"    .tftable tr {background-color:#ffffff;}",
+									"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}",
+									"    .tftable tr:hover {background-color:#e0ffff;}",
+									"</style>",
+									"",
+									"<table class=\"tftable\" border=\"1\">",
+									"    <tr>",
+									"        <th>Field</th>",
+									"        <th>Value</th>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>_id</td>",
+									"        <td>{{response.data._id}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Name</td>",
+									"        <td>{{response.data.name}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Username</td>",
+									"        <td>{{response.data.username}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Email</td>",
+									"        <td>{{response.data.email}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Subscriber Count</td>",
+									"        <td>{{response.data.subscriberCount}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Roles</td>",
+									"        <td>{{response.data.roles}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Balance</td>",
+									"        <td>{{response.data.balance}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Email Verified</td>",
+									"        <td>{{response.data.emailVerified}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Is Active</td>",
+									"        <td>{{response.data.isActive}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Is Locked</td>",
+									"        <td>{{response.data.isLocked}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Created At</td>",
+									"        <td>{{response.data.createdAt}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Updated At</td>",
+									"        <td>{{response.data.updatedAt}}</td>",
+									"    </tr>",
+									"    <tr>",
+									"        <td>Image</td>",
+									"        <td>{{response.data.image}}</td>",
+									"    </tr>",
+									"</table>",
+									"`;",
+									"",
+									"function constructVisualizerPayload() {",
+									"    return { response: pm.response.json() }",
+									"}",
+									"",
+									"pm.visualizer.set(template, constructVisualizerPayload());"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODFjYjRkZDVlOGQ3YjUwZWEyODAwYTUiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTc0Njg4MDUxMCwiZXhwIjoxODMzMjgwNTEwfQ.RAUbASvYJQ98PBswe0se3RvYq37kg4niWYJlOqEE4IE",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/users/auth/profile",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"auth",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update profile by user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODFjYjRkZDVlOGQ3YjUwZWEyODAwYTUiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTc0Njg4MDUxMCwiZXhwIjoxODMzMjgwNTEwfQ.RAUbASvYJQ98PBswe0se3RvYq37kg4niWYJlOqEE4IE",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Tush1",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "username",
+									"value": "Tush",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "bio",
+									"value": "Tush",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": [
+										"/Users/jillur/Downloads/5 545.svg",
+										"/Users/jillur/Downloads/5 545.svg"
+									],
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/auth/update-profile-by-user",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"auth",
+								"update-profile-by-user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update profile image",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"value": "vecosal642@hazhab.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/auth/profile-image/update",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"auth",
+								"profile-image",
+								"update"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "wallet",
+			"item": [
+				{
+					"name": "create wallet",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/wallets",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"wallets"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "sazzat19201",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all wallets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/wallets",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"wallets"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "sazzat19201",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "wallet by user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/wallets/self",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"wallets",
+								"self"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "wallet by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/wallets/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"wallets",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "wallet by user",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/wallets/self",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"wallets",
+								"self"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "sazzat19201",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "contact us",
+			"item": [
+				{
+					"name": "create contact us",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "title",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "description",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/contact-us",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"contact-us"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "sazzat19201",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all contact-us",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/contact-us",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"contact-us"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "services",
+			"item": [
+				{
+					"name": "become a contributor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "programming",
+									"type": "text"
+								},
+								{
+									"key": "subtitle",
+									"value": "programming",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "programming",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "12",
+									"type": "text"
+								},
+								{
+									"key": "about",
+									"value": "about",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "programming",
+									"type": "text"
+								},
+								{
+									"key": "explainMembership",
+									"value": "[\n \"a member\",\n\"b member\",\n \"c member\"\n]",
+									"type": "text"
+								},
+								{
+									"key": "pdfFiles",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/become-contributor",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"become-contributor"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update service by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODE1ZWE0YzM0N2FlOThmNDYxYjk3OGIiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTc0Njc4NzgzNCwiZXhwIjoxODMzMTg3ODM0fQ.iMAzUJZ5nkIVZtw0_LA6VOmJ2g8069ztbs2mnZE7Ks",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "description",
+									"value": "fdfdf",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "about",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "category",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "explainMembership",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "pdfFiles",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/update-service-by-id/681df84aa6f6f326be181d01",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"update-service-by-id",
+								"681df84aa6f6f326be181d01"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add file to service",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "pdfFiles",
+									"type": "file",
+									"src": "/C:/Users/ABIR/Downloads/legal.pdf"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/add-file-to-service/682af48ac14d20108fc8ddc5",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"add-file-to-service",
+								"682af48ac14d20108fc8ddc5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "send message",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "message",
+									"value": "what is finance",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/generate-reply-for-service/68402b9a2e9573fb757540b6",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"generate-reply-for-service",
+								"68402b9a2e9573fb757540b6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete file from service",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "filePath",
+									"value": "D:\\WORK\\aliyuksel  $3,400\\patreon-backend\\src\\public\\uploads\\pdfs\\1746268559650-legal.pdf",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/remove-file-from-service/6810b4cb168be94b435b49a8",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"remove-file-from-service",
+								"6810b4cb168be94b435b49a8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete service",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/delete-service-by-id/682c1398bdfb870032571b6f",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"delete-service-by-id",
+								"682c1398bdfb870032571b6f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all services",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODFjYjRkZDVlOGQ3YjUwZWEyODAwYTUiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTc0Njg4MDUxMCwiZXhwIjoxODMzMjgwNTEwfQ.RAUbASvYJQ98PBswe0se3RvYq37kg4niWYJlOqEE4IE",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/get-all-services",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"get-all-services"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "category",
+									"value": "Finance",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "service by id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/get-service-by-id/68402b9a2e9573fb757540b6",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"get-service-by-id",
+								"68402b9a2e9573fb757540b6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "service by contributor",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODU3Y2NkYTlkNDE2Y2MzMjgwYzJiNjIiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTc1NTE2ODEwMCwiZXhwIjoxODQxNTY4MTAwfQ.7qtFivTAF27z9nTMaAtQuCSuaubHs49NQ5d35I-ks-Y",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/get-service-by-contributor",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"get-service-by-contributor"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all categories",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "about",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "explainMembership",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "pdfFiles",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/all-categories?query=marketing",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"all-categories"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "marketing"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "message replies by service id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/get-replies-for-service/68402b9a2e9573fb757540b6",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"get-replies-for-service",
+								"68402b9a2e9573fb757540b6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "message replies by user",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/get-replies-by-user",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"get-replies-by-user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all service messages by a user",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/get-all-service-messages-by-user",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"get-all-service-messages-by-user"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "programming",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "subscribed services",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/services/subscribed-services",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"services",
+								"subscribed-services"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "programming",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "transaction",
+			"item": [
+				{
+					"name": "stripe",
+					"item": [
+						{
+							"name": "direct bank transfers",
+							"item": [
+								{
+									"name": "stripe bank account details",
+									"item": [
+										{
+											"name": "stripe external account list",
+											"protocolProfileBehavior": {
+												"disableBodyPruning": true
+											},
+											"request": {
+												"method": "GET",
+												"header": [],
+												"body": {
+													"mode": "formdata",
+													"formdata": [
+														{
+															"key": "sort_code",
+															"value": "108800",
+															"type": "text"
+														},
+														{
+															"key": "account_number",
+															"value": "00012345",
+															"type": "text"
+														}
+													]
+												},
+												"url": {
+													"raw": "{{baseURL}}/stripe/external-accounts",
+													"host": [
+														"{{baseURL}}"
+													],
+													"path": [
+														"stripe",
+														"external-accounts"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "bank account",
+											"protocolProfileBehavior": {
+												"disableBodyPruning": true
+											},
+											"request": {
+												"method": "GET",
+												"header": [],
+												"body": {
+													"mode": "formdata",
+													"formdata": [
+														{
+															"key": "sort_code",
+															"value": "108800",
+															"type": "text"
+														},
+														{
+															"key": "account_number",
+															"value": "00012345",
+															"type": "text"
+														}
+													]
+												},
+												"url": {
+													"raw": "{{baseURL}}/stripe/bank-account-details",
+													"host": [
+														"{{baseURL}}"
+													],
+													"path": [
+														"stripe",
+														"bank-account-details"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "payout method",
+											"protocolProfileBehavior": {
+												"disableBodyPruning": true
+											},
+											"request": {
+												"method": "GET",
+												"header": [],
+												"body": {
+													"mode": "formdata",
+													"formdata": [
+														{
+															"key": "sort_code",
+															"value": "108800",
+															"type": "text"
+														},
+														{
+															"key": "account_number",
+															"value": "00012345",
+															"type": "text"
+														}
+													]
+												},
+												"url": {
+													"raw": "{{baseURL}}/stripe/recipient-payout-methods",
+													"host": [
+														"{{baseURL}}"
+													],
+													"path": [
+														"stripe",
+														"recipient-payout-methods"
+													]
+												}
+											},
+											"response": []
+										}
+									]
+								},
+								{
+									"name": "create recipient",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{baseURL}}/stripe/create-recipient",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"create-recipient"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "update recipient",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "first_name",
+													"value": "viga",
+													"type": "text"
+												},
+												{
+													"key": "last_name",
+													"value": "wak",
+													"type": "text"
+												},
+												{
+													"key": "address_line1",
+													"value": "221B Baker Street",
+													"type": "text"
+												},
+												{
+													"key": "city",
+													"value": "London",
+													"type": "text"
+												},
+												{
+													"key": "state",
+													"value": "England",
+													"type": "text"
+												},
+												{
+													"key": "postal_code",
+													"value": "NW1 6XE",
+													"type": "text"
+												},
+												{
+													"key": "country",
+													"value": "GB",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/update-recipient",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"update-recipient"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "attach bank account gb",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "sort_code",
+													"value": "108800",
+													"type": "text"
+												},
+												{
+													"key": "account_number",
+													"value": "00012345",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/attach-bank-account-gb",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"attach-bank-account-gb"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "send global payout",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "amount",
+													"value": "50",
+													"type": "text"
+												},
+												{
+													"key": "bankAccountId",
+													"value": "gbba_test_61T65NMkOMIob2VIu16T64BuJNE938cKWcfMWfFj6Sfo",
+													"type": "text"
+												},
+												{
+													"key": "currency",
+													"value": "gbp",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/send-payout",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"send-payout"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "attach bank account us",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "routing_number",
+													"value": "110000000",
+													"type": "text"
+												},
+												{
+													"key": "account_number",
+													"value": "000123456789",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/attach-bank-account-us",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"attach-bank-account-us"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add Fund To Financial Account",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "value",
+													"value": "2500",
+													"type": "text"
+												},
+												{
+													"key": "currency",
+													"value": "gbp",
+													"type": "text"
+												},
+												{
+													"key": "network",
+													"value": "fps",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/add-fund-to-financial-account",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"add-fund-to-financial-account"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "set default payout method",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "bankAccountId",
+													"value": "usba_test_61SrYa7jkd2GmCZjV16SrXjOIzSQeMhfzeTXw40lsNdg",
+													"type": "text"
+												},
+												{
+													"key": "currency",
+													"value": "gbp",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/set-default-payout-method",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"set-default-payout-method"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "financial accounts",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": []
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/financial-accounts",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"financial-accounts"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "financial address",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": []
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/financial-address",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"financial-address"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "specific storage balance",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": []
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/storage-balance/specific-account/fa_test_65So2dSKGOlvdPrfBWZ16SdWwgJYE9E1sPZ4SL3UTcG7mC",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"storage-balance",
+												"specific-account",
+												"fa_test_65So2dSKGOlvdPrfBWZ16SdWwgJYE9E1sPZ4SL3UTcG7mC"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "all storage balances",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": []
+										},
+										"url": {
+											"raw": "{{baseURL}}/stripe/storage-balance",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"stripe",
+												"storage-balance"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "stripe onboarding (create stripe connect account)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "title",
+											"value": "\"Marketing\"",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "description",
+											"value": "description",
+											"type": "text"
+										},
+										{
+											"key": "price",
+											"value": "12",
+											"type": "text"
+										},
+										{
+											"key": "about",
+											"value": "about",
+											"type": "text"
+										},
+										{
+											"key": "category",
+											"value": "marketing",
+											"type": "text"
+										},
+										{
+											"key": "explainMembership",
+											"value": "[\n \"a member\",\n\"b member\",\n \"c member\"\n]",
+											"type": "text"
+										},
+										{
+											"key": "pdfFiles",
+											"type": "file",
+											"src": "/Users/jillur/Downloads/Discharge (6).svg"
+										},
+										{
+											"key": "title",
+											"value": "Marketing services",
+											"type": "text"
+										},
+										{
+											"key": "subtitle",
+											"value": "helow Bangladesh",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/onboarding",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"onboarding"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create stripe custom connected account",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "title",
+											"value": "\"Marketing\"",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "description",
+											"value": "description",
+											"type": "text"
+										},
+										{
+											"key": "price",
+											"value": "12",
+											"type": "text"
+										},
+										{
+											"key": "about",
+											"value": "about",
+											"type": "text"
+										},
+										{
+											"key": "category",
+											"value": "marketing",
+											"type": "text"
+										},
+										{
+											"key": "explainMembership",
+											"value": "[\n \"a member\",\n\"b member\",\n \"c member\"\n]",
+											"type": "text"
+										},
+										{
+											"key": "pdfFiles",
+											"type": "file",
+											"src": "/Users/jillur/Downloads/Discharge (6).svg"
+										},
+										{
+											"key": "title",
+											"value": "Marketing services",
+											"type": "text"
+										},
+										{
+											"key": "subtitle",
+											"value": "helow Bangladesh",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/custom-connect-account",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"custom-connect-account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "stripe custom connected account",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "title",
+											"value": "\"Marketing\"",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "description",
+											"value": "description",
+											"type": "text"
+										},
+										{
+											"key": "price",
+											"value": "12",
+											"type": "text"
+										},
+										{
+											"key": "about",
+											"value": "about",
+											"type": "text"
+										},
+										{
+											"key": "category",
+											"value": "marketing",
+											"type": "text"
+										},
+										{
+											"key": "explainMembership",
+											"value": "[\n \"a member\",\n\"b member\",\n \"c member\"\n]",
+											"type": "text"
+										},
+										{
+											"key": "pdfFiles",
+											"type": "file",
+											"src": "/Users/jillur/Downloads/Discharge (6).svg"
+										},
+										{
+											"key": "title",
+											"value": "Marketing services",
+											"type": "text"
+										},
+										{
+											"key": "subtitle",
+											"value": "helow Bangladesh",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/custom-connect-account",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"custom-connect-account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete stripe account",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/delete-account",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"delete-account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create checkout link",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/checkout/68997e70c02a06b2188667eb",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"checkout",
+										"68997e70c02a06b2188667eb"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get checkout session details",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/checkout/cs_test_a1htnvJFkN45MQtmAVbFlag7L2EAKNERP26xecfpjtfJt2KMhM0bUx5vsx",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"checkout",
+										"cs_test_a1htnvJFkN45MQtmAVbFlag7L2EAKNERP26xecfpjtfJt2KMhM0bUx5vsx"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "generate stripe express account login link",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/generate/express-account-login-link",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"generate",
+										"express-account-login-link"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "connected account details",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/connected-account",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"connected-account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "stripe checkout session",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{baseURL}}/transactions/stripe/connected-account",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"transactions",
+										"stripe",
+										"connected-account"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "subscribe service",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/transactions/subscribe/68402b9a2e9573fb757540b6",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"transactions",
+								"subscribe",
+								"68402b9a2e9573fb757540b6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all transactions",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/transactions/all",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"transactions",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create transaction",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "serviceId",
+									"value": "68997e70c02a06b2188667eb",
+									"type": "text"
+								},
+								{
+									"key": "sessionId",
+									"value": "cs_test_a1htnvJFkN45MQtmAVbFlag7L2EAKNERP26xecfpjtfJt2KMhM0bUx5vsx",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/transactions/create",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"transactions",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "transaction by id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/transactions/684aaaebe775a379bda85202",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"transactions",
+								"684aaaebe775a379bda85202"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "transaction by user",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{baseURL}}/transactions/user/self?month=1",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"transactions",
+								"user",
+								"self"
+							],
+							"query": [
+								{
+									"key": "month",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "webhook",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODFjYjRkZDVlOGQ3YjUwZWEyODAwYTUiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTc0Njg4MDUxMCwiZXhwIjoxODMzMjgwNTEwfQ.RAUbASvYJQ98PBswe0se3RvYq37kg4niWYJlOqEE4IE",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "localhost:3004/api/transactions/webhook",
+							"host": [
+								"localhost"
+							],
+							"port": "3004",
+							"path": [
+								"api",
+								"transactions",
+								"webhook"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "Marketing",
+									"disabled": true
+								},
+								{
+									"key": "title",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODU3Y2NkYTlkNDE2Y2MzMjgwYzJiNjIiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTc1MDY4NzU1MywiZXhwIjoxODM3MDg3NTUzfQ.1v_opqs1y6oRsM9ouDoSSV2cMNTzMhawgtEEiG1Qd8w",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

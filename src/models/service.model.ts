@@ -5,6 +5,9 @@ const serviceSchema = new mongoose.Schema(
     title: {
       type: String,
     },
+    subtitle: {
+      type: String,
+    },
     description: {
       type: String,
     },
@@ -16,12 +19,7 @@ const serviceSchema = new mongoose.Schema(
       { type: mongoose.Schema.Types.ObjectId, ref: "Transaction" },
     ],
 
-    prompt: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Prompt",
-      },
-    ],
+    prompt: { type: String },
 
     files: [{ type: String }],
 
@@ -42,6 +40,10 @@ const serviceSchema = new mongoose.Schema(
         type: String,
       },
     ],
+
+    icon: {
+      type: String,
+    },
 
     isActive: {
       type: Boolean,

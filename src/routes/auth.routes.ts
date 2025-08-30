@@ -6,6 +6,9 @@ import {
   login,
   sendVerificationCodeToPhone,
   verifyCode,
+  verifyEmail,
+  verifyToken,
+  resetPassword,
 } from "../controllers/auth.controller";
 import multer from "multer";
 
@@ -36,26 +39,33 @@ routes.post(
 );
 
 routes.post(
-  "/auth/verify-code",
+  "/verify-code",
   // userValidator.create,
   // authValidator.create,
+  upload.none(),
   verifyCode
 );
 
+routes.post(
+  "/verify-email",
+  // userValidator.create,
+  // authValidator.create,
+  upload.none(),
+  verifyEmail
+);
 // for logging in
 routes.post("/login", upload.none(), login);
 
-routes.get(
-  "/users",
-  isAuthorizedAdmin,
-  (req: Request, res: Response, next: NextFunction) => {
-    try {
-      return res.status(200).json("HIT");
-    } catch (error) {
-      return res.status(500).json(error);
-    }
-  }
+routes.post(
+  "/reset-password",
+  // userValidator.create,
+  // authValidator.create,
+  upload.none(),
+  resetPassword
 );
+
+routes.post("/verify-token", isAuthorizedUser, upload.none(), verifyToken);
+
 // routes.post(
 //   "/auth/create-admin",
 //   // userValidator.create,
@@ -76,27 +86,6 @@ routes.get(
 //   "/auth/connect-stripe-account",
 //   isAuthorizedUser,
 //   connectStripeAccount
-// );
-
-// routes.post(
-//   "/auth/verify-email",
-//   // userValidator.create,
-//   // authValidator.create,
-//   verifyEmail
-// );
-
-// routes.post(
-//   "/auth/forgot-password",
-//   // userValidator.create,
-//   // authValidator.create,
-//   forgotPassword
-// );
-
-// routes.post(
-//   "/auth/reset-password",
-//   // userValidator.create,
-//   // authValidator.create,
-//   resetPassword
 // );
 
 // routes.post(

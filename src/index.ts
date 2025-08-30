@@ -7,12 +7,24 @@ import { Request, Response, NextFunction } from "express";
 import databaseConnection from "./config/database";
 import userRouter from "./routes/user.routes";
 import authRouter from "./routes/auth.routes";
+import walletRouter from "./routes/wallet.routes";
 import serviceRouter from "./routes/service.routes";
+import transactionRouter from "./routes/transaction.routes";
+import stripeRouter from "./routes/stripe.routes";
+import contactUsRouter from "./routes/contactUs.route";
+import { handleStripeWebhook } from "./controllers/transaction.controller";
 
 const app = express();
 dotenv.config();
 
 app.use(cors({ origin: "*", credentials: true }));
+const baseApiUrl = "/api";
+
+app.post(
+  `${baseApiUrl}/transactions/webhook`,
+  express.raw({ type: "application/json" }),
+  handleStripeWebhook
+);
 
 app.use(cookieParser()); // Needed to read cookies
 app.use(express.json()); // Parses data as JSON
@@ -36,11 +48,15 @@ app.use(
 
 app.use("/public", express.static(path.join(__dirname, "public")));
 
-const baseApiUrl = "/api";
+// const baseApiUrl = "/api";
 
 app.use(`${baseApiUrl}/users`, userRouter);
 app.use(`${baseApiUrl}/auth`, authRouter);
+app.use(`${baseApiUrl}/wallets`, walletRouter);
 app.use(`${baseApiUrl}/services`, serviceRouter);
+app.use(`${baseApiUrl}/transactions`, transactionRouter);
+app.use(`${baseApiUrl}/stripe`, stripeRouter);
+app.use(`${baseApiUrl}/contact-us`, contactUsRouter);
 
 app.get("/", (req, res) => {
   return res.status(200).send({

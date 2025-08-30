@@ -13,7 +13,7 @@ const isAuthorizedAdmin = (req: Request, res: Response, next: NextFunction) => {
     // const { authorization } = req.headers;
     const { token } = req.cookies;
 
-    console.log("tokenCookie", token);
+    // console.log("tokenCookie", token);
     if (!token) {
       return res
         .status(HTTP_STATUS.UNAUTHORIZED)
@@ -43,7 +43,7 @@ const isAuthorizedAdmin = (req: Request, res: Response, next: NextFunction) => {
     }
 
     (req as UserRequest).user = validate as IUser;
-    console.log("validate", validate.role);
+    // console.log("validate", validate.role);
     if (validate.role == "admin" || validate.role == "superadmin") {
       next();
     } else {
@@ -75,14 +75,14 @@ const isAuthorizedSuperAdmin = (
 ) => {
   try {
     const { authorization } = req.headers;
-    console.log(authorization);
+    // console.log(authorization);
     if (!authorization) {
       return res
         .status(HTTP_STATUS.UNAUTHORIZED)
         .send(failure("Unauthorized access, super admin not logged in"));
     }
     const token = authorization.split(" ")[1];
-    console.log("token", token);
+    // console.log("token", token);
     const validate = jsonWebToken.verify(
       token,
       process.env.JWT_SECRET ?? "default_secret"
@@ -95,7 +95,7 @@ const isAuthorizedSuperAdmin = (
     }
 
     (req as UserRequest).user = validate as IUser;
-    console.log("validate", validate.role);
+    // console.log("validate", validate.role);
     if (validate.role == "superadmin") {
       next();
     } else {
@@ -125,7 +125,7 @@ const isAuthorizedUser = (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.params.id;
 
-    console.log("headers", req.headers);
+    // console.log("headers", req.headers);
 
     const { authorization } = req.headers;
     const { token: tokenCookie } = req.cookies;
@@ -134,7 +134,7 @@ const isAuthorizedUser = (req: Request, res: Response, next: NextFunction) => {
         .status(HTTP_STATUS.UNAUTHORIZED)
         .send(failure("Unauthorized access, user not logged in"));
     }
-    console.log("tokenCookie", tokenCookie);
+    // console.log("tokenCookie", tokenCookie);
     // if (!authorization) {
     //   return res
     //     .status(HTTP_STATUS.UNAUTHORIZED)

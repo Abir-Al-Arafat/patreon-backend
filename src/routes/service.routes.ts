@@ -1,3 +1,4 @@
+import { Request, Response } from "express";
 import express from "express";
 import multer from "multer";
 const routes = express();
@@ -13,24 +14,75 @@ import {
   updateServiceById,
   deleteServiceById,
   generateReplyForService,
+  getRepliesForService,
+  getRepliesByUser,
+  getAllServiceMessagesByUser,
+  subscribedServices,
   //   disableServiceById,
   //   enableServiceById,
   //   approveServiceById,
   //   cancelServiceById,
 } from "../controllers/service.controller";
-import { userValidator, authValidator } from "../middlewares/validation";
+
+import { success, failure } from "../utilities/common";
+import HTTP_STATUS from "../constants/statusCodes";
+
+import {
+  userValidator,
+  authValidator,
+  serviceValidator,
+} from "../middlewares/validation";
 import {
   isAuthorizedUser,
   isAuthorizedAdmin,
 } from "../middlewares/authValidationJWT";
 
 import fileUpload from "../middlewares/fileUpload";
+import pdfUpload from "../middlewares/pdfUpload";
+import { NextFunction } from "express-serve-static-core";
 
 // const { authValidator } = require("../middleware/authValidation");
 
-routes.post("/become-contributor", isAuthorizedUser, fileUpload(), addService);
+routes.post(
+  "/become-contributor",
+  isAuthorizedUser,
+  fileUpload(),
 
-routes.post("/add-file-to-service/:id", fileUpload(), addFileToService);
+  // pdfUpload(),
+  // (req: Request, res: Response, next: NextFunction) => {
+  //   pdfUpload()(req, res, (err) => {
+  //     if (err instanceof Error) {
+  //       return res.status(HTTP_STATUS.BAD_REQUEST).send({
+  //         success: false,
+  //         message: "Error uploading file",
+  //         error: err.message,
+  //       }); // ✅ Send the actual error
+  //     }
+  //     next();
+  //   });
+  // },
+  serviceValidator.addService,
+  addService
+);
+
+routes.post(
+  "/add-file-to-service/:id",
+  // fileUpload(),
+  // (req, res, next) => {
+  //   pdfUpload()(req, res, (err) => {
+  //     if (err instanceof Error) {
+  //       return res.status(HTTP_STATUS.BAD_REQUEST).send({
+  //         success: false,
+  //         message: "Error uploading file",
+  //         error: err.message,
+  //       }); // ✅ Send the actual error
+  //     }
+  //     next();
+  //   });
+  // },
+  pdfUpload(),
+  addFileToService
+);
 
 routes.delete(
   "/remove-file-from-service/:id",
@@ -38,7 +90,7 @@ routes.delete(
   removeFileFromService
 );
 
-routes.get("/get-all-services", getAllServices);
+routes.get("/get-all-services", isAuthorizedUser, getAllServices);
 
 routes.get("/all-categories", getAllCategories);
 
@@ -54,7 +106,13 @@ routes.get(
   getServiceByContributor
 );
 
-routes.put("/update-service-by-id/:id", fileUpload(), updateServiceById);
+routes.put(
+  "/update-service-by-id/:id",
+  // fileUpload(),
+  pdfUpload(),
+  serviceValidator.updateService,
+  updateServiceById
+);
 
 routes.delete(
   "/delete-service-by-id/:id",
@@ -64,11 +122,32 @@ routes.delete(
 
 routes.post(
   "/generate-reply-for-service/:serviceId",
+  isAuthorizedUser,
   upload.none(),
+  serviceValidator.message,
   generateReplyForService
 );
 
-// routes.patch(
+routes.get(
+  "/get-replies-for-service/:serviceId",
+  isAuthorizedUser,
+  getRepliesForService
+);
+
+routes.get("/get-replies-by-user", isAuthorizedUser, getRepliesByUser);
+
+routes.get(
+  "/get-all-service-messages-by-user",
+  upload.none(),
+  isAuthorizedUser,
+  getAllServiceMessagesByUser
+);
+
+routes.get("/subscribed-services", isAuthorizedUser, subscribedServices);
+
+// routes.get(
+//   "/get-replies-for-service/:serviceId",
+//   isAuthorizedUser,
 //   "/disable-service-by-id/:id",
 //   isAuthorizedAdmin,
 //   disableServiceById

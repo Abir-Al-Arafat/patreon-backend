@@ -6,13 +6,13 @@ const configureFileUpload = () => {
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       if (file.mimetype.startsWith("image/")) {
-        cb(null, path.join(__dirname, "../public/uploads/images"));
+        cb(null, path.join(__dirname, "../../public/uploads/images"));
       } else if (file.mimetype.startsWith("video/")) {
         cb(null, path.join(__dirname, "../public/uploads/videos"));
       } else if (file.mimetype.startsWith("audio/")) {
         cb(null, path.join(__dirname, "../public/uploads/audios"));
       } else if (file.mimetype === "application/pdf") {
-        cb(null, path.join(__dirname, "../public/uploads/pdfs"));
+        cb(null, path.join(__dirname, "../../public/uploads/pdfs"));
       } else {
         cb(new Error("Invalid file type"), "");
       }
@@ -32,6 +32,7 @@ const configureFileUpload = () => {
       "audioFile",
       "pdfFiles",
       "previewPdfFiles",
+      "icon",
     ];
 
     if (file.fieldname === undefined) {
@@ -39,10 +40,15 @@ const configureFileUpload = () => {
       cb(null, true);
     } else if (allowedFieldnames.includes(file.fieldname)) {
       if (
-        file.mimetype.startsWith("image/") ||
+        (file.mimetype.startsWith("image/") && file.fieldname !== "icon") ||
         file.mimetype.startsWith("video/") ||
         file.mimetype.startsWith("audio/") ||
         file.mimetype === "application/pdf"
+      ) {
+        cb(null, true);
+      } else if (
+        file.fieldname === "icon" &&
+        file.mimetype.startsWith("image/")
       ) {
         cb(null, true);
       } else {
@@ -62,8 +68,9 @@ const configureFileUpload = () => {
     { name: "categoryImage", maxCount: 1 },
     { name: "videoFile", maxCount: 1 },
     { name: "audioFile", maxCount: 1 },
-    { name: "pdfFiles", maxCount: 5 }, // ✅ Added PDF field
-    { name: "previewPdfFiles", maxCount: 3 }, // ✅ Added preview PDF field
+    { name: "pdfFiles", maxCount: 5 },
+    { name: "previewPdfFiles", maxCount: 3 },
+    { name: "icon", maxCount: 1 }, // ✅ Added icon field
   ]);
 
   return upload;

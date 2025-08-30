@@ -6,8 +6,10 @@ import {
   getNotificationsByUserId,
   getAllNotifications,
   updateUserById,
+  deleteUserByUser,
   profile,
   updateProfileByUser,
+  updateProfileImageByUser,
 } from "../controllers/users.controller";
 
 import {
@@ -22,7 +24,7 @@ const routes = express();
 
 // /api/users
 
-routes.get("/", getAllUsers);
+routes.get("/", isAuthorizedUser, getAllUsers);
 
 // /api/users/123
 routes.get("/:id", getOneUserById);
@@ -37,5 +39,14 @@ routes.patch(
   fileUpload(),
   updateProfileByUser
 );
+
+routes.patch(
+  "/auth/profile-image/update",
+  isAuthorizedUser,
+  fileUpload(),
+  updateProfileImageByUser
+);
+
+routes.delete("/auth/delete-user", isAuthorizedUser, deleteUserByUser);
 
 export default routes;

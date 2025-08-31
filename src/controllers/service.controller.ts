@@ -590,7 +590,8 @@ const generateReplyForService = async (req: Request, res: Response) => {
     //   .map((p) => `${p.question} - ${p.answer}`)
     //   .join("\n");
     const reply = await openai.chat.completions.create({
-      model: "deepseek/deepseek-r1:free",
+      // model: "deepseek/deepseek-r1:free",
+      model: "deepseek-chat",
       messages: [
         {
           role: "system",

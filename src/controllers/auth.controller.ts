@@ -496,11 +496,69 @@ const login = async (req: Request, res: Response) => {
   }
 };
 
+// const resetPassword = async (req: Request, res: Response) => {
+//   try {
+//     const { phoneNumber, password, confirmPassword } = req.body;
+
+//     if (!phoneNumber || !password || !confirmPassword) {
+//       return res
+//         .status(HTTP_STATUS.BAD_REQUEST)
+//         .send(
+//           failure("Please provide phone number, password and confirm password")
+//         );
+//     }
+
+//     if (password !== confirmPassword) {
+//       return res
+//         .status(HTTP_STATUS.BAD_REQUEST)
+//         .send(failure("Password and confirm password do not match"));
+//     }
+
+//     const phone = await Phone.findOne({ phoneNumber });
+
+//     if (!phone) {
+//       return res
+//         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+//         .send(failure("Invalid phone number"));
+//     }
+
+//     const user = await User.findOne({ phone: phone._id });
+
+//     if (!user) {
+//       return res
+//         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+//         .send(failure("No user found with this phone number"));
+//     }
+
+//     // console.log(user);
+
+//     console.log("password", password);
+//     console.log("confirmPassword", confirmPassword);
+
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     user.password = hashedPassword;
+
+//     await user.save();
+
+//     const userData = sanitizeUser(user);
+
+//     return res
+//       .status(HTTP_STATUS.OK)
+//       .send(success("Password reset successful", { ...userData }));
+//   } catch (err) {
+//     console.log(err);
+//     return res
+//       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+//       .send(failure("Internal server error"));
+//   }
+// };
+
 const resetPassword = async (req: Request, res: Response) => {
   try {
-    const { phoneNumber, password, confirmPassword } = req.body;
+    const { email, password, confirmPassword } = req.body;
 
-    if (!phoneNumber || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
         .send(
@@ -514,26 +572,19 @@ const resetPassword = async (req: Request, res: Response) => {
         .send(failure("Password and confirm password do not match"));
     }
 
-    const phone = await Phone.findOne({ phoneNumber });
-
-    if (!phone) {
-      return res
-        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
-        .send(failure("Invalid phone number"));
-    }
-
-    const user = await User.findOne({ phone: phone._id });
+    const user: any = await User.findOne({ email });
 
     if (!user) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
-        .send(failure("No user found with this phone number"));
+        .send(failure("Invalid email"));
     }
 
-    // console.log(user);
-
-    console.log("password", password);
-    console.log("confirmPassword", confirmPassword);
+    if (!user.emailVerified) {
+      return res
+        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+        .send(failure("Email not verified"));
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 

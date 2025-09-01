@@ -1,4 +1,5 @@
 import { body, param } from "express-validator";
+
 const authValidator = {
   signup: [
     body("email")
@@ -40,6 +41,69 @@ const authValidator = {
       .bail()
       .isString()
       .withMessage("name must be a string"),
+  ],
+
+  login: [
+    body("email")
+      .exists()
+      .withMessage("email was not provided")
+      .bail()
+      .notEmpty()
+      .withMessage("email cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("email must be a string")
+      .bail()
+      .isEmail()
+      .withMessage("email must be a valid email address"),
+    body("password")
+      .exists()
+      .withMessage("password was not provided")
+      .bail()
+      .notEmpty()
+      .withMessage("password cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("password must be a string"),
+  ],
+
+  sendCodeToEmail: [
+    body("email")
+      .exists()
+      .withMessage("email was not provided")
+      .bail()
+      .notEmpty()
+      .withMessage("email cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("email must be a string")
+      .bail()
+      .isEmail()
+      .withMessage("email must be a valid email address"),
+  ],
+
+  verifyEmail: [
+    body("email")
+      .exists()
+      .withMessage("email was not provided")
+      .bail()
+      .notEmpty()
+      .withMessage("email cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("email must be a string")
+      .bail()
+      .isEmail()
+      .withMessage("email must be a valid email address"),
+    body("code")
+      .exists()
+      .withMessage("code was not provided")
+      .bail()
+      .notEmpty()
+      .withMessage("code cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("code must be a string"),
   ],
 };
 

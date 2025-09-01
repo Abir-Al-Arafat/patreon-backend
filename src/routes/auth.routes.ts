@@ -5,6 +5,7 @@ import {
   signup,
   login,
   sendVerificationCodeToPhone,
+  sendVerificationCodeToEmail,
   verifyCode,
   verifyEmail,
   verifyToken,
@@ -34,6 +35,13 @@ routes.post(
 );
 
 routes.post(
+  "/send-verification-code-to-email",
+  upload.none(),
+  authValidator.sendCodeToEmail,
+  sendVerificationCodeToEmail
+);
+
+routes.post(
   "/verify-code",
   // userValidator.create,
   // authValidator.create,
@@ -43,13 +51,12 @@ routes.post(
 
 routes.post(
   "/verify-email",
-  // userValidator.create,
-  // authValidator.create,
   upload.none(),
+  authValidator.verifyEmail,
   verifyEmail
 );
 // for logging in
-routes.post("/login", upload.none(), login);
+routes.post("/login", upload.none(), authValidator.login, login);
 
 routes.post(
   "/reset-password",
@@ -62,54 +69,11 @@ routes.post(
 routes.post("/verify-token", isAuthorizedUser, upload.none(), verifyToken);
 
 // routes.post(
-//   "/auth/create-admin",
-//   // userValidator.create,
-//   // authValidator.create,
-//   isAuthorizedSuperAdmin,
-//   createAdmin
-// );
-
-// for signing up as doctor
-// routes.post(
-//   "/auth/signup-as-affiliate",
-//   // userValidator.create,
-//   // authValidator.create,
-//   signupAsAffiliate
-// );
-
-// routes.post(
-//   "/auth/connect-stripe-account",
-//   isAuthorizedUser,
-//   connectStripeAccount
-// );
-
-// routes.post(
 //   "/auth/change-password",
 //   // userValidator.create,
 //   // authValidator.create,
 //   changePassword
 // );
-
-// // for approving doctor
-// routes.post(
-//   "/auth/approve-affiliate",
-//   // userValidator.create,
-//   // authValidator.create,
-//   isAuthorizedAdmin,
-//   approveAffiliate
-// );
-
-// // for canceling doctor
-// routes.post(
-//   "/auth/cancel-affiliate",
-//   // userValidator.create,
-//   // authValidator.create,
-//   isAuthorizedAdmin,
-//   cancelAffiliate
-// );
-
-// for logging in
-// routes.post("/auth/login-as-doctor", authValidator.login, loginAsDoctor);
 
 // routes.post("/auth/send-otp-again", sendOTPAgain);
 

@@ -128,6 +128,46 @@ const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
   }
 };
 
+const sendVerificationCodeToEmail = async (req: Request, res: Response) => {
+  try {
+    const validation = validationResult(req).array();
+    if (validation.length) {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(failure("Failed to add the user", validation[0].msg));
+    }
+    const { email } = req.body;
+
+    const emailVerifyCode = generateRandomCode(6);
+
+    const user: any = await findUserByEmail(email);
+    if (!user) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    }
+
+    user.emailVerifyCode = emailVerifyCode;
+    user.emailVerified = false;
+    await user.save();
+
+    const emailData = getSignupEmailData(
+      user.email,
+      user.name,
+      emailVerifyCode
+    );
+    emailWithNodemailerGmail(emailData);
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Verification code sent successfully"));
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Internal server error"));
+  }
+};
+
+// verify by phone
 const verifyCode = async (req: Request, res: Response) => {
   try {
     const { phone, code } = req.body;
@@ -182,6 +222,12 @@ const verifyCode = async (req: Request, res: Response) => {
 
 const verifyEmail = async (req: Request, res: Response) => {
   try {
+    const validation = validationResult(req).array();
+    if (validation.length) {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(failure("Failed to add the user", validation[0].msg));
+    }
     const { email, code } = req.body;
 
     if (!email || !code) {
@@ -190,19 +236,18 @@ const verifyEmail = async (req: Request, res: Response) => {
         .send(failure("Please provide email and code"));
     }
 
-    const user = await User.findOne({ email });
+    const user = await findUserByEmail(email);
 
-    if (user && user.emailVerifyCode === code) {
+    if (user && user.emailVerifyCode === Number(code)) {
       user.emailVerified = true;
       await user.save();
       return res
         .status(HTTP_STATUS.OK)
         .send(success("Email verified successfully"));
-    } else {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("Invalid verification code"));
     }
+    return res
+      .status(HTTP_STATUS.BAD_REQUEST)
+      .send(failure("Invalid verification code"));
   } catch (err) {
     console.log(err);
     return res
@@ -251,8 +296,7 @@ const verifyEmail = async (req: Request, res: Response) => {
 const signup = async (req: Request, res: Response) => {
   try {
     const validation = validationResult(req).array();
-    console.log(validation);
-    if (validation.length > 0) {
+    if (validation.length) {
       return res
         .status(HTTP_STATUS.OK)
         .send(failure("Failed to add the user", validation[0].msg));
@@ -378,24 +422,30 @@ const signup = async (req: Request, res: Response) => {
 
 const login = async (req: Request, res: Response) => {
   try {
+    const validation = validationResult(req).array();
+    if (validation.length) {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(failure("Failed to add the user", validation[0].msg));
+    }
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("Please provide email and password"));
-    }
-    // console.log("email", req.body);
-    const user = await User.findOne({ email });
-    // console.log("user", user);
+    const user = await findUserByEmail(email);
+
     if (!user) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
         .send(failure("Invalid email or password"));
     }
 
+    if (!user.emailVerified) {
+      return res
+        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+        .send(failure("Email not verified"));
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
-    // console.log("isMatch", isMatch);
+
     if (!isMatch) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
@@ -526,6 +576,7 @@ export {
   signup,
   login,
   sendVerificationCodeToPhone,
+  sendVerificationCodeToEmail,
   verifyCode,
   verifyEmail,
   resetPassword,

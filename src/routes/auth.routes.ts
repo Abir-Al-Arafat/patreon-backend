@@ -12,23 +12,18 @@ import {
 } from "../controllers/auth.controller";
 import multer from "multer";
 
-import { userValidator, authValidator } from "../middlewares/validation";
+import { userValidator } from "../middlewares/validation";
 import {
   isAuthorizedUser,
   isAuthorizedAdmin,
   isAuthorizedSuperAdmin,
 } from "../middlewares/authValidationJWT";
+import authValidator from "../validators/auth.validator";
 // const { authValidator } = require("../middleware/authValidation");
 const routes = express();
 const upload = multer();
 // for signing up
-routes.post(
-  "/signup",
-  // userValidator.create,
-  // authValidator.create,
-  upload.none(),
-  signup
-);
+routes.post("/signup", upload.none(), authValidator.signup, signup);
 
 routes.post(
   "/send-verification-code-to-phone",

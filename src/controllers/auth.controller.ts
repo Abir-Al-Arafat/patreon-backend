@@ -20,6 +20,15 @@ import { CreateUserQueryParams } from "../types/query-params";
 
 import { IUser } from "../interfaces/user.interface";
 
+import {
+  signupService,
+  loginService,
+  findUserByEmail,
+} from "../services/auth.service";
+
+import { getSignupEmailData } from "../utilities/emailData";
+import { get } from "mongoose";
+
 // const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
 //   try {
 //     const client = twilio(
@@ -241,13 +250,13 @@ const verifyEmail = async (req: Request, res: Response) => {
 
 const signup = async (req: Request, res: Response) => {
   try {
-    // const validation = validationResult(req).array();
-    // console.log(validation);
-    // if (validation.length > 0) {
-    //   return res
-    //     .status(HTTP_STATUS.OK)
-    //     .send(failure("Failed to add the user", validation[0].msg));
-    // }
+    const validation = validationResult(req).array();
+    console.log(validation);
+    if (validation.length > 0) {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(failure("Failed to add the user", validation[0].msg));
+    }
 
     // if (req.body.role === "admin") {
     //   return res
@@ -255,65 +264,43 @@ const signup = async (req: Request, res: Response) => {
     //     .send(failure(`Admin cannot be signed up`));
     // }
 
-    // console.log("req.body", req.body);
+    const emailCheck: any = await findUserByEmail(req.body.email);
+    // const phoneCheck = await Phone.findOne({
+    //   phoneNumber: req.body.phone,
+    // });
+    // if (!phoneCheck) {
+    //   return res
+    //     .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+    //     .send(failure(`Phone number does not exist`));
+    // }
 
-    if (!req.body.email || !req.body.password || !req.body.phone) {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("please provide mail, password & phone number"));
-    }
+    // if (!phoneCheck?.phoneNumberVerified) {
+    //   console.log("phoneCheck", phoneCheck);
+    //   console.log(
+    //     "phoneCheck?.phoneNumberVerified",
+    //     phoneCheck?.phoneNumberVerified
+    //   );
+    //   return res
+    //     .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+    //     .send(failure(`Phone number is not verified, please verify`));
+    // }
 
-    const emailCheck = await User.findOne({ email: req.body.email });
-    const phoneCheck = await Phone.findOne({
-      phoneNumber: req.body.phone,
-    });
-    if (!phoneCheck) {
-      return res
-        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
-        .send(failure(`Phone number does not exist`));
-    }
-    console.log("phoneCheck", phoneCheck);
-    console.log("phoneCheck.user", phoneCheck.user);
-    if (!phoneCheck?.phoneNumberVerified) {
-      console.log("phoneCheck", phoneCheck);
-      console.log(
-        "phoneCheck?.phoneNumberVerified",
-        phoneCheck?.phoneNumberVerified
-      );
-      return res
-        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
-        .send(failure(`Phone number is not verified, please verify`));
-    }
-    console.log("phoneCheck", phoneCheck);
-    console.log("phoneCheck.user", phoneCheck.user);
-    if (phoneCheck.user) {
-      return res
-        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
-        .send(failure(`Phone number is already registered`));
-    }
+    // if (phoneCheck.user) {
+    //   return res
+    //     .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+    //     .send(failure(`Phone number is already registered`));
+    // }
 
     if (emailCheck && !emailCheck.emailVerified) {
       const emailVerifyCode = generateRandomCode(6);
       emailCheck.emailVerifyCode = emailVerifyCode;
       await emailCheck.save();
 
-      const emailData = {
-        email: emailCheck.email,
-        subject: "Account Activation Email",
-        html: `
-                        <div style="max-width: 500px; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); text-align: center; font-family: Arial, sans-serif;">
-        <h6 style="font-size: 16px; color: #333;">Hello, ${
-          emailCheck?.name || "User"
-        }</h6>
-        <p style="font-size: 14px; color: #555;">Your email verification code is:</p>
-        <div style="font-size: 24px; font-weight: bold; color: #d32f2f; background: #f8d7da; display: inline-block; padding: 10px 20px; border-radius: 5px; margin-top: 10px;">
-          ${emailVerifyCode}
-        </div>
-        <p style="font-size: 14px; color: #555;">Please use this code to verify your email.</p>
-      </div>
-                        
-                      `,
-      };
+      const emailData = getSignupEmailData(
+        emailCheck.email,
+        emailCheck.name,
+        emailVerifyCode
+      );
       emailWithNodemailerGmail(emailData);
 
       return res
@@ -327,32 +314,19 @@ const signup = async (req: Request, res: Response) => {
         .send(failure(`User with email: ${req.body.email} already exists`));
     }
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
     const emailVerifyCode = generateRandomCode(6);
+    req.body.emailVerifyCode = emailVerifyCode;
 
-    const newUser = await User.create({
-      name: req.body.name,
-      email: req.body.email,
-      username: req.body.username,
-      roles: req.body.roles || "user",
-      password: hashedPassword,
-      emailVerifyCode,
-      phone: phoneCheck._id,
-    });
+    const newUser: any = await signupService(req.body);
 
-    phoneCheck.user = newUser._id;
-    await phoneCheck.save();
+    // phoneCheck.user = newUser._id;
+    // await phoneCheck.save();
 
-    const emailData = {
-      email: req.body.email,
-      subject: "Account Activation Email",
-      html: `
-                    <h6>Hello, ${newUser?.name || newUser?.email || "User"}</h6>
-                    <p>Your email verification code is <h6>${emailVerifyCode}</h6> to verify your email</p>
-                    
-                  `,
-    };
+    const emailData = getSignupEmailData(
+      newUser.email,
+      newUser.name,
+      emailVerifyCode
+    );
 
     emailWithNodemailerGmail(emailData);
 

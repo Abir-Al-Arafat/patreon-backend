@@ -60,9 +60,8 @@ routes.post("/login", upload.none(), authValidator.login, login);
 
 routes.post(
   "/reset-password",
-  // userValidator.create,
-  // authValidator.create,
   upload.none(),
+  authValidator.resetPassword,
   resetPassword
 );
 

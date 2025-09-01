@@ -556,21 +556,13 @@ const login = async (req: Request, res: Response) => {
 
 const resetPassword = async (req: Request, res: Response) => {
   try {
+    const validation = validationResult(req).array();
+    if (validation.length) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Validation failed", validation[0].msg));
+    }
     const { email, password, confirmPassword } = req.body;
-
-    if (!email || !password || !confirmPassword) {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .send(
-          failure("Please provide phone number, password and confirm password")
-        );
-    }
-
-    if (password !== confirmPassword) {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("Password and confirm password do not match"));
-    }
 
     const user: any = await User.findOne({ email });
 

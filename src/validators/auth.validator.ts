@@ -1,4 +1,5 @@
 import { body, param } from "express-validator";
+import { resetPassword } from "../controllers/auth.controller";
 
 const authValidator = {
   signup: [
@@ -104,6 +105,46 @@ const authValidator = {
       .bail()
       .isString()
       .withMessage("code must be a string"),
+  ],
+
+  resetPassword: [
+    body("email")
+      .exists()
+      .withMessage("email was not provided")
+      .bail()
+      .notEmpty()
+      .withMessage("email cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("email must be a string")
+      .bail()
+      .isEmail()
+      .withMessage("email must be a valid email address"),
+    body("password")
+      .exists()
+      .withMessage("password was not provided")
+      .bail()
+      .notEmpty()
+      .withMessage("password cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("password must be a string"),
+    body("confirmPassword")
+      .exists()
+      .withMessage("confirmPassword was not provided")
+      .bail()
+      .notEmpty()
+      .withMessage("confirmPassword cannot be empty")
+      .bail()
+      .isString()
+      .withMessage("confirmPassword must be a string")
+      .bail()
+      .custom((value, { req }) => {
+        if (value !== req.body.password) {
+          throw new Error("password and confirmPassword do not match");
+        }
+        return true;
+      }),
   ],
 };
 

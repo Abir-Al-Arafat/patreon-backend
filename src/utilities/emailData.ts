@@ -5,7 +5,7 @@ function getSignupEmailData(
 ) {
   return {
     email,
-    subject: "Account Activation Email",
+    subject: "Account Verification Email",
     html: `
       <div style="max-width: 500px; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); text-align: center; font-family: Arial, sans-serif;">
         <h6 style="font-size: 16px; color: #333;">Hello, ${

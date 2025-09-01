@@ -392,7 +392,7 @@ const createCheckoutSession = async (req: Request, res: Response) => {
           );
       }
 
-      const contributorShare = Math.floor(totalAmount * 0.8);
+      const contributorShare = Math.floor(totalAmount * 0.7);
       wallet.balance += contributorShare / 100;
       await wallet.save();
 
@@ -432,7 +432,7 @@ const createCheckoutSession = async (req: Request, res: Response) => {
         .json({ success: true, url: session.url });
     }
 
-    const adminShare = Math.floor(totalAmount * 0.2); // 20% admin cut
+    const adminShare = Math.floor(totalAmount * 0.3); // 30% admin cut
     const admin = await User.findOne({ roles: { $in: ["admin"] } });
     if (!admin) {
       return res

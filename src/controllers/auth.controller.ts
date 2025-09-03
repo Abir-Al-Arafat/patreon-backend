@@ -27,7 +27,6 @@ import {
 } from "../services/auth.service";
 
 import { getSignupEmailData } from "../utilities/emailData";
-import { get } from "mongoose";
 
 // const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
 //   try {

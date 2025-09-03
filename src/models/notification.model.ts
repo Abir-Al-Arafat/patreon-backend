@@ -12,6 +12,11 @@ const notificationSchema = new mongoose.Schema(
       ref: "User",
     },
 
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+
     admin: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

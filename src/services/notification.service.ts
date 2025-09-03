@@ -1,4 +1,5 @@
 import Notification from "../models/notification.model";
+import { ObjectId } from "mongoose";
 
 const createNotification = async (data: any) => {
   const notification = new Notification(data);
@@ -11,6 +12,10 @@ const getNotificationByContributorId = async (contributorId: string) => {
 
 const getNotificationByBuyerId = async (buyerId: string) => {
   return await Notification.find({ buyer: buyerId });
+};
+
+const getNotificationByUserId = async (userId: ObjectId) => {
+  return await Notification.find({ user: userId });
 };
 
 const getNotifications = async (userId: string) => {
@@ -33,6 +38,7 @@ export {
   createNotification,
   getNotificationByContributorId,
   getNotificationByBuyerId,
+  getNotificationByUserId,
   getNotifications,
   getAllNotificationsService,
   updateNotification,

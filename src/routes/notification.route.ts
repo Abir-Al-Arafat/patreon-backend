@@ -5,6 +5,7 @@ import {
   getAllNotifications,
   getNotificationByContributor,
   getNotificationByBuyer,
+  getNotificationByUser,
 } from "../controllers/notification.controller";
 
 import {
@@ -23,6 +24,8 @@ routes.get("/", getAllNotifications);
 routes.get("/contributor/:id", getNotificationByContributor);
 
 routes.get("/buyer/:id", getNotificationByBuyer);
+
+routes.get("/user", getNotificationByUser);
 
 // routes.get("/self", isAuthorizedUser, getWalletByUser);
 

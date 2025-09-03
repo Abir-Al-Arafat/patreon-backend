@@ -22,6 +22,7 @@ import {
   updateNotification,
   deleteNotification,
   getAllNotificationsService,
+  getNotificationByUserId,
 } from "../services/notification.service";
 
 const getAllNotifications = async (req: Request, res: Response) => {
@@ -73,8 +74,32 @@ const getNotificationByBuyer = async (req: Request, res: Response) => {
   }
 };
 
+const getNotificationByUser = async (req: Request, res: Response) => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+    }
+    const userId = (req as UserRequest).user._id;
+    const notifications = await getNotificationByUserId(userId!);
+    if (!notifications.length) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("No notifications found"));
+    }
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Notifications fetched successfully", notifications));
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Failed to fetch notifications"));
+  }
+};
+
 export {
   getAllNotifications,
   getNotificationByContributor,
   getNotificationByBuyer,
+  getNotificationByUser,
 };

@@ -175,6 +175,7 @@ const addService = async (req: Request, res: Response) => {
       type: "service",
       serviceId: newService._id, // service id
       contributor: user._id,
+      user: (req as UserRequest).user._id,
     });
 
     if (!notification) {

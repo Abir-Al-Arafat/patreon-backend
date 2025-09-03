@@ -4,6 +4,7 @@ import multer from "multer";
 import {
   getAllNotifications,
   getNotificationByContributor,
+  getNotificationByBuyer,
 } from "../controllers/notification.controller";
 
 import {
@@ -20,6 +21,8 @@ const upload = multer();
 routes.get("/", getAllNotifications);
 
 routes.get("/contributor/:id", getNotificationByContributor);
+
+routes.get("/buyer/:id", getNotificationByBuyer);
 
 // routes.get("/self", isAuthorizedUser, getWalletByUser);
 

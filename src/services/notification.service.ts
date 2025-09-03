@@ -9,6 +9,10 @@ const getNotificationByContributorId = async (contributorId: string) => {
   return await Notification.find({ contributor: contributorId });
 };
 
+const getNotificationByBuyerId = async (buyerId: string) => {
+  return await Notification.find({ buyer: buyerId });
+};
+
 const getNotifications = async (userId: string) => {
   return await Notification.find({ userId });
 };
@@ -28,6 +32,7 @@ const deleteNotification = async (id: string) => {
 export {
   createNotification,
   getNotificationByContributorId,
+  getNotificationByBuyerId,
   getNotifications,
   getAllNotificationsService,
   updateNotification,

@@ -11,6 +11,11 @@ const notificationSchema = new mongoose.Schema(
       ref: "User",
     },
 
+    serviceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Service",
+    },
+
     status: {
       type: String,
       enum: ["pending", "approved", "cancelled"],
@@ -18,7 +23,7 @@ const notificationSchema = new mongoose.Schema(
     },
     message: {
       type: String,
-      required: true, // Message about the notification
+      required: true,
     },
     isRead: {
       type: Boolean,
@@ -30,7 +35,7 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["service", "forum", "story", "others"],
+      enum: ["service", "others"],
       default: "others",
     },
   },

@@ -25,7 +25,7 @@ routes.get("/contributor/:id", getNotificationByContributor);
 
 routes.get("/buyer/:id", getNotificationByBuyer);
 
-routes.get("/user", getNotificationByUser);
+routes.get("/user", isAuthorizedUser, getNotificationByUser);
 
 // routes.get("/self", isAuthorizedUser, getWalletByUser);
 

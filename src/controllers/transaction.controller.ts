@@ -426,18 +426,19 @@ const createCheckoutSession = async (req: Request, res: Response) => {
           .send(failure("Failed to create checkout session"));
       }
 
-      wallet.balance += contributorShare / 100;
-      await wallet.save();
+      // wallet.balance += contributorShare / 100;
+      // await wallet.save();
 
-      const notification = new Notification({
-        contributor: contributor._id,
-        // admin: admin._id,
-        serviceId: service._id,
-        message: `payment received for service: ${service.title}`,
-        type: "wallet",
-      });
+      // const notification = new Notification({
+      //   contributor: contributor._id,
+      //   // admin: admin._id,
+      //   serviceId: service._id,
+      //   user: userId,
+      //   message: `payment received for service: ${service.title}`,
+      //   type: "wallet",
+      // });
 
-      await notification.save();
+      // await notification.save();
 
       return res
         .status(HTTP_STATUS.OK)
@@ -978,23 +979,39 @@ const createTransaction = async (req: Request, res: Response) => {
     wallet.balance += amount_in_gbp;
     await wallet.save();
 
-    const notificationPurchase = await Notification.create({
+    const notificationPurchaseBuyer = await Notification.create({
       buyer: (req as UserRequest).user._id,
       contributor: service.contributor,
+      user: (req as UserRequest).user._id,
       type: "transaction",
       message: `service ${service.title} purchased successfully.`,
       transaction: transaction._id,
     });
 
-    if (!notificationPurchase) {
+    if (!notificationPurchaseBuyer) {
       return res
         .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
-        .send(failure("Failed to create notification"));
+        .send(failure("Failed to create notification for buyer"));
+    }
+    const notificationPurchaseContributor = await Notification.create({
+      buyer: (req as UserRequest).user._id,
+      contributor: service.contributor,
+      user: service.contributor,
+      type: "transaction",
+      message: `service ${service.title} purchased successfully.`,
+      transaction: transaction._id,
+    });
+
+    if (!notificationPurchaseContributor) {
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .send(failure("Failed to create notification for contributor"));
     }
 
     const notificationWallet = await Notification.create({
-      // buyer: (req as UserRequest).user._id,
+      buyer: (req as UserRequest).user._id,
       contributor: service.contributor,
+      user: service.contributor,
       type: "wallet",
       message: `${amount_in_gbp} added to your wallet for service ${service.title}.`,
       transaction: transaction._id,

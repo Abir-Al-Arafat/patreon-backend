@@ -376,6 +376,7 @@ const createCheckoutSession = async (req: Request, res: Response) => {
           .status(HTTP_STATUS.BAD_REQUEST)
           .send(
             failure(
+              "service is not available",
               "Contributor has not completed Stripe onboarding and does not have a wallet too"
             )
           );
@@ -388,6 +389,7 @@ const createCheckoutSession = async (req: Request, res: Response) => {
           .status(HTTP_STATUS.BAD_REQUEST)
           .send(
             failure(
+              "service is not available",
               "Contributor has not completed Stripe onboarding and does not have a wallet too"
             )
           );

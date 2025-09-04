@@ -24,6 +24,7 @@ import {
   signupService,
   loginService,
   findUserByEmail,
+  findUserByUsername,
 } from "../services/auth.service";
 
 import { getSignupEmailData } from "../utilities/emailData";
@@ -308,6 +309,7 @@ const signup = async (req: Request, res: Response) => {
     // }
 
     const emailCheck: any = await findUserByEmail(req.body.email);
+    const userNameCheck: any = await findUserByUsername(req.body.username);
     // const phoneCheck = await Phone.findOne({
     //   phoneNumber: req.body.phone,
     // });
@@ -355,6 +357,14 @@ const signup = async (req: Request, res: Response) => {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
         .send(failure(`User with email: ${req.body.email} already exists`));
+    }
+
+    if (userNameCheck) {
+      return res
+        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+        .send(
+          failure(`User with username: ${req.body.username} already exists`)
+        );
     }
 
     const emailVerifyCode = generateRandomCode(6);

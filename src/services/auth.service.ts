@@ -7,11 +7,13 @@ import HTTP_STATUS from "../constants/statusCodes";
 
 const signupService = async (userData: any) => {
   const hashedPassword = await bcrypt.hash(userData.password, 10);
+  const randomNumber = Math.floor(1000 + Math.random() * 9000);
+  const username = `${userData.username}${randomNumber}`;
 
   return await User.create({
     name: userData.name,
     email: userData.email,
-    username: userData.username,
+    username,
     roles: userData.roles || "user",
     password: hashedPassword,
     emailVerifyCode: userData.emailVerifyCode,
@@ -55,4 +57,8 @@ const findUserByEmail = async (email: string) => {
   return await User.findOne({ email });
 };
 
-export { signupService, loginService, findUserByEmail };
+const findUserByUsername = async (username: string) => {
+  return await User.findOne({ username });
+};
+
+export { signupService, loginService, findUserByEmail, findUserByUsername };

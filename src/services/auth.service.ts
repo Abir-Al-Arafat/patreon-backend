@@ -1,9 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model";
-import { generateRandomCode } from "../utilities/common";
-import { emailWithNodemailerGmail } from "../config/email.config";
-import HTTP_STATUS from "../constants/statusCodes";
 
 const signupService = async (userData: any) => {
   const hashedPassword = await bcrypt.hash(userData.password, 10);

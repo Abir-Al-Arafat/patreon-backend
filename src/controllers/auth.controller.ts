@@ -20,6 +20,15 @@ import { CreateUserQueryParams } from "../types/query-params";
 
 import { IUser } from "../interfaces/user.interface";
 
+import {
+  signupService,
+  loginService,
+  findUserByEmail,
+  findUserByUsername,
+} from "../services/auth.service";
+
+import { getSignupEmailData } from "../utilities/emailData";
+
 // const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
 //   try {
 //     const client = twilio(
@@ -119,6 +128,46 @@ const sendVerificationCodeToPhone = async (req: Request, res: Response) => {
   }
 };
 
+const sendVerificationCodeToEmail = async (req: Request, res: Response) => {
+  try {
+    const validation = validationResult(req).array();
+    if (validation.length) {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(failure("Failed to add the user", validation[0].msg));
+    }
+    const { email } = req.body;
+
+    const emailVerifyCode = generateRandomCode(6);
+
+    const user: any = await findUserByEmail(email);
+    if (!user) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    }
+
+    user.emailVerifyCode = emailVerifyCode;
+    user.emailVerified = false;
+    await user.save();
+
+    const emailData = getSignupEmailData(
+      user.email,
+      user.name,
+      emailVerifyCode
+    );
+    emailWithNodemailerGmail(emailData);
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Verification code sent successfully"));
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Internal server error"));
+  }
+};
+
+// verify by phone
 const verifyCode = async (req: Request, res: Response) => {
   try {
     const { phone, code } = req.body;
@@ -173,6 +222,12 @@ const verifyCode = async (req: Request, res: Response) => {
 
 const verifyEmail = async (req: Request, res: Response) => {
   try {
+    const validation = validationResult(req).array();
+    if (validation.length) {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(failure("Failed to add the user", validation[0].msg));
+    }
     const { email, code } = req.body;
 
     if (!email || !code) {
@@ -181,19 +236,18 @@ const verifyEmail = async (req: Request, res: Response) => {
         .send(failure("Please provide email and code"));
     }
 
-    const user = await User.findOne({ email });
+    const user = await findUserByEmail(email);
 
-    if (user && user.emailVerifyCode === code) {
+    if (user && user.emailVerifyCode === Number(code)) {
       user.emailVerified = true;
       await user.save();
       return res
         .status(HTTP_STATUS.OK)
         .send(success("Email verified successfully"));
-    } else {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("Invalid verification code"));
     }
+    return res
+      .status(HTTP_STATUS.BAD_REQUEST)
+      .send(failure("Invalid verification code"));
   } catch (err) {
     console.log(err);
     return res
@@ -241,13 +295,12 @@ const verifyEmail = async (req: Request, res: Response) => {
 
 const signup = async (req: Request, res: Response) => {
   try {
-    // const validation = validationResult(req).array();
-    // console.log(validation);
-    // if (validation.length > 0) {
-    //   return res
-    //     .status(HTTP_STATUS.OK)
-    //     .send(failure("Failed to add the user", validation[0].msg));
-    // }
+    const validation = validationResult(req).array();
+    if (validation.length) {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(failure("Failed to add the user", validation[0].msg));
+    }
 
     // if (req.body.role === "admin") {
     //   return res
@@ -255,65 +308,44 @@ const signup = async (req: Request, res: Response) => {
     //     .send(failure(`Admin cannot be signed up`));
     // }
 
-    // console.log("req.body", req.body);
+    const emailCheck: any = await findUserByEmail(req.body.email);
+    const userNameCheck: any = await findUserByUsername(req.body.username);
+    // const phoneCheck = await Phone.findOne({
+    //   phoneNumber: req.body.phone,
+    // });
+    // if (!phoneCheck) {
+    //   return res
+    //     .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+    //     .send(failure(`Phone number does not exist`));
+    // }
 
-    if (!req.body.email || !req.body.password || !req.body.phone) {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("please provide mail, password & phone number"));
-    }
+    // if (!phoneCheck?.phoneNumberVerified) {
+    //   console.log("phoneCheck", phoneCheck);
+    //   console.log(
+    //     "phoneCheck?.phoneNumberVerified",
+    //     phoneCheck?.phoneNumberVerified
+    //   );
+    //   return res
+    //     .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+    //     .send(failure(`Phone number is not verified, please verify`));
+    // }
 
-    const emailCheck = await User.findOne({ email: req.body.email });
-    const phoneCheck = await Phone.findOne({
-      phoneNumber: req.body.phone,
-    });
-    if (!phoneCheck) {
-      return res
-        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
-        .send(failure(`Phone number does not exist`));
-    }
-    console.log("phoneCheck", phoneCheck);
-    console.log("phoneCheck.user", phoneCheck.user);
-    if (!phoneCheck?.phoneNumberVerified) {
-      console.log("phoneCheck", phoneCheck);
-      console.log(
-        "phoneCheck?.phoneNumberVerified",
-        phoneCheck?.phoneNumberVerified
-      );
-      return res
-        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
-        .send(failure(`Phone number is not verified, please verify`));
-    }
-    console.log("phoneCheck", phoneCheck);
-    console.log("phoneCheck.user", phoneCheck.user);
-    if (phoneCheck.user) {
-      return res
-        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
-        .send(failure(`Phone number is already registered`));
-    }
+    // if (phoneCheck.user) {
+    //   return res
+    //     .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+    //     .send(failure(`Phone number is already registered`));
+    // }
 
     if (emailCheck && !emailCheck.emailVerified) {
       const emailVerifyCode = generateRandomCode(6);
       emailCheck.emailVerifyCode = emailVerifyCode;
       await emailCheck.save();
 
-      const emailData = {
-        email: emailCheck.email,
-        subject: "Account Activation Email",
-        html: `
-                        <div style="max-width: 500px; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); text-align: center; font-family: Arial, sans-serif;">
-        <h6 style="font-size: 16px; color: #333;">Hello, ${
-          emailCheck?.name || "User"
-        }</h6>
-        <p style="font-size: 14px; color: #555;">Your email verification code is:</p>
-        <div style="font-size: 24px; font-weight: bold; color: #d32f2f; background: #f8d7da; display: inline-block; padding: 10px 20px; border-radius: 5px; margin-top: 10px;">
-          ${emailVerifyCode}
-        </div>
-        <p style="font-size: 14px; color: #555;">Please use this code to verify your email.</p>
-      </div>
-                        
-                      `,
-      };
+      const emailData = getSignupEmailData(
+        emailCheck.email,
+        emailCheck.name,
+        emailVerifyCode
+      );
       emailWithNodemailerGmail(emailData);
 
       return res
@@ -324,35 +356,30 @@ const signup = async (req: Request, res: Response) => {
     if (emailCheck) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
-        .send(failure(`User with email: ${req.body.email} already exists`));
+        .send(failure(`${req.body.email} already exists`));
     }
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    if (userNameCheck) {
+      return res
+        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+        .send(
+          failure(`User with username: ${req.body.username} already exists`)
+        );
+    }
 
     const emailVerifyCode = generateRandomCode(6);
+    req.body.emailVerifyCode = emailVerifyCode;
 
-    const newUser = await User.create({
-      name: req.body.name,
-      email: req.body.email,
-      username: req.body.username,
-      roles: req.body.roles || "user",
-      password: hashedPassword,
-      emailVerifyCode,
-      phone: phoneCheck._id,
-    });
+    const newUser: any = await signupService(req.body);
 
-    phoneCheck.user = newUser._id;
-    await phoneCheck.save();
+    // phoneCheck.user = newUser._id;
+    // await phoneCheck.save();
 
-    const emailData = {
-      email: req.body.email,
-      subject: "Account Activation Email",
-      html: `
-                    <h6>Hello, ${newUser?.name || newUser?.email || "User"}</h6>
-                    <p>Your email verification code is <h6>${emailVerifyCode}</h6> to verify your email</p>
-                    
-                  `,
-    };
+    const emailData = getSignupEmailData(
+      newUser.email,
+      newUser.name,
+      emailVerifyCode
+    );
 
     emailWithNodemailerGmail(emailData);
 
@@ -404,24 +431,30 @@ const signup = async (req: Request, res: Response) => {
 
 const login = async (req: Request, res: Response) => {
   try {
+    const validation = validationResult(req).array();
+    if (validation.length) {
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(failure("Failed to add the user", validation[0].msg));
+    }
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("Please provide email and password"));
-    }
-    // console.log("email", req.body);
-    const user = await User.findOne({ email });
-    // console.log("user", user);
+    const user = await findUserByEmail(email);
+
     if (!user) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
         .send(failure("Invalid email or password"));
     }
 
+    if (!user.emailVerified) {
+      return res
+        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+        .send(failure("Email not verified"));
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
-    // console.log("isMatch", isMatch);
+
     if (!isMatch) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
@@ -472,44 +505,87 @@ const login = async (req: Request, res: Response) => {
   }
 };
 
+// const resetPassword = async (req: Request, res: Response) => {
+//   try {
+//     const { phoneNumber, password, confirmPassword } = req.body;
+
+//     if (!phoneNumber || !password || !confirmPassword) {
+//       return res
+//         .status(HTTP_STATUS.BAD_REQUEST)
+//         .send(
+//           failure("Please provide phone number, password and confirm password")
+//         );
+//     }
+
+//     if (password !== confirmPassword) {
+//       return res
+//         .status(HTTP_STATUS.BAD_REQUEST)
+//         .send(failure("Password and confirm password do not match"));
+//     }
+
+//     const phone = await Phone.findOne({ phoneNumber });
+
+//     if (!phone) {
+//       return res
+//         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+//         .send(failure("Invalid phone number"));
+//     }
+
+//     const user = await User.findOne({ phone: phone._id });
+
+//     if (!user) {
+//       return res
+//         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+//         .send(failure("No user found with this phone number"));
+//     }
+
+//     // console.log(user);
+
+//     console.log("password", password);
+//     console.log("confirmPassword", confirmPassword);
+
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     user.password = hashedPassword;
+
+//     await user.save();
+
+//     const userData = sanitizeUser(user);
+
+//     return res
+//       .status(HTTP_STATUS.OK)
+//       .send(success("Password reset successful", { ...userData }));
+//   } catch (err) {
+//     console.log(err);
+//     return res
+//       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+//       .send(failure("Internal server error"));
+//   }
+// };
+
 const resetPassword = async (req: Request, res: Response) => {
   try {
-    const { phoneNumber, password, confirmPassword } = req.body;
-
-    if (!phoneNumber || !password || !confirmPassword) {
+    const validation = validationResult(req).array();
+    if (validation.length) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .send(
-          failure("Please provide phone number, password and confirm password")
-        );
+        .send(failure("Validation failed", validation[0].msg));
     }
+    const { email, password, confirmPassword } = req.body;
 
-    if (password !== confirmPassword) {
-      return res
-        .status(HTTP_STATUS.BAD_REQUEST)
-        .send(failure("Password and confirm password do not match"));
-    }
-
-    const phone = await Phone.findOne({ phoneNumber });
-
-    if (!phone) {
-      return res
-        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
-        .send(failure("Invalid phone number"));
-    }
-
-    const user = await User.findOne({ phone: phone._id });
+    const user: any = await User.findOne({ email });
 
     if (!user) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
-        .send(failure("No user found with this phone number"));
+        .send(failure("Invalid email"));
     }
 
-    // console.log(user);
-
-    console.log("password", password);
-    console.log("confirmPassword", confirmPassword);
+    if (!user.emailVerified) {
+      return res
+        .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+        .send(failure("Email not verified"));
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -552,6 +628,7 @@ export {
   signup,
   login,
   sendVerificationCodeToPhone,
+  sendVerificationCodeToEmail,
   verifyCode,
   verifyEmail,
   resetPassword,

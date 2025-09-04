@@ -4,6 +4,7 @@ import Stripe from "stripe";
 import { success, failure } from "../utilities/common";
 import HTTP_STATUS from "../constants/statusCodes";
 import User from "../models/user.model";
+import Wallet from "../models/wallet.model";
 import { UserRequest } from "../interfaces/user.interface";
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY as string;
@@ -827,9 +828,22 @@ const sendPayoutToRecipient = async (
     return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
   }
 
-  const user = await User.findById((req as UserRequest).user._id);
+  const user: any = await User.findById((req as UserRequest).user._id);
   if (!user) {
     return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("User not found"));
+  }
+
+  if (!user.wallet) {
+    return res
+      .status(HTTP_STATUS.BAD_REQUEST)
+      .send(failure("User wallet not found"));
+  }
+
+  const wallet: any = await Wallet.findOne({ user: user._id });
+  if (!wallet) {
+    return res
+      .status(HTTP_STATUS.BAD_REQUEST)
+      .send(failure("User wallet not found"));
   }
 
   const { recipientId } = user;
@@ -850,6 +864,12 @@ const sendPayoutToRecipient = async (
     return res
       .status(HTTP_STATUS.BAD_REQUEST)
       .send(failure("Amount must be greater than £40"));
+  }
+
+  if (amount > wallet.balance) {
+    return res
+      .status(HTTP_STATUS.BAD_REQUEST)
+      .send(failure("Insufficient funds"));
   }
 
   console.log("currency:", currency);
@@ -891,6 +911,9 @@ const sendPayoutToRecipient = async (
 
     user.payouts.push(payoutResponse.data.id);
     await user.save();
+
+    wallet.balance -= amount;
+    await wallet.save();
 
     return res.status(HTTP_STATUS.OK).send(
       success("Payout sent successfully", {

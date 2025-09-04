@@ -7,6 +7,7 @@ import HTTP_STATUS from "../constants/statusCodes";
 import User from "../models/user.model";
 import Service from "../models/service.model";
 import Transaction from "../models/transaction.model";
+import Notification from "../models/notification.model";
 
 import { createTransaction as createTransactionService } from "../services/transaction.service";
 
@@ -375,6 +376,7 @@ const createCheckoutSession = async (req: Request, res: Response) => {
           .status(HTTP_STATUS.BAD_REQUEST)
           .send(
             failure(
+              "service is not available yet",
               "Contributor has not completed Stripe onboarding and does not have a wallet too"
             )
           );
@@ -387,14 +389,13 @@ const createCheckoutSession = async (req: Request, res: Response) => {
           .status(HTTP_STATUS.BAD_REQUEST)
           .send(
             failure(
+              "service is not available yet",
               "Contributor has not completed Stripe onboarding and does not have a wallet too"
             )
           );
       }
 
-      const contributorShare = Math.floor(totalAmount * 0.8);
-      wallet.balance += contributorShare / 100;
-      await wallet.save();
+      const contributorShare = Math.floor(totalAmount * 0.7);
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
@@ -427,12 +428,26 @@ const createCheckoutSession = async (req: Request, res: Response) => {
           .send(failure("Failed to create checkout session"));
       }
 
+      // wallet.balance += contributorShare / 100;
+      // await wallet.save();
+
+      // const notification = new Notification({
+      //   contributor: contributor._id,
+      //   // admin: admin._id,
+      //   serviceId: service._id,
+      //   user: userId,
+      //   message: `payment received for service: ${service.title}`,
+      //   type: "wallet",
+      // });
+
+      // await notification.save();
+
       return res
         .status(HTTP_STATUS.OK)
         .json({ success: true, url: session.url });
     }
 
-    const adminShare = Math.floor(totalAmount * 0.2); // 20% admin cut
+    const adminShare = Math.floor(totalAmount * 0.3); // 30% admin cut
     const admin = await User.findOne({ roles: { $in: ["admin"] } });
     if (!admin) {
       return res
@@ -956,9 +971,58 @@ const createTransaction = async (req: Request, res: Response) => {
 
     const wallet = await getWalletByUserId(service?.contributor as any);
 
-    if (wallet) {
-      wallet.transactions.push(transaction._id);
-      await wallet.save();
+    if (!wallet) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("Wallet not found"));
+    }
+
+    wallet.transactions.push(transaction._id);
+    wallet.balance += amount_in_gbp;
+    await wallet.save();
+
+    const notificationPurchaseBuyer = await Notification.create({
+      buyer: (req as UserRequest).user._id,
+      contributor: service.contributor,
+      user: (req as UserRequest).user._id,
+      type: "transaction",
+      message: `service ${service.title} purchased successfully.`,
+      transaction: transaction._id,
+    });
+
+    if (!notificationPurchaseBuyer) {
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .send(failure("Failed to create notification for buyer"));
+    }
+    const notificationPurchaseContributor = await Notification.create({
+      buyer: (req as UserRequest).user._id,
+      contributor: service.contributor,
+      user: service.contributor,
+      type: "transaction",
+      message: `service ${service.title} purchased successfully.`,
+      transaction: transaction._id,
+    });
+
+    if (!notificationPurchaseContributor) {
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .send(failure("Failed to create notification for contributor"));
+    }
+
+    const notificationWallet = await Notification.create({
+      buyer: (req as UserRequest).user._id,
+      contributor: service.contributor,
+      user: service.contributor,
+      type: "wallet",
+      message: `${amount_in_gbp} added to your wallet for service ${service.title}.`,
+      transaction: transaction._id,
+    });
+
+    if (!notificationWallet) {
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .send(failure("Failed to create notification"));
     }
 
     return res

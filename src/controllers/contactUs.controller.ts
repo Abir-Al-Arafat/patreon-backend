@@ -1,16 +1,9 @@
 import { Request, Response } from "express";
-import mongoose, { ObjectId } from "mongoose";
+import { ObjectId } from "mongoose";
 import { validationResult } from "express-validator";
-import {
-  success,
-  failure,
-  generateRandomCode,
-  sanitizeUser,
-} from "../utilities/common";
+import { success, failure } from "../utilities/common";
 import { UserRequest } from "./users.controller";
 import User from "../models/user.model";
-import Phone from "../models/phone.model";
-import Notification from "../models/notification.model";
 
 import HTTP_STATUS from "../constants/statusCodes";
 import { emailWithNodemailerGmail } from "../config/email.config";
@@ -25,8 +18,6 @@ import {
   getAllContactUsService,
   deleteContactUsById,
 } from "../services/contactUs.service";
-
-import { getUserById } from "../services/user.service";
 
 const addContactUs = async (req: Request, res: Response) => {
   if (!(req as UserRequest).user || !(req as UserRequest).user._id) {

@@ -13,7 +13,7 @@ import {
   isAuthorizedSuperAdmin,
 } from "../middlewares/authValidationJWT";
 
-import contactUsValidator from "../validators/contactUsValidator";
+import contactUsValidator from "../validators/contactUs.validator";
 
 const routes = express();
 const upload = multer();

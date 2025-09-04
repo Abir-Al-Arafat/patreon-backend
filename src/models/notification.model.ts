@@ -6,9 +6,30 @@ const notificationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+
+    buyer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+
     admin: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+    },
+
+    serviceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Service",
+    },
+
+    transaction: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Transaction",
     },
 
     status: {
@@ -18,7 +39,7 @@ const notificationSchema = new mongoose.Schema(
     },
     message: {
       type: String,
-      required: true, // Message about the notification
+      required: true,
     },
     isRead: {
       type: Boolean,
@@ -30,7 +51,7 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["service", "forum", "story", "others"],
+      enum: ["service", "wallet", "transaction", "others"],
       default: "others",
     },
   },

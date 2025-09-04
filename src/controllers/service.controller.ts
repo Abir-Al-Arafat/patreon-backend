@@ -12,48 +12,8 @@ import Nootification from "../models/notification.model";
 import Category from "../models/category.model";
 import serviceResponseModel from "../models/serviceResponse.model";
 import { servicePrompt } from "../constants/prompts";
-import Prompt from "../models/prompt.model";
 import { UserRequest } from "./users.controller";
 import { parseStringPromise } from "xml2js";
-const prompt = [
-  {
-    question: "What areas of law do you work in?",
-    answer: "I help with family law and small business legal matters.",
-  },
-  {
-    question: "How would you describe your style?",
-    answer: "I’m friendly, easy to talk to, and always clear.",
-  },
-  {
-    question: "What should I expect if I work with you?",
-    answer: "Open communication, real support, and honest advice.",
-  },
-  {
-    question: "How do you communicate with clients?",
-    answer: "Phone, email, or text — whatever works best for you!",
-  },
-  {
-    question: "Do you offer free consultations?",
-    answer: "Yes, the first consultation is free!",
-  },
-  {
-    question: "What makes you different from other lawyers?",
-    answer: "I truly listen, stay available, and treat every case personally.",
-  },
-  {
-    question: "How long does a typical case take?",
-    answer:
-      "It depends, but I always move things forward quickly and carefully.",
-  },
-  {
-    question: "What are your fees like?",
-    answer: "I’m upfront about all costs — no surprises.",
-  },
-  {
-    question: "Why did you become a lawyer?",
-    answer: "I love helping people through important moments in life.",
-  },
-];
 
 const addService = async (req: Request, res: Response) => {
   try {
@@ -215,6 +175,7 @@ const addService = async (req: Request, res: Response) => {
       type: "service",
       serviceId: newService._id, // service id
       contributor: user._id,
+      user: (req as UserRequest).user._id,
     });
 
     if (!notification) {
@@ -590,7 +551,8 @@ const generateReplyForService = async (req: Request, res: Response) => {
     //   .map((p) => `${p.question} - ${p.answer}`)
     //   .join("\n");
     const reply = await openai.chat.completions.create({
-      model: "deepseek/deepseek-r1:free",
+      // model: "deepseek/deepseek-r1:free",
+      model: "deepseek-chat",
       messages: [
         {
           role: "system",

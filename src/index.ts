@@ -12,6 +12,7 @@ import serviceRouter from "./routes/service.routes";
 import transactionRouter from "./routes/transaction.routes";
 import stripeRouter from "./routes/stripe.routes";
 import contactUsRouter from "./routes/contactUs.route";
+import notificationRouter from "./routes/notification.route";
 import { handleStripeWebhook } from "./controllers/transaction.controller";
 
 const app = express();
@@ -57,6 +58,7 @@ app.use(`${baseApiUrl}/services`, serviceRouter);
 app.use(`${baseApiUrl}/transactions`, transactionRouter);
 app.use(`${baseApiUrl}/stripe`, stripeRouter);
 app.use(`${baseApiUrl}/contact-us`, contactUsRouter);
+app.use(`${baseApiUrl}/notifications`, notificationRouter);
 
 app.get("/", (req, res) => {
   return res.status(200).send({

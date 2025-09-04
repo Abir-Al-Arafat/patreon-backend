@@ -3,7 +3,7 @@ import { Request } from "express";
 
 export interface IUser {
   _id?: ObjectId;
-  name: string;
+  name?: string;
   username: string;
   email: string;
   password?: string;

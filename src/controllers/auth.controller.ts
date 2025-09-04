@@ -356,7 +356,7 @@ const signup = async (req: Request, res: Response) => {
     if (emailCheck) {
       return res
         .status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
-        .send(failure(`User with email: ${req.body.email} already exists`));
+        .send(failure(`${req.body.email} already exists`));
     }
 
     if (userNameCheck) {

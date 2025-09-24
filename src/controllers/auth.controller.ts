@@ -505,6 +505,18 @@ const login = async (req: Request, res: Response) => {
   }
 };
 
+const logout = async (req: Request, res: Response) => {
+  try {
+    res.clearCookie("token");
+    return res.status(HTTP_STATUS.OK).send(success("Logout successful"));
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Internal server error"));
+  }
+};
+
 // const resetPassword = async (req: Request, res: Response) => {
 //   try {
 //     const { phoneNumber, password, confirmPassword } = req.body;
@@ -633,4 +645,5 @@ export {
   verifyEmail,
   resetPassword,
   verifyToken,
+  logout,
 };

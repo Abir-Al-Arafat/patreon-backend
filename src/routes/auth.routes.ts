@@ -4,6 +4,7 @@ import { Request, Response, NextFunction, RequestHandler } from "express";
 import {
   signup,
   login,
+  logout,
   sendVerificationCodeToPhone,
   sendVerificationCodeToEmail,
   verifyCode,
@@ -57,6 +58,7 @@ routes.post(
 );
 // for logging in
 routes.post("/login", upload.none(), authValidator.login, login);
+routes.post("/logout", upload.none(), logout);
 
 routes.post(
   "/reset-password",

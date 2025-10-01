@@ -3,6 +3,7 @@ import { Request, Response, NextFunction, RequestHandler } from "express";
 import {
   getAllUsers,
   getOneUserById,
+  getOneUserByUsername,
   getNotificationsByUserId,
   getAllNotifications,
   updateUserById,
@@ -30,6 +31,8 @@ routes.get("/", isAuthorizedUser, getAllUsers);
 routes.get("/:id", getOneUserById);
 
 routes.get("/auth/profile", isAuthorizedUser, profile);
+
+routes.get("/by-username/:username", getOneUserByUsername);
 
 // /api/users
 

@@ -4,13 +4,13 @@ import User from "../models/user.model";
 
 const signupService = async (userData: any) => {
   const hashedPassword = await bcrypt.hash(userData.password, 10);
-  const randomNumber = Math.floor(1000 + Math.random() * 9000);
-  const username = `${userData.username}${randomNumber}`;
+  // const randomNumber = Math.floor(1000 + Math.random() * 9000);
+  // const username = `${userData.username}${randomNumber}`;
 
   return await User.create({
     name: userData.name,
     email: userData.email,
-    username,
+    username: userData.username,
     roles: userData.roles || "user",
     password: hashedPassword,
     emailVerifyCode: userData.emailVerifyCode,

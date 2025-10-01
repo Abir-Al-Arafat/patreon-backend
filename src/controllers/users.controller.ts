@@ -13,6 +13,8 @@ import Phone from "../models/phone.model";
 import Wallet from "../models/wallet.model";
 import { IUser } from "../interfaces/user.interface";
 
+import { findUserByUsername } from "../services/auth.service";
+
 export interface UserRequest extends Request {
   user: IUser;
 }
@@ -86,6 +88,42 @@ const getOneUserById = async (req: Request, res: Response) => {
       .send(success("Successfully got the user", user));
   } catch (error) {
     return res.status(HTTP_STATUS.BAD_REQUEST).send(`internal server error`);
+  }
+};
+
+const getOneUserByUsername = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.params;
+
+    console.log("username", username);
+
+    if (!username) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Please provide username"));
+    }
+
+    if (username.trim() === "") {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Username cannot be empty"));
+    }
+
+    const user = await findUserByUsername(username);
+    if (!user) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .send(failure("User was not found"));
+    }
+
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Successfully got the user", user));
+  } catch (error) {
+    console.error("Error in getOneUserByUsername:", error);
+    return res
+      .status(HTTP_STATUS.BAD_REQUEST)
+      .send(failure(`internal server error`));
   }
 };
 
@@ -416,6 +454,7 @@ const deleteUserByUser = async (req: Request, res: Response) => {
 export {
   getAllUsers,
   getOneUserById,
+  getOneUserByUsername,
   getNotificationsByUserId,
   getAllNotifications,
   updateUserById,

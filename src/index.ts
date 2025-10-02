@@ -48,6 +48,7 @@ app.use(
 );
 
 app.use("/public", express.static(path.join(__dirname, "public")));
+app.use("/public", express.static(path.join(__dirname, "../public")));
 
 // const baseApiUrl = "/api";
 

@@ -978,7 +978,7 @@ const createTransaction = async (req: Request, res: Response) => {
     }
 
     wallet.transactions.push(transaction._id);
-    wallet.balance += amount_in_gbp;
+    wallet.balance += amount_in_gbp * 0.7;
     await wallet.save();
 
     const notificationPurchaseBuyer = await Notification.create({

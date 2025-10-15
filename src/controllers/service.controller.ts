@@ -704,7 +704,10 @@ const subscribedServices = async (req: Request, res: Response) => {
         .status(HTTP_STATUS.UNAUTHORIZED)
         .send(failure("Please login to access your subscribed services"));
     }
-    const user = await User.findById((req as UserRequest).user._id).populate({
+
+    const userId = (req as UserRequest).user._id;
+
+    const user = await User.findById(userId).populate({
       path: "subscriptions",
       select: "title description price icon category",
       populate: {
@@ -716,10 +719,40 @@ const subscribedServices = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
     }
+
+    // Get services with latest responses
+    const servicesWithResponses = await Promise.all(
+      user.subscriptions.map(async (service: any) => {
+        // Find the latest response for this service and user
+        const latestResponse = await serviceResponseModel
+          .findOne({
+            service: service._id,
+            user: userId,
+          })
+          .sort({ createdAt: -1 })
+          .select("question answer");
+
+        // If service is populated, use toObject; otherwise, use as is
+        const serviceObj =
+          typeof service.toObject === "function" ? service.toObject() : service;
+        if (latestResponse) {
+          serviceObj.latestResponse = {
+            question: latestResponse.question,
+            answer: latestResponse.answer,
+          };
+        } else {
+          serviceObj.latestResponse = null;
+        }
+
+        return serviceObj;
+      })
+    );
+
     return res
       .status(HTTP_STATUS.OK)
-      .send(success("Subscribed services", user.subscriptions));
+      .send(success("Subscribed services", servicesWithResponses));
   } catch (error: any) {
+    console.error("Error fetching subscribed services:", error);
     return res
       .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
       .send(failure("Error fetching subscribed services", error.message));

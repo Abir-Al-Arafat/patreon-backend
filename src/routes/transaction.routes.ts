@@ -9,6 +9,7 @@ import {
   getStripeCustomConnectAccountByUser,
   createCheckoutSession,
   getUserCheckoutSession,
+  getSubscriptionStatus,
   createTransaction,
   subscribeToService,
   getAllTransactions,
@@ -102,5 +103,7 @@ routes.delete(
   isAuthorizedUser,
   deleteStripeConnectAccount
 );
+
+routes.get("/subscription/status", isAuthorizedUser, getSubscriptionStatus);
 
 export default routes;

@@ -14,6 +14,7 @@ import serviceResponseModel from "../models/serviceResponse.model";
 import { servicePrompt } from "../constants/prompts";
 import { UserRequest } from "./users.controller";
 import { parseStringPromise } from "xml2js";
+import { ObjectId } from "mongoose";
 
 const addService = async (req: Request, res: Response) => {
   try {
@@ -759,6 +760,57 @@ const subscribedServices = async (req: Request, res: Response) => {
   }
 };
 
+const unsubscribeServiceByUser = async (req: Request, res: Response) => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .send(failure("Please login to access your subscribed services"));
+    }
+
+    if (!req.params.serviceId) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("Service ID is required"));
+    }
+
+    const serviceId = req.params.serviceId;
+
+    const userId = (req as UserRequest).user._id;
+
+    const user = await User.findById(userId);
+
+    if (!user?.subscriptions.includes(serviceId as any)) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("You are not subscribed to this service"));
+    }
+
+    if (!user) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    }
+
+    // Remove the service from user's subscriptions
+    await User.findByIdAndUpdate(userId, {
+      $pull: { subscriptions: serviceId },
+    });
+
+    // Remove the user from service's subscribers
+    await Service.findByIdAndUpdate(serviceId, {
+      $pull: { subscribers: userId },
+    });
+    const service = await Service.findById(serviceId);
+    return res
+      .status(HTTP_STATUS.OK)
+      .send(success("Unsubscribed successfully", service));
+  } catch (error: any) {
+    console.error("Error: ", error);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Error fetching subscribed services", error.message));
+  }
+};
+
 export {
   addService,
   addFileToService,
@@ -774,4 +826,5 @@ export {
   getRepliesByUser,
   getAllServiceMessagesByUser,
   subscribedServices,
+  unsubscribeServiceByUser,
 };

@@ -941,6 +941,10 @@ const createTransaction = async (req: Request, res: Response) => {
         .send(failure("Transaction already exists"));
     }
 
+    // In createTransaction function, after creating the transaction:
+    const oneMonthFromNow = new Date();
+    oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
+
     const transaction = await Transaction.create({
       payment_intent: session.payment_intent,
       userId: (req as UserRequest).user._id,
@@ -951,6 +955,7 @@ const createTransaction = async (req: Request, res: Response) => {
       amount_total: session.amount_total,
       amount_in_gbp,
       status: "succeeded",
+      expiresAt: oneMonthFromNow,
     });
 
     console.log("Transaction created:", transaction);
@@ -1035,6 +1040,49 @@ const createTransaction = async (req: Request, res: Response) => {
   }
 };
 
+const getSubscriptionStatus = async (req: Request, res: Response) => {
+  try {
+    if (!(req as UserRequest).user || !(req as UserRequest).user._id) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please login"));
+    }
+    console.log(
+      "Fetching subscription status for user:",
+      (req as UserRequest).user._id
+    );
+    const user = await User.findById((req as UserRequest).user._id);
+    if (!user) {
+      return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found"));
+    }
+
+    const userId = (req as UserRequest).user._id;
+    const subscriptions = await Transaction.find({
+      userId,
+      status: "succeeded",
+      isExpired: false,
+      expiresAt: { $gt: new Date() },
+    }).populate("serviceId");
+
+    return res.status(HTTP_STATUS.OK).send(
+      success(
+        "Active subscriptions",
+        subscriptions.map((sub: any) => ({
+          service: sub.serviceId,
+          expiresAt: sub.expiresAt,
+          daysRemaining: Math.ceil(
+            (new Date(sub.expiresAt).getTime() - new Date().getTime()) /
+              (1000 * 60 * 60 * 24)
+          ),
+        }))
+      )
+    );
+  } catch (error: any) {
+    console.error("Error fetching subscription status:", error);
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .send(failure("Failed to get user", error.message));
+  }
+};
+
 const deleteStripeConnectAccount = async (
   req: Request,
   res: Response
@@ -1072,6 +1120,7 @@ export {
   getAllTransactions,
   getTransactionById,
   getTransactionByUser,
+  getSubscriptionStatus,
   createCheckoutSession,
   getUserCheckoutSession,
   createStripeCustomConnectAccount,

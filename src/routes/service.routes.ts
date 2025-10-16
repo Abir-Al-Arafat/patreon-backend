@@ -18,10 +18,7 @@ import {
   getRepliesByUser,
   getAllServiceMessagesByUser,
   subscribedServices,
-  //   disableServiceById,
-  //   enableServiceById,
-  //   approveServiceById,
-  //   cancelServiceById,
+  unsubscribeServiceByUser,
 } from "../controllers/service.controller";
 
 import { success, failure } from "../utilities/common";
@@ -145,33 +142,10 @@ routes.get(
 
 routes.get("/subscribed-services", isAuthorizedUser, subscribedServices);
 
-// routes.get(
-//   "/get-replies-for-service/:serviceId",
-//   isAuthorizedUser,
-//   "/disable-service-by-id/:id",
-//   isAuthorizedAdmin,
-//   disableServiceById
-// );
-
-// routes.patch(
-//   "/enable-service-by-id/:id",
-
-//   isAuthorizedAdmin,
-//   enableServiceById
-// );
-
-// routes.patch(
-//   "/approve-service-by-id/:id",
-
-//   isAuthorizedAdmin,
-//   approveServiceById
-// );
-
-// routes.patch(
-//   "/cancel-service-by-id/:id",
-
-//   isAuthorizedAdmin,
-//   cancelServiceById
-// );
+routes.post(
+  "/unsubscribe/:serviceId",
+  isAuthorizedUser,
+  unsubscribeServiceByUser
+);
 
 export default routes;

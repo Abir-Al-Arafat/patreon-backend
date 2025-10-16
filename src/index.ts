@@ -14,7 +14,7 @@ import stripeRouter from "./routes/stripe.routes";
 import contactUsRouter from "./routes/contactUs.route";
 import notificationRouter from "./routes/notification.route";
 import { handleStripeWebhook } from "./controllers/transaction.controller";
-
+import { initScheduledJobs } from "./schedulers/expireSubscription.schedule";
 const app = express();
 dotenv.config();
 
@@ -87,5 +87,8 @@ const PORT = process.env.PORT || 3001;
 databaseConnection(() => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+
+    // Initialize all scheduled jobs
+    initScheduledJobs();
   });
 });

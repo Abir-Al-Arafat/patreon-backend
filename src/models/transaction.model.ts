@@ -16,6 +16,14 @@ const transactionSchema = new mongoose.Schema(
       enum: ["created", "succeeded", "failed"],
       default: "created",
     },
+    expiresAt: {
+      type: Date,
+      default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+    },
+    isExpired: {
+      type: Boolean,
+      default: false,
+    },
     metadata: mongoose.Schema.Types.Mixed,
   },
   { timestamps: true }
